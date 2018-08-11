@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright (C) 2008,2009  OMRON SOFTWARE Co., Ltd.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources>
+     <string name="app_name">ADVANLIUSHUIXIAN</string>
+    <!-- common part -->
+    <!-- Preferences -->
+    <string name="preference_ime_setting_app">设定</string>
+    <string name="preference_key_setting_menu">键盘设定</string>
+    <string name="preference_key_sound_title">击键音</string>
+    <string name="preference_key_sound_summary">按下键时的声音。</string>
+    <string name="preference_key_vibration_title">击键振动</string>
+    <string name="preference_key_vibration_summary">按下键时的机体振动。</string>
+    <string name="preference_preview_title">键标扩大</string>
+    <string name="preference_preview_summary">按下键时弹出扩大的键位标志。</string>
+    <string name="preference_auto_caps_title">首字母大写</string>
+    <string name="preference_auto_caps_summary">输入英文时文章最前面的字母自动转变为大写字母。</string>
+    <string name="preference_keyboard_skin_title">键盘自定义</string>
+    <string name="preference_keyboard_skin_summary">切换到键盘自定义功能。</string>
+    <string name="preference_conversion_menu">输入设定</string>
+    <string name="preference_prediction_title">预测输入</string>
+    <string name="preference_prediction_summary">显示预测候选字词。</string>
+    <string name="preference_correct_spell_title">错误修正</string>
+    <string name="preference_correct_spell_summary">修正错误输入并显示正确的候补词。</string>
+    <string name="preference_input_learning_title">学习词典</string>
+    <string name="preference_input_learning_summary">将输入的字词保存在学习词典。</string>
+    <string name="preference_aboutime_menu">关于IME</string>
+    <string name="preference_dictionary_menu">词典</string>
+    <string name="preference_dictionary_menu_ja">日语用户词典</string>
+    <string name="preference_dictionary_menu_en">英语用户词典</string>
+    <string name="preference_dictionary_menu_zhcn">中文用户词典</string>
+    <string name="preference_user_dictionary">用户词典</string>
+    <string name="preference_user_dictionary_edit_words_title">单词添加/编辑/删除</string>
+    <string name="preference_user_dictionary_edit_words_summary">编辑用户词典中的单词。</string>
+    <string name="preference_user_dictionary_edit_words_summary_ja">编辑日语用户词典的单词。</string>
+    <string name="preference_user_dictionary_edit_words_summary_en">编辑英语用户词典的单词。</string>
+    <string name="preference_user_dictionary_edit_words_summary_zhcn">编辑中文用户词典的单词。</string>
+    <string name="preference_user_dictionary_clear_learning_title">学习词典初始化</string>
+    <string name="preference_user_dictionary_clear_learning_summary">清空学习词典的内容。</string>
+    <string name="preference_user_dictionary_clear_user_title">用户词典初始化</string>
+    <string name="preference_user_dictionary_clear_user_summary">清空用户词典的内容。</string>
+
+    <!-- Dialog Messages -->
+    <string name="dialog_button_ok">确定</string>
+    <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_close">关闭</string>
+    <string name="dialog_clear_user_dictionary_message">删除所有用户词典的内容吗？</string>
+    <string name="dialog_clear_learning_dictionary_message">删除所有学习词典的内容吗？</string>
+    <string name="dialog_clear_user_dictionary_done">已经删除了所有用户词典的内容。</string>
+    <string name="dialog_clear_learning_dictionary_done">已经删除了所有学习词典的内容。</string>
+
+    <!-- user dictionary -->
+    <string name="user_dictionary_list_words">单词一览</string>
+    <string name="user_dictionary_list_words_en">英语用户词典 单词一览</string>
+    <string name="user_dictionary_list_words_ja">日语用户词典 单词一览</string>
+    <string name="user_dictionary_list_words_zhcn">中文用户词典 单词一览</string>
+    <string name="user_dictionary_edit_words">单词编辑</string>
+    <string name="user_dictionary_title_read">读音</string>
+    <string name="user_dictionary_title_candidate">候补词</string>
+    <string name="user_dictionary_add">添加</string>
+    <string name="user_dictionary_edit">编辑</string>
+    <string name="user_dictionary_delete">删除</string>
+    <string name="user_dictionary_delete_confirm">删除选择的单词吗？</string>
+    <string name="user_dictionary_delete_complete">已经删除。</string>
+    <string name="user_dictionary_delete_fail">删除失败。</string>
+    <string name="user_dictionary_words_duplication_message">已经添加过这个单词。</string>
+    <string name="user_dictionary_over_max_text_size_message">单词过长。</string>
+    <string name="user_dictionary_creating_wordlist">生成中</string>
+    <string name="user_dictionary_init">用户词典初始化</string>
+
+    <!-- IME dependency -->
+    <!-- OpenWnn English -->
+    <string name="openwnn_english">OpenWnn 英语输入法</string>
+
+    <!-- OpenWnn Japanese -->
+    <string name="openwnn_japanese">OpenWnn 日语输入法</string>
+
+    <!-- OpenWnn Chinese -->
+    <string name="openwnn_chinese">中文蓝牙输入法</string>
+    <string name="button_candidate_select">选择</string>
+    <string name="button_candidate_delete">删除</string>
+    <string name="button_candidate_cancel">关闭</string>
+    
+<!--     scpark  -->
+
+    <string name="button_english">英</string>
+    <string name="button_chinese">中</string>
+    <string name="textView_set_wel1">欢迎使用蓝牙输入法!</string>
+    <string name="textView_set_wel">欢迎使用测试版本的蓝牙输入法，此版本仅供测试，如果商用出现问题概不负责。感谢支持！</string>
+	<string name="textView_set_jihuo">第一步：激活输入法</string>
+    <string name="button_set_gouxuan">  勾选     </string>
+    <string name="textView_set_openblue">第二步：开启蓝牙</string>
+    <string name="button_set_openblue">开启蓝牙</string>
+    <string name="textView_set_conblue">第三步：设置需要连接的蓝牙设备</string>
+    <string name="button_set_setblue">设置蓝牙</string>
+    <string name="textView_set_choiceblue">第四步：选择蓝牙输入法</string>
+	<string name="button_set_choiceblue">选择输入法</string>
+	<string name="textView_set_ceshi"> 第五步：测试与激活</string>
+   	<string name="button_set_ceshi">测试</string>
+   	<string name="button_set_close"> 完  成 </string>
+   	<string name="textView_con_1">正在获取扫描器信息 </string>
+   	<string name="textView_con_2">请先连接扫描器 </string>
+   	<string name="textView_con_3">蓝牙没开启</string>
+   	<string name="textView_con_4">蓝牙连接成功 </string>
+   	<string name="textView_con_5">蓝牙连接失败</string>
+   	<string name="textView_con_6">选择连接的蓝牙设备</string>
+   	<string name="textView_con_7">连接蓝牙</string>
+   	
+   	<string name="button_back">返回</string>
+   	<string name="textView_ceshi">测试</string>
+   	<string name="textView_clean">清空</string>
+   	<string name="textView_title">单击此处开始测试与激活</string>
+   	
+   	<string name="function_setting">条码配置</string>
+   	<string name="send_device">发送命令配置扫描器</string>
+   	<string name="get_device">读取扫描器信息</string>
+   	<string name="device_function">扫描器功能</string>
+   	<string name="choice_code">选择字符集</string>
+   	<string name="function">功能</string>
+   	
+   	<string name="send_1">SPP蓝牙名称</string>
+   	<string name="send_2">HID蓝牙名称</string>
+   	<string name="send_3">前缀字符</string>
+   	<string name="send_4">后缀字符</string>
+   	<string name="send_5">触发模式</string>
+   	<string name="send_6">读取条码测试时间</string>
+   	<string name="send_7">无解码超时</string>
+   	<string name="send_75">无解码输出</string>
+   	<string name="send_8">同一条解码纠错</string>
+   	<string name="send_9">蜂鸣器声音</string>
+   	<string name="send_10">LED开关</string>
+   	<string name="send_11">输出方式</string>
+   	<string name="send_12">休眠时间</string>
+   	<string name="send_13">39码设置</string>
+	<string name="send_14">128码设置</string>
+   	<string name="send_15">Codabar码设置</string>
+   	<string name="send_16">i25码设置</string>
+	<string name="send_17">UPC/EAN码设置</string>
+	
+   	<string name="send_18">产品硬件ID</string>
+   	<string name="send_19">电池信息</string>
+   	<string name="send_20">读取版本信息</string>
+   	
+	<string name="send_21">开始扫描</string>
+	<string name="send_22">关闭休眠时间</string>
+	<string name="send_23">打开读取数据</string>
+	<string name="send_24">关闭读取数据</string>
+	<string name="send_25">还原默认设置</string>
+	
+	<string name="tiaoma_1">蓝牙输出，扫描器的默认输出模式，扫描此条码，可以让扫描器通过蓝牙方式传输数据</string>
+	<string name="tiaoma_2">USB输出，扫描此条码，可以让扫描器通过USB方式传输数据</string>
+	<string name="tiaoma_3">蓝牙配对模式，扫描此条码，可以让扫描器进入蓝牙配对状态，让移动设备或者蓝牙适配器，搜索到扫描器</string>
+	<string name="tiaoma_4">开启离线扫描，扫描此条码，开启离线扫描模式，扫描的数据存储于扫描器中，不对外输出，开启后，每次扫描会有声音提示，说明已经扫描成功，并存入到扫描器中</string>
+	<string name="tiaoma_5">上传存储内容，扫描此条码，输出扫描器中通过离线扫描获取的所有数据。没上传一条，都会有声音提示，说明数据上传输出成功</string>
+	<string name="tiaoma_6">统计存储条数，扫描此条码，输出扫描器中存储条码的总数</string>
+	<string name="tiaoma_7">清除存储内容，扫描此条码，清空扫描器中所有的数据</string>
+	<string name="tiaoma_8">关闭离线扫描，扫描此条码，关闭离线扫描。注意：开启离线扫描后，如果不使用离线扫描，一定要关闭离线扫描，否则数据会一直存入到扫描器中</string>
+	<string name="tiaoma_9">条码配置</string>
+	<string name="tiaoma_10">离线扫描</string>
+	<string name="tiaoma_11">条码列表</string>
+	
+<!--    	jianpan -->
+   	<string name="jianpan_shebei">设备</string>
+   	<string name="jianpan_scan">开启扫描</string>
+   	<string name="jianpan_fuction">功能</string>
+   	<string name="jianpan_help">帮助</string>
+   	<string name="jianpan_cblue">连接蓝牙</string>
+   	<string name="jianpan_dcblue">断开蓝牙</string>
+   	<string name="jianpan_set">设置</string>
+   	
+   	
+   	<string name="command_128_name">128码设置</string>
+      <string name="command_128_state">128码状态</string>
+      <string name="command_128_minlength">128码条码的最小字符长度，范围0~32</string>
+      <string name="command_button_submit">提交</string>
+      <string name="command_button_cancel">取消</string>
+      
+      <string name="command_39_name">39码设置</string>
+      <string name="command_39_state_switch">39码状态开关</string>
+      <string name="command_39_checkcode_state">39码效验码状态</string>
+      <string name="command_39_checkcode_display">39码效验码显示时能</string>
+      <string name="command_39_support_ascii">39码全ASCII码支持</string>
+      <string name="command_39_minlength">39条码最小字符长度，范围0~32</string>
+      
+      <string name="command_chufa2_name">触发模式</string>
+      <string name="command_chufa2_mode1">连续读取模式</string>
+      <string name="command_chufa2_mode2">连续读取一次输出</string>
+      <string name="command_chufa2_mode3">电平触发模式</string>
+      <string name="command_chufa2_mode4">边沿触发模式</string>
+      <string name="command_chufa2_mode5">串口触发模式</string>
+
+      <string name="command_codabar_name">Codabar码设置</string>
+      <string name="command_codabar_state">Codabar码状态</string>
+      <string name="command_codabar_string_display">Codabar开始和接触字符显示使能</string>
+      <string name="command_codabar_checkcode_display">Codabar码效验码显示使能</string>
+      <string name="command_codabar_support_ascii">Codabar码全ASCII码支持</string>
+      <string name="command_codabar_minlength">Codabar码条码最小字符长度，范围0~32</string>
+      
+      <string name="command_dutime_name">读取条码测试时间</string>
+      <string name="command_dutime_switch">开关状态</string>
+      
+      <string name="command_hid_name">HID蓝牙名称</string>
+      <string name="command_hid_input">请输入英文或者数字</string>
+      
+      <string name="command_i25_name">i25码设置</string>
+      <string name="command_i25_state">i25码状态</string>
+      <string name="command_i25_checkcode_state">i25码效验码状态</string>
+      <string name="command_i25_checkcode_display">i25码效验码显示使能</string>
+      <string name="command_i25_minlength">i25码条码最小字符长度，范围0~32</string>
+      
+      <string name="command_inputtype_name">输出方式</string>
+      <string name="command_inputtype_mode1">串口方式</string>
+      <string name="command_inputtype_mode2">USBHID键盘方式</string>
+      <string name="command_inputtype_mode3">蓝牙接口</string>
+      <string name="command_inputtype_mode4">USB背夹模式</string>
+      
+      <string name="command_voice_1">关闭</string>
+      <string name="command_voice_2">高</string>
+      <string name="command_voice_3">中</string>
+      <string name="command_voice_4">低</string>
+      
+      <string name="command_led_name">LED开关</string>
+      <string name="command_led_switch">LED开关状态</string>
+      
+      <string name="command_nocode_name">无解码输出</string>
+      <string name="command_nocode_switch">状态开关</string>
+      <string name="command_nocode_output">无解码时需要输出的字符</string>
+      
+      <string name="command_nocodetime_name">无解码超时</string>
+      <string name="command_nocodetime_input">请输入1~4095的数字</string>
+      
+      <string name="command_prefix_name">前缀字符</string>
+      <string name="command_prefix_switch">状态开关</string>
+      <string name="command_prefix_add">添加的前缀字符,长按更多选项</string>
+      <string name="command_prefix_delete">删除当前字符</string>
+      <string name="command_prefix_set">自定义字符</string>
+      <string name="command_button_operation">操作</string>
+      <string name="command_button_string">字符</string>
+      <string name="command_prefix_input_ascii">请输入字符的ASCII码，范围0-127</string>
+      
+      <string name="command_spp_name">SPP蓝牙名称</string>
+      <string name="command_spp_input">请输入英文或者数字</string>
+      
+      <string name="command_suffix_name">后缀字符</string>
+      <string name="command_suffix_add">添加的后缀字符,长按更多选项</string>
+      
+      <string name="command_upcean_name">UPC/EAN码设置</string>
+      <string name="command_upcean_state_upca">UPC-A码状态</string>
+      <string name="command_upcean_state_upce">UPC-E码状态</string>
+      <string name="command_upcean_state_ean8">EAN-8码状态</string>
+      <string name="command_upcean_state_ean13">EAN-13码状态</string>
+      <string name="command_upcean_state_upcean_add">UPC/EAN码附加码状态</string>
+      <string name="command_upcean_state_upcean2_add">UPC/EAN码2字符附加码状态</string>
+      <string name="command_upcean_switch_upcean5_add">UPC/EAN码5字符附加码开关</string>
+      <string name="command_upcean_minlength">UPC/EAN码最小条码长度，范围0~32</string>
+      
+      <string name="command_update_name">同一条码解码纠错</string>
+      <string name="command_update_input">同一条码解码纠错</string>
+      
+      <string name="command_vioce_name">蜂鸣器开关</string>
+      <string name="command_vioce_input">请输入表示0-10</string>
+      
+      <string name="command_xmtime_name">休眠时间</string>
+      <string name="command_xmtime_time">休眠时间，范围0~240</string>
+
+</resources>

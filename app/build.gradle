@@ -1,0 +1,81 @@
+project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
+project.ext.TMP_DIR = project.buildDir.toString() + '/downloads'
+//apply from: "download-models.gradle"
+apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.busradeniz.detection"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+//        greendao {
+//            schemaVersion 1
+//            targetGenDir 'src/main/java'
+//        }
+
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs = [project.ext.ASSET_DIR]
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    productFlavors {
+    }
+
+
+}
+
+
+greendao {
+    schemaVersion 1 //数据库版本号
+    daoPackage 'com.busradeniz.detection.greendaodemo.db'// 设置DaoMaster、DaoSession、Dao 包名
+    targetGenDir 'src/main/java'//设置DaoMaster、DaoSession、Dao目录
+}
+
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation 'org.tensorflow:tensorflow-android:+'
+    implementation 'com.wonderkiln:camerakit:0.12.0'
+    implementation files('libs/d2xx.jar')
+    implementation files('libs/UsbMethodSDK.jar')
+    implementation 'com.squareup.retrofit2:retrofit:2.0.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'org.greenrobot:greendao:3.2.0'
+    implementation project(path: ':openCVLibrary342', configuration: 'default')
+    implementation 'com.github.limuyang2.LDialog:ldialog:1.0'
+    implementation 'com.github.limuyang2.LDialog:custom_ldialog:1.0'
+    implementation project(':library')
+    implementation 'com.github.dfqin:grantor:2.1.0'
+    implementation 'io.reactivex:rxjava:1.1.5'
+    implementation 'io.reactivex:rxandroid:1.2.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="red">#EA0000</color>
+    <color name="grey">#808080</color><!--灰色 -->
+    <color name="olive">#808000</color><!--橄榄色 -->
+    <color name="purple">#800080</color><!--紫色 -->
+    <color name="maroon">#800000</color><!--粟色 -->
+    <color name="aquamarine">#7FFFD4</color><!--碧绿色 -->
+    <color name="chartreuse">#7FFF00</color><!--黄绿色 -->
+    <color name="lawngreen">#7CFC00</color><!--草绿色 -->
+    <color name="mediumslateblue">#7B68EE</color><!--中暗蓝色 -->
+    <color name="lightslategray">#778899</color><!--亮蓝灰 -->
+    <color name="F7F7F7">#F7F7F7</color>
+    <color name="ffffff">#ffffff</color>
+    <color name="color_2e2e2e">#2e2e2e</color>
+    <color name="e4e4e4">#e4e4e4</color>
+    <color name="btn_enabled_false_primary">#c7c7c7</color>
+    <color name="stroke_primary">#e7e8e9</color>
+    <color name="btn_pressed_true_primary">#ededed</color>
+    <color name="btn_normal_primary">#ffffff</color>
+    <color name="text_black_primary">#2b2c2d</color>
+    <color name="text_gray_primary">#c7c7c7</color>
+    <color name="color_358fc1">#358fc1</color>
+    <color name="color_242525">#242525</color>
+    <color name="color_e4e4e4">#e4e4e4</color>
+    <color name="hint_text">#cccccc</color>
+    <color name="transparent">#D9ffffff</color>
+    <color name="color_585858">#585858</color>
+    <color name="color_3a5a89">#3a5a89</color>
+
+</resources>

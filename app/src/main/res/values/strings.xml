@@ -1,0 +1,546 @@
+<resources>
+    <string name="app_name">andorid-tensorflow-detection</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
+    <string name="baudRate">Baud rate</string>
+    <string-array name="baud_rate_1">
+        <item>300</item>
+        <item>600</item>
+        <item>1200</item>
+        <item>4800</item>
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
+        <item>230400</item>
+        <item>460800</item>
+        <item>921600</item>
+    </string-array>
+
+    <string-array name="baud_rate_2">
+        <item>300</item>
+        <item>600</item>
+        <item>1200</item>
+        <item>4800</item>
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
+    </string-array>
+
+    <string-array name="stop_bits">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="data_bits">
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="parity">
+        <item>None</item>
+        <item>Odd</item>
+        <item>Even</item>
+        <item>Mark</item>
+        <item>Space</item>
+    </string-array>
+
+    <string-array name="flow_control">
+        <item>None</item>
+        <item>CTS/RTS</item>
+        <item>DTR/DSR</item>
+        <item>XOFF/XON</item>
+    </string-array>
+
+    <string-array name="port_list_1">
+        <item>0</item>
+    </string-array>
+
+
+    <string-array name="port_list_2">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="port_list_3">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="port_list_4">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="port_list_5">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="port_list_6">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="port_list_7">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="port_list_8">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+
+    <!-- common part -->
+    <!-- Engine -->
+
+    <string name="action_settings">action_settings</string>
+    <string name="openwnn_system_dictionary_japanese">/data/data/com.googlecode.openwnn.legacy/lib/libWnnJpnDic.so</string>
+    <string name="openwnn_writable_dictionary_japanese">/data/data/com.googlecode.openwnn.legacy/writableJAJP.dic</string>
+    <string name="openwnn_system_dictionary_english">/data/data/com.googlecode.openwnn.legacy/lib/libWnnEngDic.so</string>
+    <string name="openwnn_writable_dictionary_english">/data/data/com.googlecode.openwnn.legacy/writableEN.dic</string>
+
+    <!-- Preferences -->
+    <string name="preference_ime_setting_app">Setting</string>
+    <string name="preference_key_setting_menu">Software Keyboard</string>
+    <string name="preference_key_sound_title"> Sound on Key Press </string>
+    <string name="preference_key_sound_summary"> Enable key click sound. </string>
+    <string name="preference_key_vibration_title"> Vibrate on Key Press </string>
+    <string name="preference_key_vibration_summary"> Enable key click vibration. </string>
+    <string name="preference_preview_title"> Key Preview </string>
+    <string name="preference_preview_summary"> Enable key preview. </string>
+    <string name="preference_auto_caps_title"> Auto Capitalization </string>
+    <string name="preference_auto_caps_summary"> Automatically capitalize the 1st char of a sentence in alphabet mode. </string>
+    <string name="preference_keyboard_skin_title">Keyboard Image</string>
+    <string name="preference_keyboard_skin_summary">Change keyboard image.</string>
+    <string name="preference_keyboard_android_default">Standard</string>
+    <string name="preference_keyboard_simple">Simple</string>
+    <string name="preference_keyboard_metal">Metal</string>
+    <string name="preference_conversion_menu">Conversion</string>
+    <string name="preference_prediction_title">Word Prediction</string>
+    <string name="preference_prediction_summary">Display predicted words as conversion candidates.</string>
+    <string name="preference_correct_spell_title">Typing Error Correction</string>
+    <string name="preference_correct_spell_summary">Display predicted words for correcting typing error.</string>
+    <string name="preference_input_learning_title">Input Word Learning</string>
+    <string name="preference_input_learning_summary">Learn input words.</string>
+    <string name="preference_aboutime_menu"> About IME </string>
+    <string name="preference_dictionary_menu"> Dictionary </string>
+    <string name="preference_dictionary_menu_ja"> Japanese User Dictionary </string>
+    <string name="preference_dictionary_menu_en"> English User Dictionary </string>
+    <string name="preference_dictionary_menu_zhcn"> Chinese User Dictionary </string>
+    <string name="preference_user_dictionary">User Dictionary</string>
+    <string name="preference_user_dictionary_edit_words_title">User Dictionary</string>
+    <string name="preference_user_dictionary_edit_words_summary">List/add/edit/delete words in user dictionary.</string>
+    <string name="preference_user_dictionary_edit_words_summary_ja">List/add/edit/delete words in Japanese user dictionary.</string>
+    <string name="preference_user_dictionary_edit_words_summary_en">List/add/edit/delete words in English user dictionary.</string>
+    <string name="preference_user_dictionary_edit_words_summary_zhcn">List/add/edit/delete words in Chinese user dictionary.</string>
+    <string name="preference_user_dictionary_clear_learning_title">Clear Learning Dictionary</string>
+    <string name="preference_user_dictionary_clear_learning_summary">Remove all words from learning dictionary.</string>
+    <string name="preference_user_dictionary_clear_user_title">Clear User Dictionary</string>
+    <string name="preference_user_dictionary_clear_user_summary">Remove all words from user dictionary.</string>
+
+    <!-- Dialog Messages -->
+    <string name="dialog_button_ok">OK</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_close">Close</string>
+    <string name="dialog_clear_user_dictionary_message">Clear user dictionary?</string>
+    <string name="dialog_clear_learning_dictionary_message">Clear learning dictionary?</string>
+    <string name="dialog_clear_user_dictionary_done">Cleared.</string>
+    <string name="dialog_clear_learning_dictionary_done">Cleared.</string>
+
+    <!-- user dictionary -->
+    <string name="user_dictionary_list_words">Registered words</string>
+    <string name="user_dictionary_list_words_en">Registered words in English User Dic</string>
+    <string name="user_dictionary_list_words_ja">Registered words in Japanese User Dic</string>
+    <string name="user_dictionary_list_words_zhcn">Registered words in Chinese User Dic</string>
+    <string name="user_dictionary_edit_words">Edit</string>
+    <string name="user_dictionary_title_read">Reading</string>
+    <string name="user_dictionary_title_candidate">Word</string>
+    <string name="user_dictionary_add">Add</string>
+    <string name="user_dictionary_edit">Edit</string>
+    <string name="user_dictionary_delete">Delete</string>
+    <string name="user_dictionary_delete_confirm">Delete the selected word?</string>
+    <string name="user_dictionary_delete_complete">Deleted.</string>
+    <string name="user_dictionary_delete_fail">Fail to delete it</string>
+    <string name="user_dictionary_words_duplication_message">Already registered.</string>
+    <string name="user_dictionary_over_max_text_size_message">Length of the string exceeds the limit.</string>
+    <string name="user_dictionary_creating_wordlist">Loading</string>
+    <string name="user_dictionary_init">Initialize?</string>
+    <string name="user_dictionary_prev_button">　≪　</string>
+    <string name="user_dictionary_next_button">　≫　</string>
+
+    <!-- IME dependency -->
+    <!-- OpenWnn English -->
+    <string name="openwnn_english_copyright">Ver.1.0.0\Scpark , Ltd.</string>
+    <string name="openwnn_english">OpenWnn English</string>
+    <string name="openwnn_english_system_dictionary">/data/data/com.googlecode.openwnn.legacy/lib/libWnnEngDic.so</string>
+    <string name="openwnn_english_writable_dictionary">/data/data/com.googlecode.openwnn.legacy/writableEN.dic</string>
+    <string name="en_word_separators">.,;:!?</string>
+
+    <!-- OpenWnn Japanese -->
+    <string name="openwnn_japanese_copyright">Ver.1.3.1\Scpark , Ltd.</string>
+    <string name="openwnn_japanese">Japanese IME</string>
+    <string name="openwnn_japanese_system_dictionary">/data/data/com.googlecode.openwnn.legacy/lib/libWnnJpnDic.so</string>
+    <string name="openwnn_japanese_writable_dictionary">/data/data/com.googlecode.openwnn.legacy/writableJAJP.dic</string>
+
+    <!-- OpenWnn Chinese -->
+    <string name="openwnn_chinese_copyright">Ver.1.3.1\Scpark, Ltd.</string>
+    <string name="openwnn_chinese">Blue Chinese</string>
+    <string name="openwnn_chinese_system_dictionary">/data/data/com.googlecode.openwnn.legacy/lib/libWnnZHCNDic.so</string>
+    <!-- After Config Change -->
+    <string name="openwnn_chinese_writable_dictionary">/data/data/com.googlecode.openwnn.legacy/writableZHCN.dic</string>
+    <string name="cn_word_separators">.,;:!?</string>
+
+    <!-- Candidate Delete -->
+    <string name="button_candidate_select">Select</string>
+    <string name="button_candidate_delete">Delete learning?</string>
+    <string name="button_candidate_cancel">Close</string>
+
+    <!-- Key top -->
+    <string name="key_left_arrow">↤</string>
+    <string name="key_right_arrow">↦</string>
+    <string name="key_space">スペース</string>
+    <string name="key_space_conv">スペース/変換</string>
+    <string name="key_change_mode">文字</string>
+    <string name="key_convert">変換</string>
+    <string name="key_switch_keyboard">KBD</string>
+    <string name="key_12key_A">゛゜ 大小</string>
+    <string name="key_12key_kutoten">、。</string>
+    <string name="key_12key_eisuu_kana">英数カナ</string>
+    <string name="key_12key_alphabet_1">.＠ １</string>
+    <string name="key_12key_alphabet_2">ABC ２</string>
+    <string name="key_12key_alphabet_3">DEF ３</string>
+    <string name="key_12key_alphabet_4">GHI ４</string>
+    <string name="key_12key_alphabet_5">JKL ５</string>
+    <string name="key_12key_alphabet_6">MNO ６</string>
+    <string name="key_12key_alphabet_7">PQRS ７</string>
+    <string name="key_12key_alphabet_8">TUV ８</string>
+    <string name="key_12key_alphabet_9">WXYZ ９</string>
+    <string name="key_12key_alphabet_0">- ０</string>
+    <string name="key_12key_alphabet_A">A/a</string>
+    <string name="key_12key_katakana_1">ア</string>
+    <string name="key_12key_katakana_2">カ</string>
+    <string name="key_12key_katakana_3">サ</string>
+    <string name="key_12key_katakana_4">タ</string>
+    <string name="key_12key_katakana_5">ナ</string>
+    <string name="key_12key_katakana_6">ハ</string>
+    <string name="key_12key_katakana_7">マ</string>
+    <string name="key_12key_katakana_8">ヤ</string>
+    <string name="key_12key_katakana_9">ラ</string>
+    <string name="key_12key_katakana_0">ワ</string>
+    <string name="key_12key_1">あ 1.＠</string>
+    <string name="key_12key_2">か 2 ABC</string>
+    <string name="key_12key_3">さ 3 DEF</string>
+    <string name="key_12key_4">た 4 GHI</string>
+    <string name="key_12key_5">な 5 JKL</string>
+    <string name="key_12key_6">は 6 MNO</string>
+    <string name="key_12key_7">ま 7 PQRS</string>
+    <string name="key_12key_8">や 8 TUV</string>
+    <string name="key_12key_9">ら 9 WXYZ</string>
+    <string name="key_12key_0">わ 0 -</string>
+    <string name="key_qwerty_tyouon">ー</string>
+    <string name="key_qwerty_full_touten">、</string>
+    <string name="key_qwerty_full_kuten">。</string>
+    <string name="key_qwerty_full_question">？</string>
+    <string name="key_qwerty_full_comma">，</string>
+    <string name="key_qwerty_full_period">．</string>
+    <string name="key_qwerty_full_at_sign">＠</string>
+    <string name="key_qwerty_full_number_sign">＃</string>
+    <string name="key_qwerty_full_percent_sign">％</string>
+    <string name="key_qwerty_full_ampersand">＆</string>
+    <string name="key_qwerty_full_asterrisk">＊</string>
+    <string name="key_qwerty_full_plus_sign">＋</string>
+    <string name="key_qwerty_full_minus_sign">－</string>
+    <string name="key_qwerty_full_equal_sign">＝</string>
+    <string name="key_qwerty_kagi_kakko_left">「</string>
+    <string name="key_qwerty_kagi_kakko_right">」</string>
+    <string name="key_qwerty_full_exclamation_mark">！</string>
+    <string name="key_qwerty_full_left_parenthesis">（</string>
+    <string name="key_qwerty_full_right_parenthesis">）</string>
+    <string name="key_qwerty_full_colon">：</string>
+    <string name="key_qwerty_full_semicolon">；</string>
+    <string name="key_qwerty_full_middot">・</string>
+    <string name="key_qwerty_full_thilde">～</string>
+    <string name="key_qwerty_full_double_quotation_sign">”</string>
+    <string name="key_qwerty_full_plus_minus_sign">±</string>
+    <string name="key_qwerty_full_underscore">＿</string>
+    <string name="key_qwerty_full_left_curly_blacket">｛</string>
+    <string name="key_qwerty_full_right_curly_blacket">｝</string>
+    <string name="key_qwerty_full_vertical_bar">｜</string>
+    <string name="key_qwerty_full_less_than_sign">＜</string>
+    <string name="key_qwerty_full_greater_than_sign">＞</string>
+    <string name="key_qwerty_full_left_single_quote">‘</string>
+    <string name="key_qwerty_full_right_single_quote">’</string>
+    <string name="key_qwerty_full_back_slash">＼</string>
+    <string name="key_qwerty_full_dollar_sign">＄</string>
+    <string name="key_qwerty_full_yen_sign">￥</string>
+    <string name="key_qwerty_full_hat">＾</string>
+    <string name="key_qwerty_full_slash">／</string>
+    <string name="key_12key_switch_full_hiragana">あ</string>
+    <string name="key_12key_switch_full_katakana">カ</string>
+    <string name="key_12key_switch_full_alphabet">Ａ</string>
+    <string name="key_12key_switch_full_number">１</string>
+    <string name="key_12key_switch_half_katakana">ｶﾅ</string>
+    <string name="key_12key_switch_half_alphabet">AB</string>
+    <string name="key_12key_switch_half_number">12</string>
+    <string name="key_12key_switch_pinyin">中</string>
+    <!-- 蓝牙按钮的代码 -->
+    <string name="key_12key_switch_blue">蓝牙</string>
+    <string name="key_qwerty_half_comma">､</string>
+    <string name="key_qwerty_half_period">｡</string>
+    <string name="key_qwerty_half_tyouon">ｰ</string>
+    <string name="key_12key_undo">Undo</string>
+    <string name="indicator_caps">CAPS</string>
+    <string name="indicator_alt">ALT</string>
+
+    <!-- Tutorial -->
+    <string name="touch_to_continue">Next »</string>
+    <string name="touch_to_try">Try it on the button below.</string>
+    <string name="touch_to_finish">Try typing and using the keyboard yourself!</string>
+    <string name="tip_to_step1"><b>Like a normal mobile keyboard, tapping ○ three times will result\nin *C*.</b></string>
+    <string name="tip_to_step2_a"><b>For example, let\'s type \"hi.\"\n- Tap ○ twice to get \"h\"</b></string>
+    <string name="tip_to_step2_b"><b>\n- Tap → to advance to the right</b></string>
+    <string name="tip_to_step2_c"><b>\n- Tap ○ three times to get \"i\"</b></string>
+    <string name="tip_to_step2_d"><b>\n- Use touch or ↓ to set the word.</b></string>
+    <string name="tip_to_step3_a"><b>The ■ key switches between Japanese, English, and number input.</b></string>
+    <string name="tip_to_step3_b"><b>We\'ve switched from English to numbers. Next is Japanese.</b></string>
+    <string name="tip_to_step3_c"><b>Let\'s return to English now.</b></string>
+    <string name="tip_to_step4"><b>For other input modes (like full width)\nor a PC style keyboard, hold ■\nfor 3 seconds to show the input menu.</b></string>
+    <string name="tip_to_step5"><b>When you\'re done typing, hit the \"back\" key (←) to close the keyboard.</b></string>
+    <string name="tip_to_step6"><b>This is the end of the tutorial.</b></string>
+    <string name="tip_en_to_open_keyboard"><b>The keyboard opens any time you touch a text field.</b></string>
+    <string name="tip_en_to_close_keyboard"><b>Press \"back\" (←) to close the keyboard.</b></string>
+    <string name="tip_en_end_of_tutorial"><b>This is the end of the tutorial.</b></string>
+    <string name="application_label">BIM</string>
+    <string name="key_symbol">SYM</string>
+    <string name="key_cn_symbol">ALT</string>
+    <string name="key_jp_symbol">記号</string>
+    <string name="key_alt">ALT</string>
+
+    <style name="CustomDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+    </style>
+
+    <style name="CustomProgressDialog" parent="@style/CustomDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <string name="button_english">En</string>
+    <string name="button_chinese">Cn</string>
+    <string name="textView_set_wel1">Welcome to Bluetooth input</string>
+    <string name="textView_set_wel">欢迎使用测试版本的蓝牙输入法，此版本仅供测试，如果商用出现问题概不负责。感谢支持！</string>
+    <string name="textView_set_jihuo">The first step：The activation of input method</string>
+    <string name="button_set_gouxuan">Choose</string>
+    <string name="textView_set_openblue">The second step: open the Bluetooth and matching equipment,matching number is 1234</string>
+    <string name="button_set_openblue">Open</string>
+    <string name="textView_set_conblue">The third step：through the bluetooth equipment list，Select connect to Bluetooth devices</string>
+    <string name="button_set_setblue">Select</string>
+    <string name="textView_set_choiceblue">The fourth step：Select the Bluetooth input method</string>
+    <string name="button_set_choiceblue">Select</string>
+    <string name="textView_set_ceshi">The fifth step：Testing and activation</string>
+    <string name="button_set_ceshi">Test</string>
+    <string name="button_set_close">Finish</string>
+    <string name="textView_con_1">Getting the scanner data</string>
+    <string name="textView_con_2">please connect the scanner</string>
+    <string name="textView_con_3">Bluetooth  disenable</string>
+    <string name="textView_con_4">Activation successful</string>
+    <string name="textView_con_5">Activation failed</string>
+    <string name="textView_con_6">Bluetooth devices</string>
+    <string name="textView_con_7">connecting</string>
+    <string name="button_back">Back</string>
+    <string name="textView_ceshi">Test</string>
+    <string name="textView_clean">Clean</string>
+    <string name="textView_title">Click here to start testing and activation</string>
+    <string name="function_setting">Barcode configuration</string>
+    <string name="send_device">Scanner Setting</string>
+    <string name="get_device">Scanner Information</string>
+    <string name="device_function">Scanner Function</string>
+    <string name="choice_code">Choice code</string>
+    <string name="function">Function</string>
+    <string name="send_1">SPP Bluetooth Name</string>
+    <string name="send_2">HID Bluetooth Name</string>
+    <string name="send_3">Prefix Character</string>
+    <string name="send_4">Suffix character</string>
+    <string name="send_5">Trigger Mode</string>
+    <string name="send_6">TTR</string>
+    <string name="send_7">No Decode TimeOut</string>
+    <string name="send_75">No decoding output</string>
+    <string name="send_8">The same code decoding error correction</string>
+    <string name="send_9">Buzzer</string>
+    <string name="send_10">LED</string>
+    <string name="send_11">Output model</string>
+    <string name="send_12">Sleep Time</string>
+    <string name="send_13">Code 39</string>
+    <string name="send_14">Code 128</string>
+    <string name="send_15">Codabar</string>
+    <string name="send_16">Code i25</string>
+    <string name="send_17">UPC/EAN</string>
+    <string name="send_18">Hardware ID</string>
+    <string name="send_19">Battery</string>
+    <string name="send_20"> Version</string>
+    <string name="send_21">Start Scan</string>
+    <string name="send_22">Close Sleep</string>
+    <string name="send_23">Open Read</string>
+    <string name="send_24">Close Read</string>
+    <string name="send_25">Resume Default Setting</string>
+    <string name="tiaoma_1">Bluetooth output,the default output scanner,scan the barcode,can let the scanner via Bluetooth transmission of data</string>
+    <string name="tiaoma_2">The USB output,scan the barcode,can let the scanner through the USB transmission of data</string>
+    <string name="tiaoma_3">Bluetooth pairing mode,scanning the barcode scanner,can let into the Bluetooth pairing state,let a mobile device or Bluetooth adapter,search to the scanner</string>
+    <string name="tiaoma_4">Open offline scan,scan the barcode,open offline scan mode,scanning the data stored in the scanner,not foreign output.After the opening,each scan will be the voice prompt, that have been successfully scanned,and into the scanner</string>
+    <string name="tiaoma_5">Upload store content,scan the barcode,all the data obtained by offline scan output scanner.Not upload one,will have the voice prompts,show upload data output success</string>
+    <string name="tiaoma_6">Statistical storage number,scan the barcode,barcode scanner in total output storage</string>
+    <string name="tiaoma_7">Clear store content,scanning the barcode scanner,all data clear</string>
+    <string name="tiaoma_8">Close the off-line scanning,scanning the barcode,close the offline scan.Note:open offline scan,without the use of off-line scanning,must close the off-line scanning,otherwise thedata woll be credited to the scanner</string>
+    <string name="tiaoma_9">Barcode configuration</string>
+    <string name="tiaoma_10">Offline scan</string>
+    <string name="tiaoma_11">Barcode List</string>
+
+    <!-- jianpan -->
+    <string name="jianpan_shebei">Devices</string>
+    <string name="jianpan_scan">Scan</string>
+    <string name="jianpan_fuction">Function</string>
+    <string name="jianpan_help">Help</string>
+    <string name="jianpan_cblue">Connect</string>
+    <string name="jianpan_dcblue">Disconnect</string>
+    <string name="jianpan_set">Set</string>
+    <string name="command_128_name">Code 128</string>
+    <string name="command_128_state">Code 128 State</string>
+    <string name="command_128_minlength">Code 128,Range0~32</string>
+    <string name="command_button_submit">Submit</string>
+    <string name="command_button_cancel">Cancel</string>
+    <string name="command_39_name">Code 39</string>
+    <string name="command_39_state_switch">Code 39 switch</string>
+    <string name="command_39_checkcode_state">Code 39 state</string>
+    <string name="command_39_checkcode_display">Code 39 display</string>
+    <string name="command_39_support_ascii">Code 39 Support ASCII</string>
+    <string name="command_39_minlength">Code 39,Range0~32</string>
+    <string name="command_chufa2_name">Trigger mode</string>
+    <string name="command_chufa2_mode1">Continuous Read</string>
+    <string name="command_chufa2_mode2">Continous Read One Output</string>
+    <string name="command_chufa2_mode3">Externam Leave</string>
+    <string name="command_chufa2_mode4">Ecternal Edge</string>
+    <string name="command_chufa2_mode5">Serial Data</string>
+    <string name="command_codabar_name">Codabar code setting</string>
+    <string name="command_codabar_state">Codabar code state</string>
+    <string name="command_codabar_string_display">Codabar code display</string>
+    <string name="command_codabar_checkcode_display">>Codabar code checksum display enable</string>
+    <string name="command_codabar_support_ascii">Codabar support ASCII</string>
+    <string name="command_codabar_minlength">Codabar code,Range0~32</string>
+    <string name="command_dutime_name">TTR</string>
+    <string name="command_dutime_switch">Switch Status</string>
+    <string name="command_hid_name">HID Bluetooth Name</string>
+    <string name="command_hid_input">Please enter English or number</string>
+    <string name="command_i25_name">Code i25 setting</string>
+    <string name="command_i25_state">Code i25 state</string>
+    <string name="command_i25_checkcode_state">Code i25 check code state</string>
+    <string name="command_i25_checkcode_display">Code i25 check code display</string>
+    <string name="command_i25_minlength">Code i25,Range0~32</string>
+    <string name="command_inputtype_name">Output mode</string>
+    <string name="command_inputtype_mode1">Serial</string>
+    <string name="command_inputtype_mode2">USB</string>
+    <string name="command_inputtype_mode3">Bluetooth</string>
+    <string name="command_inputtype_mode4">USB Jack</string>
+    <string name="command_voice_1">Close</string>
+    <string name="command_voice_2">High</string>
+    <string name="command_voice_3">Mid</string>
+    <string name="command_voice_4">Low</string>
+    <string name="command_led_name">LED</string>
+    <string name="command_led_switch">LED switch</string>
+    <string name="command_nocode_name">No decoding output</string>
+    <string name="command_nocode_switch">Switch</string>
+    <string name="command_nocode_output">Character No decoding output</string>
+    <string name="command_nocodetime_name">No Decode TimeOut</string>
+    <string name="command_nocodetime_input">Range1~4095</string>
+    <string name="command_prefix_name">Prefix</string>
+    <string name="command_prefix_switch">Switch</string>
+    <string name="command_prefix_add">To add a prefix character, long press more options</string>
+    <string name="command_prefix_delete">Delete the current character</string>
+    <string name="command_prefix_set">Custom character</string>
+    <string name="command_button_operation">Operation</string>
+    <string name="command_button_string">Character</string>
+    <string name="command_prefix_input_ascii">Please enter the ASCII code,Range0~127</string>
+    <string name="command_spp_name">SPP Bluetooth Name</string>
+    <string name="command_spp_input">Please enter english or number</string>
+    <string name="command_suffix_name">Suffix</string>
+    <string name="command_suffix_add">To add a suffix character, long press more options</string>
+    <string name="command_upcean_name">UPC/EAN</string>
+    <string name="command_upcean_state_upca">UPC-A state</string>
+    <string name="command_upcean_state_upce">UPC-E state</string>
+    <string name="command_upcean_state_ean8">EAN-8 state</string>
+    <string name="command_upcean_state_ean13">EAN-13 state</string>
+    <string name="command_upcean_state_upcean_add">UPC/EAN VerifyCode state</string>
+    <string name="command_upcean_state_upcean2_add">UPC/EANVerifyCode state</string>
+    <string name="command_upcean_switch_upcean5_add">UPC/EANVerifyCode switch</string>
+    <string name="command_upcean_minlength">UPC/EAN,Range0~32</string>
+    <string name="command_update_name">The same code decoding error correction</string>
+    <string name="command_update_input">The same code decoding error correction</string>
+    <string name="command_vioce_name">Buzzer</string>
+    <string name="command_vioce_input">Range0-10</string>
+    <string name="command_xmtime_name">Sleep Time</string>
+    <string name="command_xmtime_time">Sleep Time,Range0~240</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
+    <string name="confirm_save">确定保存</string>
+    <string name="hint">提示</string>
+    <string name="create_new_mondel">创建新型号</string>
+    <string name="project_name">项目名称</string>
+    <string name="save">保存</string>
+    <string name="switchs">切换</string>
+    <string name="the_mondel">这个型号吗?</string>
+    <string name="not_input_project_name">还没输入项目名称</string>
+    <string name="camera_permission">相机权限</string>
+    <string name="camera_permission_info">用于手机拍照识别物体</string>
+    <string name="ecord_audio">录音/视频权限</string>
+    <string name="ecord_audio_info">用于手机录像识别物体</string>
+    <string name="write_storage">存储权限</string>
+    <string name="write_storage_info">用于保存产品型号,读取产品型号</string>
+    <string name="next_step">下一步</string>
+    <string name="choose_product_model">选择产品型号</string>
+    <string name="please_input">请输入</string>
+    <string name="negative">负公差:</string>
+    <string name="puls">正公差:</string>
+    <string name="check_result_show">识别结果显示</string>
+    <string name="check_location">检测部位:</string>
+    <string name="dislike_info">错误信息:</string>
+    <string name="save_success">保存成功</string>
+    <string name="save_fild">保存失败</string>
+    <string name="is_switch_project">是否要切换产品型号</string>
+    <string name="switch_success">切换成功</string>
+    <string name="switch_fild">切换失败</string>
+    <string name="production_no_data">暂无数据,点击创建产品</string>
+    <string name="current_check_model">当前产品:</string>
+    <string name="product_list">产品列表</string>
+    <string name="work">工作</string>
+    <string name="is_begin_check">是否要开始识别</string>
+</resources>

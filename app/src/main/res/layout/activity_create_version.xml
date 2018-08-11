@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".setting.CreateVersionActivity">
+
+    <include layout="@layout/base_title"></include>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.cameraview.CameraView
+                    android:id="@+id/cameraView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:keepScreenOn="true"
+                    app:aspectRatio="4:3"
+                    app:autoFocus="true"
+                    app:facing="back"
+                    app:flash="auto" />
+
+                <ImageView
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/iv_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/iv_make_photo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:src="@mipmap/photo" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_project"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_send_delivery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:text="项目名称:"
+                    android:textColor="@color/text_black_primary"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_project_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:background="@null"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:hint="请输入项目名称"
+                    android:maxEms="15"
+                    android:singleLine="true"
+                    android:textColor="@color/text_black_primary"
+                    android:textColorHint="@color/hint_text"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_e4e4e4"></View>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rcy_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"></android.support.v7.widget.RecyclerView>
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</LinearLayout>

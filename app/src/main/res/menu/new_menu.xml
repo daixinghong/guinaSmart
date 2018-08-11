@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group>
+
+        <item
+            android:id="@+id/support"
+            android:icon="@drawable/icon_boy"
+            android:title="支持功能"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/choose_version"
+            android:icon="@drawable/icon_boy"
+            android:title="选择型号"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/create_version"
+            android:icon="@drawable/icon_boy"
+            android:title="新建型号"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/about_version"
+            android:icon="@drawable/icon_boy"
+            android:title="关于版本"
+            app:showAsAction="ifRoom" />
+
+    </group>
+
+
+</menu>
