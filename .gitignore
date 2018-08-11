@@ -1,8 +1,11 @@
 /local.properties
 /.idea
 /build
+/library
+/openCVLibrary342
 /captures
 /app/src/main/assets
+*.apk
 *.iml
 .gradle
 .DS_Store
