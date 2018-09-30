@@ -51,8 +51,7 @@ public class DialogUtils {
 
     public static AlertDialog createDialogFour(View view) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.DialogStyle);
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.dialog);
 
         dialog = builder.create();
 

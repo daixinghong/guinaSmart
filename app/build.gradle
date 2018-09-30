@@ -55,6 +55,7 @@ greendao {
 }
 
 
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
@@ -77,5 +78,31 @@ dependencies {
     implementation 'io.reactivex:rxandroid:1.2.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-
+    implementation files('libs/tensorflow-client-1.4-5.jar')
+    implementation 'io.grpc:grpc-okhttp:1.14.0'
+    //    implementation 'io.grpc:grpc-netty-shaded:1.14.0'
+    implementation 'io.grpc:grpc-stub:1.14.0'
+    //    implementation 'io.grpc:grpc-protobuf-lite:1.14.0'
+    implementation 'net.coobird:thumbnailator:0.4.8'
+    //    implementation 'com.google.protobuf:protobuf-java:3.6.1'
+    //    androidTestImplementation('com.google.protobuf:protobuf-java:3.6.1', {
+    //        exclude group: 'com.google.protobuf', module: 'AbstractMessageLite'
+    //    })
+    //    configurations {
+    //        all*.exclude group: 'com.google.protobuf', module: 'AbstractMessageLite'
+    //    }
+    implementation 'io.grpc:grpc-protobuf:1.14.0'
+    implementation project(':menulibrary')
+    implementation files('libs/pinyin4j-2.5.0.jar')
 }
+
+//configurations {
+//    all*.exclude group: 'com.google.protobuf'
+//}
+//
+//
+//configurations.all {
+//
+//    resolutionStrategy.force 'io.grpc:grpc-protobuf-lite:1.14.0'
+//}
+

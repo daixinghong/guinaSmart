@@ -116,6 +116,18 @@ public class NewVersionBean implements Serializable {
     }
 
     public static class Location implements Serializable {
+
+
+        public Location() {
+        }
+
+        public Location(float left, float right, float top, float bottom) {
+            this.left = left;
+            this.right = right;
+            this.top = top;
+            this.bottom = bottom;
+        }
+
         public float left;
 
         private float right;

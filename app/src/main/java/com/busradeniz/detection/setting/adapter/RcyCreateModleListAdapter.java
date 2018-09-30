@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.busradeniz.detection.R;
@@ -40,7 +39,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
     @Override
     public ProductFirstSpscHodler onCreateViewHolder(ViewGroup parent, int viewType) {
         ProductFirstSpscHodler holder = new ProductFirstSpscHodler(LayoutInflater.from(
-                mContext).inflate(R.layout.rcy_create_modle_item, null,
+                mContext).inflate(R.layout.rcy_create_modle_item, parent,
                 false), mOnItemClickListener);
         return holder;
     }
@@ -48,11 +47,12 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
     @Override
     public void onBindViewHolder(ProductFirstSpscHodler holder, final int position) {
         holder.mTvName.setText(mList.get(position).getName());
-        if (mList.get(position).isStatus()) {
-            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.color_358fc1));
-        } else {
-            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.ffffff));
-        }
+        holder.mTvSeq.setText(position + 1 + "");
+//        if (mList.get(position).isStatus()) {
+//            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.color_358fc1));
+//        } else {
+//            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.ffffff));
+//        }
         try {
 
             if (holder.mEtLeftPuls.getTag() instanceof TextWatcher) {
@@ -300,7 +300,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
         private final EditText mEtBottomPuls;
         private final EditText mEtBottomNegative;
         private OnItemClickListener mOnItemClickListener;
-        private final RelativeLayout mRlNameItem;
+        private final TextView mTvSeq;
 
         public ProductFirstSpscHodler(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
@@ -313,7 +313,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             mEtTopNegative = itemView.findViewById(R.id.et_top_negative);
             mEtBottomPuls = itemView.findViewById(R.id.et_bottom_puls);
             mEtBottomNegative = itemView.findViewById(R.id.et_bottom_negative);
-            mRlNameItem = itemView.findViewById(R.id.rl_name_item);
+            mTvSeq = itemView.findViewById(R.id.tv_seq);
             this.mOnItemClickListener = onItemClickListener;
             itemView.setOnClickListener(this);
         }

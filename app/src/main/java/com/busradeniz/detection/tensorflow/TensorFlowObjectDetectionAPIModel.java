@@ -57,7 +57,7 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
     private static final Logger LOGGER = new Logger();
 
     // Only return this many results.
-    private static final int MAX_RESULTS = 100;
+    private static final int MAX_RESULTS = 300;
 
     // Config values.
     private String inputName;
@@ -68,8 +68,8 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
     private Vector<String> labels = new Vector<String>();
     private int[] intValues;
     private float[] byteValues;
-    public float[] outputLocations;
-    public float[] outputScores;
+    public static float[] outputLocations;
+    public static float[] outputScores;
     public float[] outputClasses;
     public float[] outputNumDetections;
     private String[] outputNames;
@@ -138,15 +138,24 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
 
         // Pre-allocate buffers.
         d.outputNames = new String[]{"out_mask"};
-        d.outputScores = new float[MAX_RESULTS];
-        d.outputLocations = new float[MAX_RESULTS * 4];
         d.outputClasses = new float[MAX_RESULTS];
         d.outputNumDetections = new float[1];
         return d;
     }
 
     private TensorFlowObjectDetectionAPIModel() {
+
     }
+
+
+    public static void setScores(float[] outputLocations) {
+        outputScores = outputLocations;
+    }
+
+    public static void setLocation(float[] byteValues) {
+        outputLocations = byteValues;
+    }
+
 
     @Override
     public List<Recognition> recognizeImage(final Bitmap bitmap, Context context) {
@@ -187,7 +196,7 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
 
 
         map.put("images", byteValues);
-        Call<ResponseBody> news = api.getNews(builder.build());
+        Call<ResponseBody> news = null;
 
         news.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -418,7 +427,6 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
                             outputLocations[4 * i] * heigh,
                             outputLocations[4 * i + 3] * width,
                             outputLocations[4 * i + 2] * heigh);
-            int id = (int) outputClasses[i];
 
             try {
                 pq.add(new Recognition("" + i, "", outputScores[i], detection));

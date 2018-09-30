@@ -34,7 +34,7 @@ public class RcyCheckResultAdapter extends RecyclerView.Adapter<RcyCheckResultAd
     @Override
     public CheckResultHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         CheckResultHolder holder = new CheckResultHolder(LayoutInflater.from(
-                mContext).inflate(R.layout.rcy_check_result_item_view, null,
+                mContext).inflate(R.layout.rcy_check_result_item_view, parent,
                 false), mOnItemClickListener);
         return holder;
     }
@@ -56,11 +56,13 @@ public class RcyCheckResultAdapter extends RecyclerView.Adapter<RcyCheckResultAd
 
         private final TextView mTvCheckPosition;
         private final TextView mTvDislikeDesc;
+        private final TextView mTvStatus;
 
         public CheckResultHolder(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
             mTvCheckPosition = itemView.findViewById(R.id.tv_check_position);
             mTvDislikeDesc = itemView.findViewById(R.id.tv_dislike_desc);
+            mTvStatus = itemView.findViewById(R.id.tv_stauts);
 
 
         }

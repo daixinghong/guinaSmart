@@ -1,2 +1,2 @@
-include ':app',':openCVLibrary342',':library'
+include ':app',':openCVLibrary342',':library',':menulibrary'
 

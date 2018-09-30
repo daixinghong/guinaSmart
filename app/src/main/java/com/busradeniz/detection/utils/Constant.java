@@ -2,7 +2,7 @@ package com.busradeniz.detection.utils;
 
 public interface Constant {
 
-    String URL = "http://192.168.1.97:8000/";
+    String URL = "http://192.168.1.187:8000/";
 
     String KEY = "key";
 
@@ -15,6 +15,10 @@ public interface Constant {
     String MODEL_TEXT = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
 
     String CURRENT_PRODUCT = "current_product";
+
+    String LIST = "list";
+
+    String MODEL_URL = "model_url";
 
 
 

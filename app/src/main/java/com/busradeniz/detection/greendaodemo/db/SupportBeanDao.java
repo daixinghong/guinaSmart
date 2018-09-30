@@ -27,7 +27,8 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
         public final static Property _id = new Property(0, long.class, "_id", true, "_id");
         public final static Property ProjectName = new Property(1, String.class, "projectName", false, "PROJECT_NAME");
         public final static Property Data = new Property(2, String.class, "Data", false, "DATA");
-        public final static Property SelectedStatus = new Property(3, boolean.class, "selectedStatus", false, "SELECTED_STATUS");
+        public final static Property Location = new Property(3, String.class, "location", false, "LOCATION");
+        public final static Property SelectedStatus = new Property(4, boolean.class, "selectedStatus", false, "SELECTED_STATUS");
     }
 
 
@@ -46,7 +47,8 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: _id
                 "\"PROJECT_NAME\" TEXT," + // 1: projectName
                 "\"DATA\" TEXT," + // 2: Data
-                "\"SELECTED_STATUS\" INTEGER NOT NULL );"); // 3: selectedStatus
+                "\"LOCATION\" TEXT," + // 3: location
+                "\"SELECTED_STATUS\" INTEGER NOT NULL );"); // 4: selectedStatus
     }
 
     /** Drops the underlying database table. */
@@ -69,7 +71,12 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
         if (Data != null) {
             stmt.bindString(3, Data);
         }
-        stmt.bindLong(4, entity.getSelectedStatus() ? 1L: 0L);
+ 
+        String location = entity.getLocation();
+        if (location != null) {
+            stmt.bindString(4, location);
+        }
+        stmt.bindLong(5, entity.getSelectedStatus() ? 1L: 0L);
     }
 
     @Override
@@ -86,7 +93,12 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
         if (Data != null) {
             stmt.bindString(3, Data);
         }
-        stmt.bindLong(4, entity.getSelectedStatus() ? 1L: 0L);
+ 
+        String location = entity.getLocation();
+        if (location != null) {
+            stmt.bindString(4, location);
+        }
+        stmt.bindLong(5, entity.getSelectedStatus() ? 1L: 0L);
     }
 
     @Override
@@ -100,7 +112,8 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
             cursor.getLong(offset + 0), // _id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // projectName
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // Data
-            cursor.getShort(offset + 3) != 0 // selectedStatus
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // location
+            cursor.getShort(offset + 4) != 0 // selectedStatus
         );
         return entity;
     }
@@ -110,7 +123,8 @@ public class SupportBeanDao extends AbstractDao<SupportBean, Long> {
         entity.set_id(cursor.getLong(offset + 0));
         entity.setProjectName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setData(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setSelectedStatus(cursor.getShort(offset + 3) != 0);
+        entity.setLocation(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setSelectedStatus(cursor.getShort(offset + 4) != 0);
      }
     
     @Override

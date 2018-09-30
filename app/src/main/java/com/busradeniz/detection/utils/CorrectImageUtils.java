@@ -17,7 +17,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,22 +33,17 @@ public class CorrectImageUtils {
     private static final String TAG = "Zang Chaofei";
 
     private static int kHoughLinesPThreshold = 50;
-    private static double kHoughLinesPMinLinLength = 30.0;
+    private static double kHoughLinesPMinLinLength = 35.0;
     private static double kHoughLinesPMaxLineGap = 3.0;
-
-    private static int kMergeLinesMaxDistance = 5;
+    private static int kMergeLinesMaxDistance = 60;
     private static boolean is_cross_in_image = false;
     private static int kPointOnLineMaxOffset = 8;
-
     private static double kIntersectionMinAngle = 45;
     private static double kIntersectionMaxAngle = 135;
-    private static double kSameSegmentsMaxAngle = 10;
-
+    private static double kSameSegmentsMaxAngle = 80;
     private static double kRectOpposingSidesMinRatio = 0.5;
     private static boolean founded_rect = false;
     private static int zoom_ratio = 1;
-    private static boolean sStatus;
-    private static File sFile;
     private static Bitmap sBitmap2;
 
     public static Bitmap correctImage(Mat dstbitmap, Bitmap srcBitmap, int resize) {
@@ -74,7 +68,7 @@ public class CorrectImageUtils {
 
         Bitmap cropBitmap = Bitmap.createBitmap(srcBitmap, (int) x, (int) y, (int) width, (int) height);
 
-        Bitmap fixed_roi_image = rectify_img_roi(cropBitmap, founded_rect_with_points, x, y, 480, 960);
+        Bitmap fixed_roi_image = rectify_img_roi(cropBitmap, founded_rect_with_points, x, y, 240, 480);
 
         return fixed_roi_image;
     }
@@ -209,7 +203,7 @@ public class CorrectImageUtils {
         Mat origin_lines = new Mat();
         Mat hedMat = new Mat();
         if (isDebug) {
-            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.test10);
+            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.test13);
             Utils.bitmapToMat(hedBitmap, hedMat);
             hedMat = fix_image_to_detect_edge(hedMat);
         } else {
@@ -240,7 +234,33 @@ public class CorrectImageUtils {
 //
 //        }
 
+        List<Integer> rightList = Arrays.asList(2, 13, 0, 29, 3, 18, 26, 25, 11, 27, 1, 7, 28);
+        List<Integer> leftList = Arrays.asList(17, 10, 12, 22, 20, 6, 26, 8, 15, 24, 5);
+        List<Integer> topList = Arrays.asList(14, 19);
+        List<Integer> bottomList = Arrays.asList(9, 4, 16, 21, 23);
+
         for (int i = 0; i < origin_lines.rows(); i++) {
+
+
+            if (rightList.contains(i)) {
+//                continue;
+            }
+
+
+            if (leftList.contains(i)) {
+//                continue;
+            }
+
+
+            if (topList.contains(i)) {
+//                continue;
+            }
+
+
+            if (bottomList.contains(i)) {
+//                continue;
+            }
+
 
             double[] original_segment_line = new double[5];
             if (origin_lines.get(i, 0)[0] <= origin_lines.get(i, 0)[2]) {
@@ -319,6 +339,8 @@ public class CorrectImageUtils {
         List<List<double[]>> merged_reference_line_and_segment_pairs = new ArrayList<>();
         merged_reference_line_and_segment_pairs = merge_ref_line_segment_pairs(segment_line_and_reference_line_pairs,
                 hedMat, hedMat.cols(), hedMat.rows());
+
+        ToastUtils.showTextToast(merged_reference_line_and_segment_pairs.size() + "");
         Collections.sort(merged_reference_line_and_segment_pairs, new Comparator<List<double[]>>() {
             @Override
             public int compare(List<double[]> px1, List<double[]> px2) {
@@ -817,7 +839,7 @@ public class CorrectImageUtils {
                 //List<double[]> current_merged_ref_line_and_segment_pair = merged_ref_line_and_segment_pairs.get(j);
                 if (is_two_ref_line_close_to_eachother(before_segment_line_and_reference_line_pairs.get(i),
                         merged_ref_line_and_segment_pairs.get(j),
-                        imageWidth, imageHeight) == true) {
+                        imageWidth, imageHeight)) {
 
 //                    //使用绿色打印原来的两个线段
 //                    Point point1 = new Point();
@@ -1427,7 +1449,8 @@ public class CorrectImageUtils {
         double theta_b = get_angle_of_line(segment_line_and_reference_line_pair_b.get(0));
         double angle = Math.abs(theta_a - theta_b);
         angle = angle % 180;
-        if (angle > 30 && angle < 150) return false;
+        if (angle > 30 && angle < 150)
+            return false;
 
 //        Point pa= new Point();
 //        pa.x = (segment_line_and_reference_line_pair_a.get(0)[0]+segment_line_and_reference_line_pair_a.get(0)[2])/2;
@@ -1544,6 +1567,7 @@ public class CorrectImageUtils {
         if (cross_line_a[4] == 1 && cross_line_b[4] == 9) {
             return Math.max(Math.abs(cross_line_a[0] - cross_line_b[0]), Math.abs(cross_line_a[2] - cross_line_b[2]));
         } //ok
+
 
         if (cross_line_a[4] == 9 && cross_line_b[4] == 1) {
             return Math.max(Math.abs(cross_line_b[0] - cross_line_a[0]), Math.abs(cross_line_b[2] - cross_line_a[2]));
@@ -1666,7 +1690,7 @@ public class CorrectImageUtils {
             return Math.max(Math.max(cross_line_a[1], cross_line_b[0]), Math.max(Math.abs(w - cross_line_b[2]), Math.abs(h - cross_line_a[3])));
         }
 
-        if (cross_line_a[4] == 5 && cross_line_b[4] == 5) {
+        if (cross_line_a[4] == 5 && cross_line_b[4] == 4) {
             return Math.max(Math.max(cross_line_b[1], cross_line_a[0]), Math.max(Math.abs(w - cross_line_a[2]), Math.abs(h - cross_line_b[3])));
         }
 
@@ -1834,7 +1858,7 @@ public class CorrectImageUtils {
             //说明当前线段为水平直线
             reference_line[0] = 0;
             reference_line[1] = segmentLine[1];
-            reference_line[2] = imageHeight;
+            reference_line[2] = imageWidth;
             reference_line[3] = segmentLine[3];
             reference_line[4] = 2;
 

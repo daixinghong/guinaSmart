@@ -30,5 +30,17 @@
     <color name="transparent">#D9ffffff</color>
     <color name="color_585858">#585858</color>
     <color name="color_3a5a89">#3a5a89</color>
+    <color name="color_00000000">#00000000</color>
+    <color name="color_FF1DA1EA">#FF1DA1EA</color>
+    <color name="color_AEDEF4">#AEDEF4</color>
+    <color name="home_background">#f8f8f8</color>
+    <color name="bttom">#f7f7f7</color>
+    <color name="mo_line">#a1a1a1</color>
+    <color name="text">#242525</color>
+    <color name="opreate_title">#392525</color>
+    <color name="color_50FF00">#50FF00</color>
+    <color name="color_E51C23">#E51C23</color>
+    <color name="color_3f51b5">#3F51B5</color>
+    <color name="color_d7d7d7d">#d7d7d7</color>
 
 </resources>

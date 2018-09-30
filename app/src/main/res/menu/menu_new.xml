@@ -4,22 +4,23 @@
     <item
         android:id="@+id/support"
         android:icon="@mipmap/set"
-        android:title="支持功能"
-       />
+        android:title="支持功能" />
 
     <item
         android:id="@+id/choose_version"
         android:icon="@mipmap/set"
-        android:title="选择型号"
-        />
+        android:title="选择型号" />
     <item
         android:id="@+id/create_version"
         android:icon="@mipmap/set"
-        android:title="新建型号"
-      />
+        android:title="新建型号" />
+
+    <item
+        android:id="@+id/draw_rect"
+        android:icon="@mipmap/set"
+        android:title="瞄点" />
     <item
         android:id="@+id/about_version"
         android:icon="@mipmap/set"
-        android:title="关于版本"
-       />
+        android:title="关于版本" />
 </menu>

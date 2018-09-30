@@ -1,35 +1,57 @@
 package com.busradeniz.detection.http;
 
 
+import com.busradeniz.detection.check.bean.ModelBean;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import rx.Observable;
 
 public interface NewsService {
 
+    /**
+     * 获取模型
+     */
+    @GET("api/get_models_info")
+    Observable<ModelBean> getModel();
 
-    @POST("api/")
-    Call<ResponseBody> getNews(@Body RequestBody requestBody);
 
-    @POST("api/faster_50/")
-    Call<ResponseBody> test1(@Body RequestBody requestBody);
-
-    @POST("api/ssd_v1/")
-    Call<ResponseBody> test2(@Body RequestBody requestBody);
-
-    @POST("api/faster_v2/")
-    Call<ResponseBody> test3(@Body RequestBody requestBody);
-
-    @POST("api/mask_50/")
-    Call<ResponseBody> test4(@Body RequestBody requestBody);
-
-    @POST("api/ssd_resnet_fpn/")
-    Call<ResponseBody> test5(@Body RequestBody requestBody);
-
-    @POST("api/get_labels/")
+    /**
+     * 获取标签
+     *
+     * @return
+     */
+    @POST("api/det/get_labels")
     Call<ResponseBody> getTag();
 
+    /**
+     * 通用接口
+     */
+    @POST("/api/det/{url}")
+    Call<ResponseBody> originalInterface(@Path("url") String url, @Body RequestBody requestBody);
+
+    /**
+     * 获取模型状态
+     */
+    @GET("api/get_model_status/{url}")
+    Call<ResponseBody> getModelStatus(@Path("url") String url);
+
+
+    /**
+     * 重启tensorflow_serving服务器
+     */
+    @POST("api/tensorflow_serving/restart/")
+    Call<ResponseBody> restartTensorflowServing(@Path("url") String url, @Body RequestBody requestBody);
+
+    /**
+     * 获取tensorflow_serving状态
+     */
+    @GET("api/tensorflow_serving/status/")
+    Call<ResponseBody> getTensorflowServingStatus();
 
 }

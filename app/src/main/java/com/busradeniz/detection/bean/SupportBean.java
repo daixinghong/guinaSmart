@@ -15,16 +15,20 @@ public class SupportBean {
 
     private String Data;
 
+    private String location;
+
+
     private boolean selectedStatus;
 
 
 
-    @Generated(hash = 893138069)
-    public SupportBean(long _id, String projectName, String Data,
+    @Generated(hash = 263525024)
+    public SupportBean(long _id, String projectName, String Data, String location,
             boolean selectedStatus) {
         this._id = _id;
         this.projectName = projectName;
         this.Data = Data;
+        this.location = location;
         this.selectedStatus = selectedStatus;
     }
 
@@ -62,6 +66,14 @@ public class SupportBean {
 
     public void setSelectedStatus(boolean selectedStatus) {
         this.selectedStatus = selectedStatus;
+    }
+
+    public String getLocation() {
+        return this.location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
 

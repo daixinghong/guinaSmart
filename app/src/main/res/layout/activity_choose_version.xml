@@ -16,7 +16,6 @@
         android:fillViewport="true">
 
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -47,9 +46,26 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="7dp"
-                    android:text="iphonex-64g"
                     android:textColor="@color/color_3a5a89"
                     android:textSize="15sp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/tv_replace_model"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="20dp"
+                        android:padding="5dp"
+                        android:text="@string/replace_model"
+                        android:textColor="@color/color_3a5a89"
+                        android:textSize="15sp" />
+
+                </RelativeLayout>
 
 
             </LinearLayout>

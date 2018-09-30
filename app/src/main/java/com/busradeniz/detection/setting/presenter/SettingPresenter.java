@@ -7,6 +7,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SettingPresenter {
 
@@ -17,7 +19,7 @@ public class SettingPresenter {
         mSettingInterface = settingInterface;
     }
 
-    public void getClassify() {
+    public void getTag() {
         RetrofitNetwork
                 .getObserableIntence()
                 .getTag().enqueue(new Callback<ResponseBody>() {
@@ -34,10 +36,21 @@ public class SettingPresenter {
 
     }
 
-    public void getClassify(MultipartBody build) {
+
+    public void getModel() {
         RetrofitNetwork
                 .getObserableIntence()
-                .test5(build).enqueue(new Callback<ResponseBody>() {
+                .getModel()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::getModelSuccess, mSettingInterface::getDataError);
+    }
+
+
+    public void requestModel(String url, MultipartBody build) {
+        RetrofitNetwork
+                .getObserableIntence()
+                .originalInterface(url, build).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 mSettingInterface.checkObjectSuccess(response.body());

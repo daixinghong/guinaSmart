@@ -19,7 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.busradeniz.detection.bean.PermissionBean;
-import com.busradeniz.detection.setting.ChooseVersionActivity;
+import com.busradeniz.detection.check.OPenMachineCheckActivity;
 import com.busradeniz.detection.setting.adapter.RcyPermissionAdapter;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.UiUtils;
@@ -50,6 +50,7 @@ public class StartAppActivity extends AppCompatActivity {
 
         PackageManager pm = getPackageManager();
         PackageInfo pi;
+
 
         final List<PermissionBean> permissionBeanList = new ArrayList<>();
 
@@ -131,7 +132,7 @@ public class StartAppActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                IntentUtils.startActivity(StartAppActivity.this, ChooseVersionActivity.class);
+                IntentUtils.startActivity(StartAppActivity.this, OPenMachineCheckActivity.class);
                 finish();
             }
 
@@ -149,7 +150,7 @@ public class StartAppActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    IntentUtils.startActivity(StartAppActivity.this, ChooseVersionActivity.class);
+                    IntentUtils.startActivity(StartAppActivity.this, OPenMachineCheckActivity.class);
                     finish();
                 } else {
                     System.exit(0);

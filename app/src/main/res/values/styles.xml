@@ -53,7 +53,7 @@
     </style>
 
     <style name="dialog" parent="android:Theme.Holo.Light.Dialog">
-        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <!-- 设置window背景透明，也就是去边框 -->
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
@@ -66,6 +66,24 @@
 
     </style>
 
+    <style name="tab_menu_item">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:textColor">@color/color_AEDEF4</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="button_style">
+        <item name="android:background">@drawable/buttion_shape</item>
+        <item name="android:paddingBottom">@dimen/dp_3</item>
+        <item name="android:paddingLeft">@dimen/dp_10</item>
+        <item name="android:paddingRight">@dimen/dp_10</item>
+        <item name="android:paddingTop">@dimen/dp_3</item>
+    </style>
 
 
 </resources>

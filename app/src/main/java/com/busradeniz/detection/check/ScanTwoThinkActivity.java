@@ -7,8 +7,10 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -18,35 +20,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.busradeniz.detection.BaseApplication;
-import com.busradeniz.detection.tensorflow.Classifier;
-import com.busradeniz.detection.http.NewsService;
 import com.busradeniz.detection.R;
-import com.busradeniz.detection.tensorflow.TensorFlowObjectDetectionAPIModel;
 import com.busradeniz.detection.ToastUtils;
+import com.busradeniz.detection.bean.NewVersionBean;
+import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.adapter.RcyCheckResultAdapter;
 import com.busradeniz.detection.check.bean.CheckResultBean;
+import com.busradeniz.detection.check.bean.RectBean;
 import com.busradeniz.detection.env.Logger;
+import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
+import com.busradeniz.detection.http.NewsService;
 import com.busradeniz.detection.http.RetrofitNetwork;
 import com.busradeniz.detection.setting.ChooseVersionActivity;
 import com.busradeniz.detection.setting.CreateVersionActivity;
+import com.busradeniz.detection.setting.DrawRectActivity;
 import com.busradeniz.detection.setting.SupportFuncationActivity;
+import com.busradeniz.detection.tensorflow.Classifier;
+import com.busradeniz.detection.tensorflow.TensorFlowObjectDetectionAPIModel;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.IntentUtils;
+import com.busradeniz.detection.utils.LocationUtils;
+import com.busradeniz.detection.utils.SpUtils;
+import com.busradeniz.detection.utils.UiUtils;
 import com.google.android.cameraview.CameraView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -94,6 +100,15 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
     private Bitmap mResizeBitmap;
     private RecyclerView mRcyDislikeInfoList;
     private RcyCheckResultAdapter mAdapter;
+    private TextView mTvCheckName;
+    private ImageView mIvSetting;
+    private DrawerLayout mDrawerLayout;
+    private SupportBeanDao mSupportBeanDao;
+    private List<RectBean> mLocationList;
+    private TextView mMtvProjectName;
+    private ImageView mIvBack;
+    private SupportBean mSupportBean;
+    private List<NewVersionBean> mArryList;
 
 
     @Override
@@ -115,6 +130,8 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
 
     private void initEvent() {
 
+
+        mIvBack.setOnClickListener(this);
         cameraView.addCallback(new CameraView.Callback() {
             @Override
             public void onCameraOpened(CameraView cameraView) {
@@ -157,28 +174,35 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
                             } catch (Exception e) {
 
                             }
-
+                            mImageView.setVisibility(View.VISIBLE);
+                            cameraView.setVisibility(View.GONE);
+                            mImageView.setImageBitmap(bitmap);
                             Mat recognize = detector.recognize(mBitmaps, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE);
 
                             Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
                             Utils.matToBitmap(recognize, bitmap2);
-//                            mImageView.setImageBitmap(bitmap2);
 
                             Bitmap correctBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
-                            Mat resizeMat = new Mat();
+                            mImageView.setImageBitmap(correctBitmap);
 
-                            Utils.bitmapToMat(correctBitmap, resizeMat);
+                            List<Bitmap> shortBitmapList = new ArrayList<>();
+                            for (int i = 0; i < mLocationList.size(); i++) {
+                                RectBean rectBean = mLocationList.get(i);
+                                int width = Math.abs(rectBean.getLeft() - rectBean.getRight());
+                                int height = Math.abs(rectBean.getTop() - rectBean.getBottom());
+                                Bitmap cropBitmap = Bitmap.createBitmap(correctBitmap, rectBean.getLeft(), rectBean.getTop(), width, height);
+                                shortBitmapList.add(cropBitmap);
+                                Log.e(TAG, "run: ");
+                            }
 
-                            Imgproc.resize(resizeMat, resizeMat, new Size(correctBitmap.getWidth() * 2, correctBitmap.getHeight() * 2));
 
-                            mResizeBitmap = Bitmap.createBitmap(correctBitmap.getWidth() * 2, correctBitmap.getHeight() * 2, Bitmap.Config.ARGB_8888);
-
-                            Utils.matToBitmap(resizeMat, mResizeBitmap);
-
-                            recognizeImage(mResizeBitmap);
+                            Log.e(TAG, "run: ");
+//
+                            recognizeImage(shortBitmapList);
 
 
                         } catch (Exception e) {
+                            ToastUtils.showTextToast(UiUtils.getString(R.string.photo_check_fild));
 
                         } finally {
                             if (os != null) {
@@ -216,6 +240,9 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
             }
         });
 
+        mIvSetting.setOnClickListener(this);
+
+
     }
 
     private void intData() {
@@ -225,12 +252,42 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
         menu.findItem(R.id.choose_version).setOnMenuItemClickListener(this);
         menu.findItem(R.id.create_version).setOnMenuItemClickListener(this);
         menu.findItem(R.id.about_version).setOnMenuItemClickListener(this);
+        menu.findItem(R.id.draw_rect).setOnMenuItemClickListener(this);
         initTensorFlowAndLoadModel();
 
         mAdapter = new RcyCheckResultAdapter(this, mList);
         mRcyDislikeInfoList.setAdapter(mAdapter);
 
+        try {
+            mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
+            mSupportBean = queryData(true);
+
+
+            String location = mSupportBean.getLocation();
+            mTvCheckName.setText(mSupportBean.getProjectName());
+            mMtvProjectName.setText(mSupportBean.getProjectName());
+            Gson gson = new Gson();
+
+
+            String data = mSupportBean.getData();   //每个零件正确的位置
+            mArryList = gson.fromJson(data, new TypeToken<List<NewVersionBean>>() { //解析每个零件正确的位置
+            }.getType());
+
+            mLocationList = gson.fromJson(location, new TypeToken<List<RectBean>>() { //解析每个零件允许偏移的位置
+            }.getType());
+
+        } catch (Exception e) {
+
+        }
+
     }
+
+
+    public SupportBean queryData(boolean status) {
+        return mSupportBeanDao.queryBuilder().where(SupportBeanDao.Properties.SelectedStatus.eq(status)).build().unique();
+
+    }
+
 
     private void intView() {
         cameraView = findViewById(R.id.cameraView);
@@ -239,9 +296,19 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
         btnDetectObject = findViewById(R.id.btnDetectObject);
         mImageView = findViewById(R.id.iv_image);
         mNavigationView = findViewById(R.id.nav);
+        mMtvProjectName = findViewById(R.id.tv_model);
+        mIvBack = findViewById(R.id.iv_back);
         mRcyDislikeInfoList = findViewById(R.id.rcy_dislike_info_list);
-        mRcyDislikeInfoList.setLayoutManager(new LinearLayoutManager(this));
-
+        LinearLayoutManager manager = new LinearLayoutManager(this) {
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        };
+        mRcyDislikeInfoList.setLayoutManager(manager);
+        mTvCheckName = findViewById(R.id.tv_check_title);
+        mIvSetting = findViewById(R.id.iv_setting);
+        mDrawerLayout = findViewById(R.id.activity_na);
     }
 
     private void initTensorFlowAndLoadModel() {
@@ -260,24 +327,27 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
     }
 
 
-    public void recognizeImage(final Bitmap bitmaps) {
+    public void recognizeImage(List<Bitmap> bitmaps) {
 
 
         File filesDir = getApplicationContext().getFilesDir();
-        File file = saveBitmapFile(bitmaps, filesDir.getAbsolutePath() + "text.jpg");
-
         MultipartBody.Builder builder = new MultipartBody.Builder();
+
+        for (int i = 0; i < bitmaps.size(); i++) {
+
+            File file = saveBitmapFile(bitmaps.get(i), filesDir.getAbsolutePath() + "text.jpg");
+            RequestBody requestBody = RequestBody.create(
+                    MediaType.parse("multipart/form-data"), file);
+            builder.addFormDataPart("images", file.getName(), requestBody);
+        }
         builder.setType(MultipartBody.FORM);
-        RequestBody requestBody = RequestBody.create(
-                MediaType.parse("multipart/form-data"), file);
-        builder.addFormDataPart("images", file.getName(), requestBody);
+
         NewsService anInterface = RetrofitNetwork.getObserableIntence();
         Call<ResponseBody> news = null;
 
-        if (mStatus) {
-            news = anInterface.test1(builder.build());
-        } else {
-            news = anInterface.test5(builder.build());
+        String modelUrl = (String) SpUtils.getParam(this, Constant.MODEL_URL, "");
+        if (!TextUtils.isEmpty(modelUrl)) {
+            news = anInterface.originalInterface(modelUrl, builder.build());
         }
 
         news.enqueue(new Callback<ResponseBody>() {
@@ -285,82 +355,51 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     String string = response.body().string();
-                    try {
-                        JSONObject json = new JSONObject(string);
-                        JSONArray datas = json.getJSONArray("datas");
-                        JSONObject jsonObject = datas.getJSONObject(0);
-                        JSONArray box = jsonObject.getJSONObject("data").getJSONArray("boxes");
-                        JSONArray classes = jsonObject.getJSONObject("data").getJSONArray("classes");
-                        JSONArray scores = jsonObject.getJSONObject("data").getJSONArray("scores");
-//                        JSONArray masks = jsonObject.getJSONObject("data").getJSONArray("masks");
-//                        float array[][] = new float[masks.getJSONArray(0).length()][masks.getJSONArray(0).getJSONArray(0).length()];
-//
-//                        for (int i = 0; i < masks.length(); i++) {
-//                            JSONArray jsonArray = masks.getJSONArray(i);
-//                            for (int j = 0; j < jsonArray.length(); j++) {
-//                                JSONArray list = jsonArray.getJSONArray(j);
-//                                for (int a = 0; a < list.length(); a++) {
-//                                    int anInt = list.getInt(a);
-//                                    array[j][a] = anInt;
-//                                }
-//
-//                            }
-//                        }
-//
+                    JSONObject json = new JSONObject(string);
+                    List<Classifier.Recognition> location = LocationUtils.getLocation(json, 240, 480);
 
-//                        List<float[]> listArray = new ArrayList<>();
-//                        for (int i = 0; i < masks.length(); i++) {
-//                            float firstArr[] = new float[masks.getJSONArray(i).length() * masks.getJSONArray(i).getJSONArray(i).length()];
-//                            int index = 0;
-//                            JSONArray jsonArray = masks.getJSONArray(i);
-//                            for (int j = 0; j < jsonArray.length(); j++) {
-//                                JSONArray list = jsonArray.getJSONArray(j);
-//                                for (int a = 0; a < list.length(); a++) {
-//                                    firstArr[index] = list.getInt(a) * 255;
-//                                    index++;
-//                                }
-//                            }
-//                            listArray.add(firstArr);
-//                        }
-//                        Bitmap bitmap = BitmapCreateFactroy.createBitmap(listArray.get(0), 33, 33);
-//                        mImageView.setImageBitmap(bitmap);
-//                        mImageView.setVisibility(View.VISIBLE);
+                    Log.e(TAG, "onResponse: 数据大小 " + location.size());
+                    for (int i = 0; i < location.size(); i++) {
+                        RectF rectF = location.get(i).getLocation();      //检测出来零件的位置
+                        RectBean rectBean = mLocationList.get(i);   //正确的零件位置
 
-                        for (int i = 0; i < classes.length(); i++) {
-                            ((TensorFlowObjectDetectionAPIModel) detector).outputClasses[i] = (float) classes.getDouble(i);
-                            ((TensorFlowObjectDetectionAPIModel) detector).outputScores[i] = (float) scores.getDouble(i);
+                         if (Math.abs(rectF.left - rectBean.getLeft()) > 50) {
+                            Log.e(TAG, "onResponse: 左边偏移" + Math.abs(rectF.left - rectBean.getLeft()));
                         }
-                        for (int i = 0; i < box.length(); i++) {
-                            ((TensorFlowObjectDetectionAPIModel) detector).outputLocations[i] = (float) box.getDouble(i);
+                        if (Math.abs(rectF.right - rectBean.getRight()) > 50) {
+                            Log.e(TAG, "onResponse: 右边偏移 " + Math.abs(rectF.right - rectBean.getRight()));
+                        }
+                        if (Math.abs(rectF.top - rectBean.getTop()) > 50) {
+                            Log.e(TAG, "onResponse: 上边偏移" + Math.abs(rectF.top - rectBean.getTop()));
+                        }
+                        if (Math.abs(rectF.bottom - rectBean.getBottom()) > 50) {
+                            Log.e(TAG, "onResponse: 下边偏移" + Math.abs(rectF.bottom - rectBean.getBottom()));
+
                         }
 
-                        List<Classifier.Recognition> data = detector.getData(bitmaps.getWidth(), bitmaps.getHeight());
-                        Bitmap bitmap = Bitmap.createBitmap(bitmaps.getWidth(), bitmaps.getHeight(), Bitmap.Config.ARGB_8888);
-                        Mat mat = new Mat();
-                        Utils.bitmapToMat(bitmaps, mat);
-                        for (int i = 0; i < data.size(); i++) {
-                            if (data.get(i).getConfidence() >= 0.2) {
-                                RectF location = data.get(i).getLocation();
-                                Imgproc.rectangle(mat, new Point(location.left, location.top), new Point(location.right, location.bottom), new Scalar(0, 255, 0), 2);
-//                                canvas.drawRect(data.get(i).getLocation(), mPaint);
-//                                canvas.drawText(data.get(i).getTitle(), data.get(i).getLocation().left + 40, data.get(i).getLocation().top + 70, mTextPaint);
-                            }
+                        if (Math.abs(rectF.left - rectBean.getLeft()) > 50) {
+                            Log.e(TAG, "onResponse: 左边偏移" + Math.abs(rectF.left - rectBean.getLeft()));
+                        }
+                        if (Math.abs(rectF.right - rectBean.getRight()) > 50) {
+                            Log.e(TAG, "onResponse: 右边偏移 " + Math.abs(rectF.right - rectBean.getRight()));
+                        }
+                        if (Math.abs(rectF.top - rectBean.getTop()) > 50) {
+                            Log.e(TAG, "onResponse: 上边偏移" + Math.abs(rectF.top - rectBean.getTop()));
+                        }
+                        if (Math.abs(rectF.bottom - rectBean.getBottom()) > 50) {
+                            Log.e(TAG, "onResponse: 下边偏移" + Math.abs(rectF.bottom - rectBean.getBottom()));
                         }
 
-                        Utils.matToBitmap(mat, bitmap);
-
-                        cameraView.setVisibility(View.GONE);
-                        mImageView.setVisibility(View.VISIBLE);
-                        mImageView.setImageBitmap(bitmap);
-
-//                        mTvDate.setText(ct);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+//                        NewVersionBean.Deviation deviation = mArryList.get(i).getDeviation(); //每个零件允许偏移的位置
                     }
 
 
-                } catch (IOException e) {
+                    cameraView.setVisibility(View.GONE);
+                    mImageView.setVisibility(View.VISIBLE);
+                    mImageView.setImageBitmap(bitmap);
+
+
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -426,9 +465,9 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-//            case R.id.rl_back:
-//                finish();
-//                break;
+            case R.id.iv_back:
+                finish();
+                break;
 //            case R.id.bt_connnect:
 ////                if (!UsbConnect.isConnect(this)) {
 ////                    UsbConnect.Connect(this);
@@ -436,6 +475,12 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
 //                UsbConnect.Connect(this);
 
 //                break;
+            case R.id.iv_setting:
+
+                if (!mDrawerLayout.isDrawerOpen(mNavigationView)) {
+                    mDrawerLayout.openDrawer(mNavigationView);
+                }
+                break;
         }
 
 
@@ -456,6 +501,9 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
                 break;
             case R.id.about_version:
                 ToastUtils.showTextToast("wuwu");
+                break;
+            case R.id.draw_rect:
+                IntentUtils.startActivity(this, DrawRectActivity.class);
                 break;
         }
 

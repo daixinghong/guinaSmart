@@ -10,23 +10,34 @@ import android.widget.TextView;
 
 import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
+import com.busradeniz.detection.ToastUtils;
 import com.busradeniz.detection.bean.ChooseVersionBean;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.ScanTwoThinkActivity;
+import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
 import com.busradeniz.detection.setting.adapter.RcyChooseVersionAdapter;
+import com.busradeniz.detection.setting.adapter.RcyModelAdapter;
+import com.busradeniz.detection.setting.presenter.SettingInterface;
+import com.busradeniz.detection.setting.presenter.SettingPresenter;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.IntentUtils;
+import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChooseVersionActivity extends AppCompatActivity implements View.OnClickListener {
+import okhttp3.ResponseBody;
+
+public class ChooseVersionActivity extends AppCompatActivity implements View.OnClickListener, SettingInterface {
 
     private RelativeLayout mRlBack;
     private RecyclerView mRcyChooseVersion;
@@ -37,6 +48,9 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
     private View mView;
     private TextView mTvCreateProduct;
     private SupportBeanDao mSupportBeanDao;
+    private TextView mTvReplaceModel;
+    private List<String> mModelList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +69,7 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
         mRlBack.setOnClickListener(this);
         mRlSave.setOnClickListener(this);
         mTvCreateProduct.setOnClickListener(this);
+        mTvReplaceModel.setOnClickListener(this);
         mAdapter.setOnItemClickListener(new RcyChooseVersionAdapter.OnItemClickListener() {
             @Override
             public void setOnItemClickListener(View view, int position) {
@@ -70,10 +85,16 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onRestart() {
         super.onRestart();
+
         initData();
+
+        initEvent();
     }
 
     private void initData() {
+
+        SettingPresenter presenter = new SettingPresenter(this);
+        presenter.getModel();
 
         mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
 
@@ -125,6 +146,7 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
         mTvCurrentProduct = findViewById(R.id.tv_current_product);
         mView = findViewById(R.id.empty);
         mTvCreateProduct = findViewById(R.id.tv_create_product);
+        mTvReplaceModel = findViewById(R.id.tv_replace_model);
         LinearLayoutManager manager = new LinearLayoutManager(this) {
             @Override
             public boolean canScrollVertically() {
@@ -155,8 +177,85 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
             case R.id.tv_create_product:
                 IntentUtils.startActivity(this, CreateVersionActivity.class);
                 break;
+            case R.id.tv_replace_model:
+
+                View view = DialogUtils.inflateView(this, R.layout.dialog_model_view);
+                RecyclerView rcyModelList = view.findViewById(R.id.rcy_model_list);
+                rcyModelList.setLayoutManager(new LinearLayoutManager(this));
+                String modelUrl = (String) SpUtils.getParam(this, Constant.MODEL_URL, "");
+                RcyModelAdapter adapter = new RcyModelAdapter(this, mModelList, modelUrl);
+                rcyModelList.setAdapter(adapter);
+                adapter.setOnItemClickListener(new RcyModelAdapter.OnItemClickListener() {
+                    @Override
+                    public void setOnItemClickListener(View view, int position) {
+                        DialogUtils.dissDialog();
+                        SpUtils.putParms(ChooseVersionActivity.this, Constant.MODEL_URL, mModelList.get(position));
+                        ToastUtils.showTextToast(UiUtils.getString(R.string.switch_success));
+                    }
+                });
+
+                DialogUtils.createDialog(view);
+
+                break;
         }
     }
 
 
+    @Override
+    public void getClassifyDataSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void checkObjectSuccess(ResponseBody responseBody) {
+        try {
+            String string = responseBody.string();
+
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray array = jsonObject.getJSONArray("array");
+            for (int i = 0;i<array.length();i++){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void getModelSuccess(ModelBean modelBean) {
+
+        switch (modelBean.getResult()) {
+            case 0:
+                List<String> category_index = modelBean.getCategory_index();
+                mModelList.clear();
+                mModelList.addAll(category_index);
+                break;
+        }
+
+
+    }
+
+    @Override
+    public void getDataError(Throwable throwable) {
+
+    }
 }

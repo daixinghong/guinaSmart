@@ -18,7 +18,6 @@ import com.busradeniz.detection.setting.adapter.RcyProductDetailsAdapter;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.UiUtils;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,13 +89,11 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
                 DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
                     @Override
                     public void onConfirmClickListener(View view) {
-                        Gson gson = new Gson();
-                        String s = gson.toJson(mList);
                         //把之前识别中的产品的状态改为false
                         queryData(true, false);
 
                         //把这个产品状态设置为true
-                        if (queryData(mTitle, s, true)) {
+                        if (queryData(mTitle, true)) {
                             ToastUtils.showTextToast(UiUtils.getString(R.string.switch_success));
                         } else {
                             ToastUtils.showTextToast(UiUtils.getString(R.string.switch_fild));
@@ -113,14 +110,12 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
      * 更新数据库产品型号数据
      *
      * @param key
-     * @param data
      * @return
      */
-    public boolean queryData(String key, String data, boolean status) {
+    public boolean queryData(String key, boolean status) {
         try {
             SupportBean unique = mSupportBeanDao.queryBuilder().where(SupportBeanDao.Properties.ProjectName.eq(key)).build().unique();
             if (unique != null) {
-                unique.setData(data);
                 unique.setSelectedStatus(status);
                 mSupportBeanDao.update(unique);
                 return true;
