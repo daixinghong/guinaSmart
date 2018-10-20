@@ -79,10 +79,10 @@
 
     <style name="button_style">
         <item name="android:background">@drawable/buttion_shape</item>
-        <item name="android:paddingBottom">@dimen/dp_3</item>
+        <item name="android:paddingBottom">@dimen/dp_4</item>
         <item name="android:paddingLeft">@dimen/dp_10</item>
         <item name="android:paddingRight">@dimen/dp_10</item>
-        <item name="android:paddingTop">@dimen/dp_3</item>
+        <item name="android:paddingTop">@dimen/dp_4</item>
     </style>
 
 

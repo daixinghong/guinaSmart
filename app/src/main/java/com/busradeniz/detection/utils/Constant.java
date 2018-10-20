@@ -20,6 +20,8 @@ public interface Constant {
 
     String MODEL_URL = "model_url";
 
+    String  BAUDRATES = "1500000";
+
 
 
 

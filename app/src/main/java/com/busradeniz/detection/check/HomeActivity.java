@@ -3,7 +3,7 @@ package com.busradeniz.detection.check;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -11,15 +11,20 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.busradeniz.detection.R;
+import com.busradeniz.detection.base.BaseActivity;
 import com.busradeniz.detection.check.fragment.ConfigureFragment;
 import com.busradeniz.detection.check.fragment.SettingFragment;
 import com.busradeniz.detection.check.fragment.StatisticsFragment;
 import com.busradeniz.detection.check.fragment.WorkFragment;
+import com.busradeniz.detection.message.IMessage;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.IntentUtils;
 
-public class HomeActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+public class HomeActivity extends BaseActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     private ImageView mIvHelp;
     private ImageView mIvChooseMachine;
@@ -38,13 +43,17 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-
         initView();
 
         initData();
 
     }
+
+    @Override
+    public int getActivityLayoutId() {
+        return R.layout.activity_home;
+    }
+
 
     private void initView() {
 
@@ -135,14 +144,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.rb_configure:
+//                IntentUtils.startActivity(this, CreateVersionActivity.class);
 
-                IntentUtils.startActivity(this, CreateVersionActivity.class);
-//                if (mConfigureFragment == null) {
-//                    mConfigureFragment = new ConfigureFragment();
-//                    transaction.add(R.id.framelayout, mConfigureFragment);
-//                } else {
-//                    transaction.show(mConfigureFragment);
-//                }
+                if (mConfigureFragment == null) {
+                    mConfigureFragment = new ConfigureFragment();
+                    transaction.add(R.id.framelayout, mConfigureFragment);
+                } else {
+                    transaction.show(mConfigureFragment);
+                }
                 break;
             case R.id.rb_statistics:
                 if (mStatisticsFragment == null) {
@@ -163,5 +172,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         transaction.commit();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onEvent(IMessage message) {
+        // 收到消息，刷新界面
+        Log.e("vivi", "onMessageEvent: " + message.getMessage());
+
     }
 }

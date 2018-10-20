@@ -16,20 +16,18 @@
             android:layout_weight="0.5"
             android:background="@drawable/mo_text_shape">
 
-            <TextView
-                android:id="@+id/tv_seq"
+            <CheckBox
+                android:id="@+id/cb_choose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="1"
-                android:textSize="@dimen/sp_11" />
+                android:layout_centerInParent="true" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.2"
+            android:layout_weight="0.7"
             android:background="@drawable/mo_text_shape">
 
             <TextView
@@ -51,17 +49,37 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true">
+                    android:layout_weight="1">
 
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.7">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="left"
+                                android:textColor="@color/color_242525"
+                                android:textSize="@dimen/sp_11" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mo_line"></View>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -73,10 +91,11 @@
                             android:layout_height="match_parent">
 
                             <TextView
+                                android:id="@+id/tv_left_stand"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="left"
+                                android:text="220"
                                 android:textColor="@color/color_242525"
                                 android:textSize="@dimen/sp_11" />
                         </RelativeLayout>
@@ -103,14 +122,13 @@
                         <EditText
                             android:id="@+id/et_left_puls"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -139,14 +157,13 @@
                         <EditText
                             android:id="@+id/et_left_negative"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -169,7 +186,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.6">
+                        android:layout_weight="0.7">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -185,6 +202,31 @@
                                 android:textSize="@dimen/sp_11" />
                         </RelativeLayout>
 
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mo_line"></View>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.6">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <TextView
+                                android:id="@+id/tv_right_stand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="220"
+                                android:textColor="@color/color_242525"
+                                android:textSize="@dimen/sp_11" />
+                        </RelativeLayout>
                     </LinearLayout>
 
                     <LinearLayout
@@ -208,14 +250,13 @@
                         <EditText
                             android:id="@+id/et_et_right_puls"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -244,14 +285,13 @@
                         <EditText
                             android:id="@+id/et_right_negative"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -274,7 +314,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.6">
+                        android:layout_weight="0.7">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -285,6 +325,31 @@
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
                                 android:text="top"
+                                android:textColor="@color/color_242525"
+                                android:textSize="@dimen/sp_11" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mo_line"></View>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.6">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <TextView
+                                android:id="@+id/tv_top_stand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="220"
                                 android:textColor="@color/color_242525"
                                 android:textSize="@dimen/sp_11" />
                         </RelativeLayout>
@@ -311,14 +376,13 @@
                         <EditText
                             android:id="@+id/et_top_puls"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -346,14 +410,13 @@
                         <EditText
                             android:id="@+id/et_top_negative"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -375,7 +438,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.6">
+                        android:layout_weight="0.7">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -387,6 +450,31 @@
                                 android:layout_centerInParent="true"
                                 android:layout_marginLeft="@dimen/dp_5"
                                 android:text="bottom"
+                                android:textColor="@color/color_242525"
+                                android:textSize="@dimen/sp_11" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mo_line"></View>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.6">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <TextView
+                                android:id="@+id/tv_bottom_stand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="220"
                                 android:textColor="@color/color_242525"
                                 android:textSize="@dimen/sp_11" />
                         </RelativeLayout>
@@ -413,14 +501,13 @@
                         <EditText
                             android:id="@+id/et_bottom_puls"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />
@@ -449,14 +536,13 @@
                         <EditText
                             android:id="@+id/et_bottom_negative"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_5"
                             android:background="@null"
                             android:ellipsize="end"
-                            android:focusable="true"
                             android:hint="@string/please_input"
-                            android:inputType="phone"
+                            android:inputType="number"
                             android:maxEms="6"
                             android:singleLine="true"
                             android:textSize="@dimen/sp_11" />

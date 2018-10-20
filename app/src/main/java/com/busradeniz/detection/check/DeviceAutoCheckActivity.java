@@ -1,14 +1,14 @@
 package com.busradeniz.detection.check;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.busradeniz.detection.R;
+import com.busradeniz.detection.base.BaseActivity;
 
-public class DeviceAutoCheckActivity extends AppCompatActivity implements View.OnClickListener {
+public class DeviceAutoCheckActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView mIvHelp;
     private ImageView mIvChooseMachine;
@@ -21,13 +21,16 @@ public class DeviceAutoCheckActivity extends AppCompatActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_device_auto_check);
 
         initView();
 
         initData();
 
+    }
 
+    @Override
+    public int getActivityLayoutId() {
+        return R.layout.activity_device_auto_check;
     }
 
     private void initView() {

@@ -23,7 +23,7 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="0.7">
 
                 <com.google.android.cameraview.CameraView
                     android:id="@+id/cameraView"
@@ -39,7 +39,8 @@
                 <com.busradeniz.detection.view.ScaleImageView
                     android:id="@+id/iv_image"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" />
 
                 <ImageView
                     android:id="@+id/iv_make_photo"
@@ -55,7 +56,8 @@
                     android:id="@+id/fab_menu_line"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="@dimen/dp_10">
+                    android:layout_marginBottom="@dimen/dp_10"
+                    android:visibility="gone">
 
 
                     <android.support.design.widget.FloatingActionButton
@@ -156,9 +158,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/dp_30"
                                 android:layout_marginLeft="@dimen/dp_5"
-                                android:layout_marginTop="@dimen/dp_5"
-                                android:focusable="true"
-                                android:focusableInTouchMode="true">
+                                android:layout_marginTop="@dimen/dp_5">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -171,7 +171,9 @@
                                     android:layout_width="@dimen/dp_140"
                                     android:layout_height="match_parent"
                                     android:layout_marginLeft="@dimen/dp_5"
-                                    android:background="@drawable/input_shape">
+                                    android:background="@drawable/input_shape"
+                                    android:focusable="true"
+                                    android:focusableInTouchMode="true">
 
                                     <EditText
                                         android:id="@+id/et_project_name"
@@ -182,51 +184,6 @@
                                         android:focusable="true"
                                         android:hint="@string/please_input"
                                         android:textSize="@dimen/sp_14" />
-
-                                </RelativeLayout>
-
-
-                            </LinearLayout>
-
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="@dimen/dp_30"
-                                android:layout_marginTop="@dimen/dp_5">
-
-                                <TextView
-                                    android:id="@+id/tv_translate_examine"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_gravity="center_vertical"
-                                    android:layout_marginLeft="@dimen/dp_5"
-                                    android:text="@string/product_type"
-                                    android:textSize="@dimen/sp_14" />
-
-                                <RelativeLayout
-                                    android:layout_width="@dimen/dp_140"
-                                    android:layout_height="@dimen/dp_30"
-                                    android:layout_marginLeft="@dimen/dp_5"
-                                    android:layout_marginRight="10dp"
-                                    android:background="@drawable/selected_shape">
-
-                                    <TextView
-                                        android:id="@+id/tv_translate"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_centerVertical="true"
-                                        android:layout_marginLeft="@dimen/dp_10"
-                                        android:hint="@string/please_choose"
-                                        android:textSize="@dimen/sp_14" />
-
-                                    <ImageView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_alignParentRight="true"
-                                        android:layout_centerVertical="true"
-                                        android:layout_marginRight="@dimen/dp_5"
-                                        android:src="@mipmap/right_key" />
-
 
                                 </RelativeLayout>
 
@@ -247,31 +204,15 @@
                                     android:text="@string/technology"
                                     android:textSize="@dimen/sp_14" />
 
-                                <RelativeLayout
-                                    android:layout_width="@dimen/dp_140"
-                                    android:layout_height="@dimen/dp_30"
-                                    android:layout_marginLeft="@dimen/dp_5"
-                                    android:layout_marginRight="10dp"
-                                    android:background="@drawable/selected_shape">
-
-                                    <TextView
-                                        android:id="@+id/tv_technology_classify"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_centerVertical="true"
-                                        android:layout_marginLeft="@dimen/dp_10"
-                                        android:hint="@string/please_choose"
-                                        android:textSize="@dimen/sp_14" />
-
-                                    <ImageView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_alignParentRight="true"
-                                        android:layout_centerVertical="true"
-                                        android:layout_marginRight="@dimen/dp_5"
-                                        android:src="@mipmap/right_key" />
-
-                                </RelativeLayout>
+                                <TextView
+                                    android:id="@+id/tv_technology_classify"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginLeft="@dimen/dp_10"
+                                    android:text="需要拍照的"
+                                    android:textSize="@dimen/sp_14" />
 
 
                             </LinearLayout>
@@ -280,7 +221,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="@dimen/dp_10"
-                                android:layout_marginTop="@dimen/dp_3">
+                                android:layout_marginTop="@dimen/dp_3"
+                                android:visibility="gone">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -304,7 +246,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="@dimen/dp_10"
-                                android:layout_marginTop="@dimen/dp_3">
+                                android:layout_marginTop="@dimen/dp_3"
+                                android:visibility="gone">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -330,7 +273,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="@dimen/dp_5"
                                 android:layout_marginLeft="@dimen/dp_10"
-                                android:layout_marginTop="@dimen/dp_3">
+                                android:layout_marginTop="@dimen/dp_3"
+                                android:visibility="gone">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -376,24 +320,26 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_centerInParent="true"
-                                        android:text="@string/check_seq" />
+                                        android:text="@string/choose" />
+
 
                                 </RelativeLayout>
 
                                 <RelativeLayout
                                     android:layout_width="0dp"
                                     android:layout_height="match_parent"
-                                    android:layout_weight="1.2"
+                                    android:layout_weight="0.7"
                                     android:background="@drawable/mo_text_shape">
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_centerInParent="true"
-                                        android:text="@string/check_part" />
+                                        android:text="@string/part" />
 
 
                                 </RelativeLayout>
+
 
                                 <RelativeLayout
                                     android:layout_width="0dp"
@@ -413,8 +359,7 @@
 
                             <RelativeLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:descendantFocusability="blocksDescendants">
+                                android:layout_height="wrap_content">
 
                                 <android.support.v7.widget.RecyclerView
                                     android:id="@+id/rcy_list"

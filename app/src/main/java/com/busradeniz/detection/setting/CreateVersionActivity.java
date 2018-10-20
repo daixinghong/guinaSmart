@@ -1,6 +1,5 @@
 package com.busradeniz.detection.setting;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -8,11 +7,11 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,11 +19,11 @@ import android.widget.RelativeLayout;
 
 import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
+import com.busradeniz.detection.base.BaseActivity;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
-import com.busradeniz.detection.http.NewsService;
 import com.busradeniz.detection.setting.adapter.RcyCreateModleListAdapter;
 import com.busradeniz.detection.setting.presenter.SettingInterface;
 import com.busradeniz.detection.setting.presenter.SettingPresenter;
@@ -33,9 +32,7 @@ import com.busradeniz.detection.tensorflow.TensorFlowObjectDetectionAPIModel;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.DialogUtils;
-import com.busradeniz.detection.utils.FileUtils;
 import com.busradeniz.detection.utils.LocationUtils;
-import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.ToastUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.busradeniz.detection.view.ScaleImageView;
@@ -51,6 +48,8 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.tensorflow.framework.DataType;
@@ -62,22 +61,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import tensorflow.serving.Model;
 import tensorflow.serving.Predict;
 import tensorflow.serving.PredictionServiceGrpc;
 
-public class CreateVersionActivity extends AppCompatActivity implements View.OnClickListener, SettingInterface {
+public class CreateVersionActivity extends BaseActivity implements View.OnClickListener, SettingInterface {
 
     private ImageView mIvMakePhoto;
     private CameraView mCameraView;
@@ -90,7 +88,6 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
     private Classifier detector;
     private Bitmap mCorrectBitmap;
     private final String TAG = "daixinhong";
-    private NewsService mAnInterface;
     private SettingPresenter mPresenter;
     private List<String> mClassifyList = new ArrayList<>();
     private int mResizeShortCount = 1;
@@ -98,25 +95,31 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
     private Predict.PredictRequest.Builder mPredictRequestBuilder;
     private FloatingActionMenu mFloatingActionMenu;
     private FloatingActionButton mFabMain;
-    private boolean mIsSave;
     private RecyclerView mRcyList;
     private RcyCreateModleListAdapter mAdapter;
     private List<NewVersionBean> mList = new ArrayList<>();
     private RelativeLayout mRlSave;
     private EditText mEtProjectName;
     private SupportBeanDao mSupportBeanDao;
+    private List<Bitmap> mShortBitmapList;
+    private List<Map<String, Object>> mRects;
+    private boolean mCheckIsOk;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_version);
 
         initView();
 
         initData();
 
         initEvent();
+    }
+
+    @Override
+    public int getActivityLayoutId() {
+        return R.layout.activity_create_version;
     }
 
     private void initView() {
@@ -187,19 +190,6 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == CameraActivity.REQUEST_CODE && resultCode == CameraActivity.RESULT_CODE) {
-//            //获取图片路径，显示图片
-//            final String path = CameraActivity.getImagePath(data);
-//            if (!TextUtils.isEmpty(path)) {
-//                mIvImage.setVisibility(View.VISIBLE);
-//                mIvImage.setImageBitmap(BitmapFactory.decodeFile(path));
-//            }
-//        }
-    }
-
-
     private void initTensorFlowAndLoadModel() {
         executor.execute(new Runnable() {
             @Override
@@ -215,29 +205,50 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
         });
     }
 
+    public void notifyAdapter(List<Rect> rects, List<String> strings) {
+        for (int i = 0; i < strings.size(); i++) {
+            NewVersionBean newVersionBean = new NewVersionBean();
+            NewVersionBean.Deviation deviation = new NewVersionBean.Deviation();
+            NewVersionBean.Deviation.Left left = new NewVersionBean.Deviation.Left();
+            deviation.setLeft(left);
+            NewVersionBean.Deviation.Left right = new NewVersionBean.Deviation.Left();
+            deviation.setRight(right);
+            NewVersionBean.Deviation.Left top = new NewVersionBean.Deviation.Left();
+            deviation.setTop(top);
+            NewVersionBean.Deviation.Left bottom = new NewVersionBean.Deviation.Left();
+            deviation.setBottom(bottom);
+            newVersionBean.setDeviation(deviation);
+            newVersionBean.setName(strings.get(i));
+            NewVersionBean.Location location = new NewVersionBean.Location();
+            location.setLeft(rects.get(i).left);
+            location.setTop(rects.get(i).top);
+            location.setRight(rects.get(i).right);
+            location.setBottom(rects.get(i).bottom);
+
+            newVersionBean.setLocation(location);
+            mList.add(newVersionBean);
+        }
+
+    }
+
     private void initEvent() {
         mIvMakePhoto.setOnClickListener(this);
         mRlSave.setOnClickListener(this);
+
+        mEtProjectName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mEtProjectName.setFocusableInTouchMode(true);
+                return false;
+            }
+        });
         mIvImage.setUpdataAdapterInterface(new ScaleImageView.UpdataAdapterInterface() {
             @Override
             public void setUpdataAdapterListener(List<Rect> rects, List<String> strings) {
 
                 mList.clear();
-                for (int i = 0; i < strings.size(); i++) {
-                    NewVersionBean newVersionBean = new NewVersionBean();
-                    NewVersionBean.Deviation deviation = new NewVersionBean.Deviation();
-                    NewVersionBean.Deviation.Left left = new NewVersionBean.Deviation.Left();
-                    deviation.setLeft(left);
-                    NewVersionBean.Deviation.Left right = new NewVersionBean.Deviation.Left();
-                    deviation.setRight(right);
-                    NewVersionBean.Deviation.Left top = new NewVersionBean.Deviation.Left();
-                    deviation.setTop(top);
-                    NewVersionBean.Deviation.Left bottom = new NewVersionBean.Deviation.Left();
-                    deviation.setBottom(bottom);
-                    newVersionBean.setDeviation(deviation);
-                    newVersionBean.setName(strings.get(i));
-                    mList.add(newVersionBean);
-                }
+                notifyAdapter(rects, strings);
+
                 mRlSave.setVisibility(View.VISIBLE);
                 mAdapter.notifyDataSetChanged();
             }
@@ -312,9 +323,6 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
                             os.write(data);
                             os.close();
 
-//                            if (bitmaps != null)
-//                                recognizeImage(bitmaps);
-
                         } catch (Exception e) {
                             Log.e(TAG, "run: " + e.getMessage());
                         }
@@ -323,13 +331,13 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
 
                         long startTime = System.currentTimeMillis();
                         try {
-                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
-                            fileDir.createNewFile();
-
-                            FileOutputStream out = new FileOutputStream(fileDir);
-                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                            out.flush();
-                            out.close();
+//                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
+//                            fileDir.createNewFile();
+//
+//                            FileOutputStream out = new FileOutputStream(fileDir);
+//                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//                            out.flush();
+//                            out.close();
 
                             mWidth = mBitmap.getWidth() / 4;
                             mHeight = mBitmap.getHeight() / 4;
@@ -337,35 +345,18 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
                             mIvImage.setVisibility(View.VISIBLE);
                             Bitmap bitmaps = Bitmap.createScaledBitmap(mBitmap, mWidth, mHeight, false);//400,300实际传过去的图片大小
 
-
+                            //获取hed图
                             Mat recognize = detector.recognize(bitmaps, mWidth, mHeight);
 
-
-                            Mat mat = new Mat();
-                            Utils.bitmapToMat(bitmaps, mat);
-
-
-                            Bitmap bitmap2 = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.RGB_565);
-                            Utils.matToBitmap(recognize, bitmap2);
-
-
+                            //矫正图片
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, mBitmap, 1);
 
-                            File fileDirs = new File("/sdcard/image/" + startTime + ".png"); //将图片保存到手机
-                            fileDirs.createNewFile();
-                            FileOutputStream outs = new FileOutputStream(fileDirs);
-                            mCorrectBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outs);
-                            outs.flush();
-                            outs.close();
-
-                            recognizeImage(mCorrectBitmap);  //把矫正后的图片发给后台识别
+                            //发送请求
+                            mPresenter.requestModel(CreateVersionActivity.this, mCorrectBitmap);
 
                         } catch (Exception e) {
-                            Log.e(TAG, "run: 矫正失败" + e.getMessage());
                             e.printStackTrace();
                         }
-
-//                        mIvImage.setImageBitmap(mCorrectBitmap);
 
                     }
                 });
@@ -450,25 +441,6 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
     }
 
 
-    private void recognizeImage(Bitmap bitmaps) {
-        File filesDir = getApplicationContext().getFilesDir();
-        File file = FileUtils.saveBitmapFile(bitmaps, filesDir.getAbsolutePath() + "text.jpg");
-
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        builder.setType(MultipartBody.FORM);
-        RequestBody requestBody = RequestBody.create(
-                MediaType.parse("multipart/form-data"), file);
-
-        builder.addFormDataPart("images", file.getName(), requestBody);
-
-        String modelUrl = (String) SpUtils.getParam(this, Constant.MODEL_URL, "");
-        if (!TextUtils.isEmpty(modelUrl)) {
-            mPresenter.requestModel(modelUrl, builder.build());
-        }
-
-    }
-
-
     @Override
     public void onClick(View v) {
 
@@ -485,25 +457,6 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
                 }
                 System.gc();
                 mCameraView.takePicture();
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            while (true) {
-//                                Thread.sleep(3000);
-//                                runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        System.gc();
-//                                        mCameraView.takePicture();
-//                                    }
-//                                });
-//                            }
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }).start();
 
                 break;
             case R.id.rl_back:
@@ -514,28 +467,71 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
                     ToastUtils.showTextToast(UiUtils.getString(R.string.not_input_project_name));
                     return;
                 }
-                final List<SupportBean> supportBeans = mSupportBeanDao.loadAll();
-                DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
-                DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
-                    @Override
-                    public void onConfirmClickListener(View view) {
-                        SupportBean supportBean = new SupportBean();
-                        supportBean.setProjectName(mEtProjectName.getText().toString().trim());
-                        Gson gson = new Gson();
-                        String s = gson.toJson(mList);
-                        supportBean.setData(s);
 
-                        supportBean.setLocation(gson.toJson(mIvImage.getOriginalRectList()));
-                        if (supportBeans.size() != 0) {
-                            supportBean.set_id(supportBeans.get(supportBeans.size() - 1).get_id() + 1);
+                //保存之前先把零件切割发送到服务器检测是否ok
+
+                mShortBitmapList = new ArrayList<>();
+                mRects = new ArrayList<>();
+
+                for (int i = 0; i < mList.size(); i++) {
+                    if (mList.get(i).isStatus()) {
+                        Map<String, Object> map = new HashMap<>();
+                        Rect rect = new Rect();
+                        int left = mList.get(i).getLocation().getLeft();
+                        int right = mList.get(i).getLocation().getRight();
+                        int top = mList.get(i).getLocation().getTop();
+                        int bottom = mList.get(i).getLocation().getBottom();
+                        int leftDistance = 0;
+                        int topDistance = 0;
+
+                        if (left - 40 >= 0) {
+                            leftDistance = 40;
+                            rect.left = left - 40;
                         } else {
-                            supportBean.set_id(supportBean.get_id() + 1);
+                            leftDistance = Math.abs(0 - left);
+                            rect.left = 0;
                         }
-                        mSupportBeanDao.insert(supportBean);
-                        ToastUtils.showTextToast(UiUtils.getString(R.string.save_success));
-                        finish();
+
+                        if (top - 40 >= 0) {
+                            rect.top = top - 40;
+                            topDistance = 40;
+                        } else {
+                            rect.top = 0;
+                            topDistance = Math.abs(0 - top);
+                        }
+
+                        if (right + 40 <= 400) {
+                            rect.right = right + 40;
+                        } else {
+                            rect.right = 400;
+                        }
+
+                        if (bottom + 40 <= 800) {
+                            rect.bottom = bottom + 40;
+                        } else {
+                            rect.bottom = 800;
+                        }
+
+                        map.put("width", Math.abs(left - right));//存储检测对象的宽
+                        map.put("height", Math.abs(top - bottom));//存储检测对象的高度
+                        map.put("left_distance", leftDistance);
+                        map.put("top_distance", topDistance);
+                        map.put("checkLocation", rect);
+                        map.put("name", mList.get(i).getName());
+
+                        mRects.add(map);
+
+                        int width = Math.abs(rect.left - rect.right);
+                        int height = Math.abs(rect.top - rect.bottom);
+                        Bitmap cropBitmap = Bitmap.createBitmap(mCorrectBitmap, rect.left, rect.top, width, height);
+                        mShortBitmapList.add(cropBitmap);
                     }
-                });
+
+                }
+
+                //测试零件是否ok
+                mPresenter.sendPhotoGetResult(this, mShortBitmapList);
+
                 break;
 
         }
@@ -563,33 +559,54 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
             String string = responseBody.string();
             try {
                 JSONObject json = new JSONObject(string);
-                List<Classifier.Recognition> location = LocationUtils.getLocation(json, mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight());
 
-                Mat mat = new Mat();
-                Utils.bitmapToMat(mCorrectBitmap, mat);
+                JSONArray jsonArray = json.getJSONArray("datas");
 
-                List<Rect> list = new ArrayList<>();
-                List<Rect> originalList = new ArrayList<>();
-                for (int i = 0; i < location.size(); i++) {
+                for (int j = 0; j < jsonArray.length(); j++) {
 
-                    if (location.get(i).getConfidence() >= 0.5) {
-                        RectF rectF = location.get(i).getLocation();
-                        Rect rect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
-                        Rect originalRect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
-                        list.add(rect);
-                        originalList.add(originalRect);
+                    JSONObject jsonObject = jsonArray.getJSONObject(j);
+                    List<Classifier.Recognition> location = LocationUtils.getLocation(jsonObject, mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight());
+
+                    Mat mat = new Mat();
+                    Utils.bitmapToMat(mCorrectBitmap, mat);
+
+                    List<Rect> list = new ArrayList<>();
+                    List<Rect> originalList = new ArrayList<>();
+                    List<String> partName = new ArrayList<>();
+                    for (int i = 0; i < location.size(); i++) {
+                        if (location.get(i).getConfidence() >= 0.5) {
+                            String index = location.get(i).getTitle(); // 零件名称的角标
+
+                            RectF rectF = location.get(i).getLocation();
+                            Rect rect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
+                            Rect originalRect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
+                            list.add(rect);
+                            originalList.add(originalRect);
+                            partName.add(mClassifyList.get(Integer.parseInt(index) - 1));
 //                        Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(0, 255, 0), 2);
 //                                canvas.drawRect(data.get(i).getLocation(), mPaint);
 //                                canvas.drawText(data.get(i).getTitle(), data.get(i).getLocation().left + 40, data.get(i).getLocation().top + 70, mTextPaint);
+                        }
                     }
+                    mIvImage.setRectList(list);
+                    mIvImage.setOriginalRectList(originalList);
+                    mIvImage.setPartNameList(partName);
+                    Bitmap bitmap = Bitmap.createBitmap(mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(mat, bitmap);
+                    mIvImage.setImageBitmap(bitmap);
+                    mCameraView.setVisibility(View.GONE);
+                    mIvImage.setVisibility(View.VISIBLE);
+
+
+                    mList.clear();
+                    notifyAdapter(originalList, partName);
+
+                    mRlSave.setVisibility(View.VISIBLE);
+                    mAdapter.notifyDataSetChanged();
+
                 }
-                mIvImage.setRectList(list);
-                mIvImage.setOriginalRectList(originalList);
-                Bitmap bitmap = Bitmap.createBitmap(mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(mat, bitmap);
-                mIvImage.setImageBitmap(bitmap);
-                mCameraView.setVisibility(View.GONE);
-                mIvImage.setVisibility(View.VISIBLE);
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -606,12 +623,116 @@ public class CreateVersionActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void getDataError(Throwable throwable) {
+    public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+        try {
+            String string = responseBody.string();
+            JSONObject json = new JSONObject(string);
+
+            JSONArray jsonArray = json.getJSONArray("datas");
+
+            int count = 0;
+
+            for (int j = 0; j < jsonArray.length(); j++) {
+
+                JSONObject jsonObject = jsonArray.getJSONObject(j);
+
+                int left = (int) mRects.get(j).get("left_distance");
+                int top = (int) mRects.get(j).get("top_distance");
+                int width = (int) mRects.get(j).get("width");
+                int height = (int) mRects.get(j).get("height");
+                String name = (String) mRects.get(j).get("name");
+
+                List<Classifier.Recognition> location = LocationUtils.getLocation(jsonObject, mShortBitmapList.get(j).getWidth(), mShortBitmapList.get(j).getHeight());
+
+
+                Rect rect = new Rect();  //目标零件的正确位置
+                rect.left = left;
+                rect.top = top;
+                rect.right = rect.left + width;
+                rect.bottom = rect.top + height;
+
+                Bitmap bitmap = mShortBitmapList.get(j);
+
+                Mat mat = new Mat();
+                Utils.bitmapToMat(bitmap, mat);
+
+
+                for (int i = 0; i < location.size(); i++) {
+
+                    String id = location.get(i).getTitle();
+
+                    String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
+
+                    if (name.equals(classifyName)) {
+                        if (location.get(i).getConfidence() >= 0.5) {
+                            RectF rectF = location.get(i).getLocation();    //检测获取到的结果
+
+                            Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 180, 0), 5);
+
+                            Utils.matToBitmap(mat, bitmap);
+
+                            if (Math.abs(rect.left - rectF.left) > 10) {
+                                continue;
+                            }
+                            if (Math.abs(rect.right - rectF.right) > 10) {
+                                continue;
+                            }
+                            if (Math.abs(rect.top - rectF.top) > 10) {
+                                continue;
+                            }
+                            if (Math.abs(rect.bottom - rectF.bottom) > 10) {
+                                continue;
+                            }
+                            count++;
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+            if (count == jsonArray.length()) { //如果检测ok 就直接保存
+                final List<SupportBean> supportBeans = mSupportBeanDao.loadAll();
+                DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
+                DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
+                    @Override
+                    public void onConfirmClickListener(View view) {
+
+                        SupportBean supportBean = new SupportBean();
+                        supportBean.setProjectName(mEtProjectName.getText().toString().trim());
+
+                        Gson gson = new Gson();
+                        String s = gson.toJson(mList);
+
+                        supportBean.setData(s);
+                        supportBean.setLocation(gson.toJson(mRects));
+
+                        if (supportBeans.size() != 0) {
+                            supportBean.set_id(supportBeans.get(supportBeans.size() - 1).get_id() + 1);
+                        } else {
+                            supportBean.set_id(supportBean.get_id() + 1);
+                        }
+                        mSupportBeanDao.insert(supportBean);
+                        ToastUtils.showTextToast(UiUtils.getString(R.string.save_success));
+                        finish();
+                    }
+                });
+            } else {  //不ok
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
 
     public void test(int width, int height, Mat mats) {
+
 
         mats.convertTo(mats, CvType.CV_32FC3);
         float[] floats = new float[(int) mats.total() * mats.channels()];

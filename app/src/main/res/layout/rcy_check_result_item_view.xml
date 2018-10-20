@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="iphone6" />
+                />
 
 
         </RelativeLayout>
@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="半成品"
                 android:textColor="@color/color_50FF00" />
 
 
@@ -55,7 +54,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="错误信息"
                 android:textColor="@color/color_E51C23" />
 
 

@@ -27,7 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkFragment extends Fragment  {
+public class WorkFragment extends Fragment {
 
     private EditText mEtSearch;
     private RecyclerView mRcyList;
@@ -128,7 +128,6 @@ public class WorkFragment extends Fragment  {
     private void initData() {
 
 
-
         mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
         List<SupportBean> supportBeans = mSupportBeanDao.loadAll();
         mList.clear();
@@ -160,7 +159,6 @@ public class WorkFragment extends Fragment  {
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
         mRcyList.setLayoutManager(manager);
     }
-
 
 
 }

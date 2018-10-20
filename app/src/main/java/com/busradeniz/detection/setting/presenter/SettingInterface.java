@@ -14,6 +14,8 @@ public interface SettingInterface extends BaseErrorBean {
 
     void getModelSuccess(ModelBean modelBean);
 
+    void testCutPhotoSuccess(ResponseBody responseBody);
+
 
 
 

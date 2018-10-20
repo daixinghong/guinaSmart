@@ -26,7 +26,7 @@ public interface NewsService {
      *
      * @return
      */
-    @POST("api/det/get_labels")
+    @GET("api/get_labels")
     Call<ResponseBody> getTag();
 
     /**

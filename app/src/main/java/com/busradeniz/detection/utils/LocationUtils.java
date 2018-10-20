@@ -21,11 +21,10 @@ public class LocationUtils {
     private static List<Integer> mClassesList = new ArrayList<>();
     private static List<Float> mScoresList = new ArrayList<>();
 
-    public static List<Classifier.Recognition> getLocation(JSONObject baseJson, int width, int heigh) {
+    public static List<Classifier.Recognition> getLocation(JSONObject jsonObject, int width, int heigh) {
 
         try {
-            JSONArray datas = baseJson.getJSONArray("datas");
-            JSONObject jsonObject = datas.getJSONObject(0);
+
             JSONArray box = jsonObject.getJSONObject("data").getJSONArray("boxes");
             JSONArray classes = jsonObject.getJSONObject("data").getJSONArray("classes");
             JSONArray scores = jsonObject.getJSONObject("data").getJSONArray("scores");

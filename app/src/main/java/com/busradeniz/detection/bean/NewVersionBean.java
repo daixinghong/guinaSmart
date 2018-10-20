@@ -74,23 +74,23 @@ public class NewVersionBean implements Serializable {
         }
 
         public static class Left implements Serializable {
-            private float puls;
+            private int puls;
 
-            private float negative;
+            private int negative;
 
-            public float getPuls() {
+            public int getPuls() {
                 return puls;
             }
 
-            public void setPuls(float puls) {
+            public void setPuls(int puls) {
                 this.puls = puls;
             }
 
-            public float getNegative() {
+            public int getNegative() {
                 return negative;
             }
 
-            public void setNegative(float negative) {
+            public void setNegative(int negative) {
                 this.negative = negative;
             }
         }
@@ -121,50 +121,50 @@ public class NewVersionBean implements Serializable {
         public Location() {
         }
 
-        public Location(float left, float right, float top, float bottom) {
+        public Location(int left, int right, int top, int bottom) {
             this.left = left;
             this.right = right;
             this.top = top;
             this.bottom = bottom;
         }
 
-        public float left;
+        public int  left;
 
-        private float right;
+        private int right;
 
-        private float top;
+        private int top;
 
-        private float bottom;
+        private int bottom;
 
-        public float getLeft() {
+        public int getLeft() {
             return left;
         }
 
-        public void setLeft(float left) {
+        public void setLeft(int left) {
             this.left = left;
         }
 
-        public float getRight() {
+        public int getRight() {
             return right;
         }
 
-        public void setRight(float right) {
+        public void setRight(int right) {
             this.right = right;
         }
 
-        public float getTop() {
+        public int getTop() {
             return top;
         }
 
-        public void setTop(float top) {
+        public void setTop(int top) {
             this.top = top;
         }
 
-        public float getBottom() {
+        public int getBottom() {
             return bottom;
         }
 
-        public void setBottom(float bottom) {
+        public void setBottom(int bottom) {
             this.bottom = bottom;
         }
     }

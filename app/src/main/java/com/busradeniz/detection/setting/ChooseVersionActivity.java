@@ -1,7 +1,6 @@
 package com.busradeniz.detection.setting;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.TextView;
 import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.ToastUtils;
+import com.busradeniz.detection.base.BaseActivity;
 import com.busradeniz.detection.bean.ChooseVersionBean;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
@@ -37,7 +37,7 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 
-public class ChooseVersionActivity extends AppCompatActivity implements View.OnClickListener, SettingInterface {
+public class ChooseVersionActivity extends BaseActivity implements View.OnClickListener, SettingInterface {
 
     private RelativeLayout mRlBack;
     private RecyclerView mRcyChooseVersion;
@@ -55,7 +55,6 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_version);
 
         initView();
 
@@ -63,6 +62,11 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
 
         initEvent();
 
+    }
+
+    @Override
+    public int getActivityLayoutId() {
+        return R.layout.activity_choose_version;
     }
 
     private void initEvent() {
@@ -213,25 +217,10 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
 
             JSONObject jsonObject = new JSONObject(string);
             JSONArray array = jsonObject.getJSONArray("array");
-            for (int i = 0;i<array.length();i++){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            for (int i = 0; i < array.length(); i++) {
 
 
             }
-
 
 
         } catch (Exception e) {
@@ -255,7 +244,8 @@ public class ChooseVersionActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void getDataError(Throwable throwable) {
+    public void testCutPhotoSuccess(ResponseBody responseBody) {
 
     }
+
 }

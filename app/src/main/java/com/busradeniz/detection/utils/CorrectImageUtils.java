@@ -68,7 +68,7 @@ public class CorrectImageUtils {
 
         Bitmap cropBitmap = Bitmap.createBitmap(srcBitmap, (int) x, (int) y, (int) width, (int) height);
 
-        Bitmap fixed_roi_image = rectify_img_roi(cropBitmap, founded_rect_with_points, x, y, 240, 480);
+        Bitmap fixed_roi_image = rectify_img_roi(cropBitmap, founded_rect_with_points, x, y, 400, 800);
 
         return fixed_roi_image;
     }

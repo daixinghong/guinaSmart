@@ -431,7 +431,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
                     for (int i = 0; i < mRectList.size(); i++) {
                         if (x > mRectList.get(i).left && x < mRectList.get(i).right && y > mRectList.get(i).top && y < mRectList.get(i).bottom) {
                             mRectList.remove(i);
-//                            mPartNameList.remove(i);
+                            mPartNameList.remove(i);
                             mOriginalRectList.remove(i);
                             postInvalidate();
                             //列表更新回调

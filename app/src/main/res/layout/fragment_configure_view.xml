@@ -8,8 +8,59 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="配置" />
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="选择工艺类型"
+        android:textColor="@color/text_black_primary"
+        android:textSize="@dimen/sp_15" />
 
+
+    <RadioGroup
+        android:id="@+id/rg_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_cut_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="需要拍照的" />
+
+        <RadioButton
+            android:id="@+id/rb_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:text="不需要拍照的" />
+
+    </RadioGroup>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/rl_create_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_20"
+            android:background="@drawable/buttion_shape">
+
+            <TextView
+                style="@style/button_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_configure"
+                android:textColor="@color/ffffff" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
 </LinearLayout>

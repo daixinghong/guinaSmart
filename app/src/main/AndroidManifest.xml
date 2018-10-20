@@ -62,7 +62,6 @@
             android:screenOrientation="landscape" />
         <activity android:name=".setting.SupportFuncationActivity" />
         <activity android:name=".setting.ChooseVersionActivity" />
-
         <activity android:name=".base.BaseActivity" />
         <activity android:name=".setting.ProductDetailsActivity" />
         <activity android:name=".setting.DrawRectActivity" />
@@ -79,6 +78,7 @@
         <activity
             android:name=".setting.CreateVersionActivity"
             android:screenOrientation="landscape" />
+        <activity android:name=".check.CreateAppearanceConfigureActivity"></activity>
     </application>
 
 </manifest>

@@ -2,6 +2,7 @@ package com.busradeniz.detection.check.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.check.bean.CheckResultBean;
+import com.busradeniz.detection.utils.UiUtils;
 
 import java.util.List;
 
@@ -42,12 +44,28 @@ public class RcyCheckResultAdapter extends RecyclerView.Adapter<RcyCheckResultAd
     @Override
     public void onBindViewHolder(CheckResultHolder holder, final int position) {
 
+        holder.mTvCheckPosition.setText(mList.get(position).getName());
+        String status = mList.get(position).getIsSuccess();
+
+        if (TextUtils.isEmpty(status)) {    //检测中
+            holder.mTvDislikeDesc.setText(UiUtils.getString(R.string.checking));
+            holder.mTvDislikeDesc.setTextColor(UiUtils.getColor(R.color.text_black_primary));
+        } else if (status.equals("ok")) {   //位置ok
+            holder.mTvDislikeDesc.setText(UiUtils.getString(R.string.ok));
+            holder.mTvDislikeDesc.setTextColor(UiUtils.getColor(R.color.color_50FF00));
+        } else {                            //位置ng
+            holder.mTvDislikeDesc.setText(UiUtils.getString(R.string.error));
+            holder.mTvDislikeDesc.setTextColor(UiUtils.getColor(R.color.red));
+        }
+        holder.mTvStatus.setText(mList.get(position).getError());
+
+
     }
 
 
     @Override
     public int getItemCount() {
-        return mList == null ? 0 : 10;
+        return mList == null ? 0 : mList.size();
     }
 
 

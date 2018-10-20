@@ -88,6 +88,11 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
     }
 
     @Override
+    public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
     public void getDataError(Throwable throwable) {
 
         throwable.printStackTrace();

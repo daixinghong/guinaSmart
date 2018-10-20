@@ -591,6 +591,7 @@
     <string name="imei_2">IMEI2:</string>
     <string name="SN">S/N:</string>
     <string name="check_part">检测部位</string>
+    <string name="part">部位</string>
     <string name="check_result">检测结果</string>
 
     <string name="check_result_">检测结果:</string>
@@ -600,5 +601,15 @@
     <string name="please_choose">请选择</string>
     <string name="technology">工艺分类:</string>
     <string name="exception_handle">异常处理</string>
+    <string name="checking">检测中...</string>
+    <string name="error">NG</string>
+    <string name="ok">OK</string>
+    <string name="location_deviation">位置偏移</string>
+    <string name="start_check">开始检测</string>
+    <string name="create_configure">新建配置</string>
+    <string name="choose">选择</string>
+
+    <string name="no_serial_device">找不到串口设备</string>
+
 
 </resources>

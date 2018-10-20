@@ -8,6 +8,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -47,12 +49,25 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
     @Override
     public void onBindViewHolder(ProductFirstSpscHodler holder, final int position) {
         holder.mTvName.setText(mList.get(position).getName());
-        holder.mTvSeq.setText(position + 1 + "");
+
+        holder.mTvLeftStand.setText(mList.get(position).getLocation().getLeft() + "");
+        holder.mTvRightStand.setText(mList.get(position).getLocation().getRight() + "");
+        holder.mTvTopStand.setText(mList.get(position).getLocation().getTop() + "");
+        holder.mTvBottomStand.setText(mList.get(position).getLocation().getBottom() + "");
 //        if (mList.get(position).isStatus()) {
 //            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.color_358fc1));
 //        } else {
 //            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.ffffff));
 //        }
+
+        holder.mCbChoose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mList.get(position).setStatus(isChecked);
+            }
+        });
+
+
         try {
 
             if (holder.mEtLeftPuls.getTag() instanceof TextWatcher) {
@@ -89,6 +104,8 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             holder.mEtRightPuls.setText(mList.get(position).getDeviation().getRight().getPuls() + "");
             holder.mEtBottomPuls.setText(mList.get(position).getDeviation().getBottom().getPuls() + "");
             holder.mEtBottomNegative.setText(mList.get(position).getDeviation().getBottom().getNegative() + "");
+
+
             setData(holder, position);
         } catch (Exception e) {
 
@@ -112,7 +129,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getBottom().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getBottom().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -134,7 +151,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getBottom().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getBottom().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -157,7 +174,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getLeft().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getLeft().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -180,7 +197,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getLeft().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getLeft().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -203,7 +220,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getRight().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getRight().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -226,7 +243,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getRight().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getRight().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -249,7 +266,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getTop().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getTop().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -272,7 +289,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getTop().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getTop().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         };
@@ -300,7 +317,11 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
         private final EditText mEtBottomPuls;
         private final EditText mEtBottomNegative;
         private OnItemClickListener mOnItemClickListener;
-        private final TextView mTvSeq;
+        private final TextView mTvLeftStand;
+        private final TextView mTvRightStand;
+        private final TextView mTvTopStand;
+        private final TextView mTvBottomStand;
+        private final CheckBox mCbChoose;
 
         public ProductFirstSpscHodler(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
@@ -313,7 +334,12 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
             mEtTopNegative = itemView.findViewById(R.id.et_top_negative);
             mEtBottomPuls = itemView.findViewById(R.id.et_bottom_puls);
             mEtBottomNegative = itemView.findViewById(R.id.et_bottom_negative);
-            mTvSeq = itemView.findViewById(R.id.tv_seq);
+            mTvLeftStand = itemView.findViewById(R.id.tv_left_stand);
+            mTvRightStand = itemView.findViewById(R.id.tv_right_stand);
+            mTvTopStand = itemView.findViewById(R.id.tv_top_stand);
+            mTvBottomStand = itemView.findViewById(R.id.tv_bottom_stand);
+            mCbChoose = itemView.findViewById(R.id.cb_choose);
+
             this.mOnItemClickListener = onItemClickListener;
             itemView.setOnClickListener(this);
         }

@@ -1,8 +1,8 @@
 package com.busradeniz.detection.check;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,39 +22,43 @@ import android.widget.TextView;
 import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.ToastUtils;
+import com.busradeniz.detection.base.BaseActivity;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.adapter.RcyCheckResultAdapter;
 import com.busradeniz.detection.check.bean.CheckResultBean;
+import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.check.bean.RectBean;
 import com.busradeniz.detection.env.Logger;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
-import com.busradeniz.detection.http.NewsService;
-import com.busradeniz.detection.http.RetrofitNetwork;
 import com.busradeniz.detection.setting.ChooseVersionActivity;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.setting.DrawRectActivity;
 import com.busradeniz.detection.setting.SupportFuncationActivity;
+import com.busradeniz.detection.setting.presenter.SettingInterface;
+import com.busradeniz.detection.setting.presenter.SettingPresenter;
 import com.busradeniz.detection.tensorflow.Classifier;
 import com.busradeniz.detection.tensorflow.TensorFlowObjectDetectionAPIModel;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.LocationUtils;
-import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,19 +68,13 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 /**
  */
 
-public class ScanTwoThinkActivity extends Activity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
+public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener, SettingInterface {
 
     private TextView textViewResult;
     private ImageView btnDetectObject;
@@ -109,12 +107,14 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
     private ImageView mIvBack;
     private SupportBean mSupportBean;
     private List<NewVersionBean> mArryList;
+    private List<Bitmap> mShortBitmapList;
+    private SettingPresenter mPresenter;
+    private List<String> mClassifyList = new ArrayList<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_two_think_scan);
 
         intView();
 
@@ -125,6 +125,12 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
 //        if (!UsbConnect.isConnect(this)) {
 //            UsbConnect.Connect(this);
 //        }
+
+    }
+
+    @Override
+    public int getActivityLayoutId() {
+        return R.layout.activity_two_think_scan;
     }
 
 
@@ -162,18 +168,7 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
                             TF_Wdith_API_INPUT_SIZE = bitmap.getHeight() / 4;
 
                             mBitmaps = Bitmap.createScaledBitmap(bitmap, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE, false);
-                            long startTime = System.currentTimeMillis();
-                            try {
-                                File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
-                                fileDir.createNewFile();
 
-                                FileOutputStream out = new FileOutputStream(fileDir);
-                                mBitmaps.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                                out.flush();
-                                out.close();
-                            } catch (Exception e) {
-
-                            }
                             mImageView.setVisibility(View.VISIBLE);
                             cameraView.setVisibility(View.GONE);
                             mImageView.setImageBitmap(bitmap);
@@ -185,20 +180,34 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
                             Bitmap correctBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
                             mImageView.setImageBitmap(correctBitmap);
 
-                            List<Bitmap> shortBitmapList = new ArrayList<>();
+                            mShortBitmapList = new ArrayList<>();
                             for (int i = 0; i < mLocationList.size(); i++) {
                                 RectBean rectBean = mLocationList.get(i);
                                 int width = Math.abs(rectBean.getLeft() - rectBean.getRight());
                                 int height = Math.abs(rectBean.getTop() - rectBean.getBottom());
                                 Bitmap cropBitmap = Bitmap.createBitmap(correctBitmap, rectBean.getLeft(), rectBean.getTop(), width, height);
-                                shortBitmapList.add(cropBitmap);
-                                Log.e(TAG, "run: ");
+                                mShortBitmapList.add(cropBitmap);
                             }
 
 
-                            Log.e(TAG, "run: ");
-//
-                            recognizeImage(shortBitmapList);
+                            try {
+                                FileOutputStream out = null;
+                                for (int i = 0; i < mShortBitmapList.size(); i++) {
+                                    long startTime = System.currentTimeMillis();
+                                    File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
+                                    fileDir.createNewFile();
+                                    out = new FileOutputStream(fileDir);
+                                    mShortBitmapList.get(i).compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+                                }
+                                out.flush();
+                                out.close();
+                            } catch (Exception e) {
+
+                            }
+
+                            //发送请求
+                            mPresenter.sendPhotoGetResult(ScanTwoThinkActivity.this, mShortBitmapList);
 
 
                         } catch (Exception e) {
@@ -225,7 +234,12 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
         btnDetectObject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mList.clear();
+
+                for (int i = 0; i < mList.size(); i++) {
+                    mList.get(i).setError("");
+                    mList.get(i).setIsSuccess("");
+                }
+
                 if (mResizeBitmap != null && !mResizeBitmap.isRecycled()) {
                     mResizeBitmap.recycle();
                     mResizeBitmap = null;
@@ -258,6 +272,9 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
         mAdapter = new RcyCheckResultAdapter(this, mList);
         mRcyDislikeInfoList.setAdapter(mAdapter);
 
+        mPresenter = new SettingPresenter(this);
+        mPresenter.getTag();
+
         try {
             mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
             mSupportBean = queryData(true);
@@ -273,8 +290,38 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
             mArryList = gson.fromJson(data, new TypeToken<List<NewVersionBean>>() { //解析每个零件正确的位置
             }.getType());
 
-            mLocationList = gson.fromJson(location, new TypeToken<List<RectBean>>() { //解析每个零件允许偏移的位置
-            }.getType());
+            for (int i = 0; i < mArryList.size(); i++) {
+                String name = mArryList.get(i).getName();
+                CheckResultBean checkResultBean = new CheckResultBean();
+                checkResultBean.setName(name);
+                mList.add(checkResultBean);
+            }
+            mAdapter.notifyDataSetChanged();
+
+
+            mLocationList = new ArrayList<>();
+
+            //解析检测对象的位置信息
+            JSONArray jsonArray = new JSONArray(location);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                RectBean rectBean = new RectBean();
+
+                rectBean.setWidth(jsonObject.getInt("width"));
+                rectBean.setHeight(jsonObject.getInt("height"));
+                rectBean.setTopDistance(jsonObject.getInt("top_distance"));
+                rectBean.setLeftDistance(jsonObject.getInt("left_distance"));
+                JSONObject checkLocation = jsonObject.getJSONObject("checkLocation");
+
+                rectBean.setLeft(checkLocation.getInt("left"));
+                rectBean.setTop(checkLocation.getInt("top"));
+                rectBean.setRight(checkLocation.getInt("right"));
+                rectBean.setBottom(checkLocation.getInt("bottom"));
+
+                mLocationList.add(rectBean);
+            }
 
         } catch (Exception e) {
 
@@ -330,102 +377,6 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
     public void recognizeImage(List<Bitmap> bitmaps) {
 
 
-        File filesDir = getApplicationContext().getFilesDir();
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-
-        for (int i = 0; i < bitmaps.size(); i++) {
-
-            File file = saveBitmapFile(bitmaps.get(i), filesDir.getAbsolutePath() + "text.jpg");
-            RequestBody requestBody = RequestBody.create(
-                    MediaType.parse("multipart/form-data"), file);
-            builder.addFormDataPart("images", file.getName(), requestBody);
-        }
-        builder.setType(MultipartBody.FORM);
-
-        NewsService anInterface = RetrofitNetwork.getObserableIntence();
-        Call<ResponseBody> news = null;
-
-        String modelUrl = (String) SpUtils.getParam(this, Constant.MODEL_URL, "");
-        if (!TextUtils.isEmpty(modelUrl)) {
-            news = anInterface.originalInterface(modelUrl, builder.build());
-        }
-
-        news.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String string = response.body().string();
-                    JSONObject json = new JSONObject(string);
-                    List<Classifier.Recognition> location = LocationUtils.getLocation(json, 240, 480);
-
-                    Log.e(TAG, "onResponse: 数据大小 " + location.size());
-                    for (int i = 0; i < location.size(); i++) {
-                        RectF rectF = location.get(i).getLocation();      //检测出来零件的位置
-                        RectBean rectBean = mLocationList.get(i);   //正确的零件位置
-
-                         if (Math.abs(rectF.left - rectBean.getLeft()) > 50) {
-                            Log.e(TAG, "onResponse: 左边偏移" + Math.abs(rectF.left - rectBean.getLeft()));
-                        }
-                        if (Math.abs(rectF.right - rectBean.getRight()) > 50) {
-                            Log.e(TAG, "onResponse: 右边偏移 " + Math.abs(rectF.right - rectBean.getRight()));
-                        }
-                        if (Math.abs(rectF.top - rectBean.getTop()) > 50) {
-                            Log.e(TAG, "onResponse: 上边偏移" + Math.abs(rectF.top - rectBean.getTop()));
-                        }
-                        if (Math.abs(rectF.bottom - rectBean.getBottom()) > 50) {
-                            Log.e(TAG, "onResponse: 下边偏移" + Math.abs(rectF.bottom - rectBean.getBottom()));
-
-                        }
-
-                        if (Math.abs(rectF.left - rectBean.getLeft()) > 50) {
-                            Log.e(TAG, "onResponse: 左边偏移" + Math.abs(rectF.left - rectBean.getLeft()));
-                        }
-                        if (Math.abs(rectF.right - rectBean.getRight()) > 50) {
-                            Log.e(TAG, "onResponse: 右边偏移 " + Math.abs(rectF.right - rectBean.getRight()));
-                        }
-                        if (Math.abs(rectF.top - rectBean.getTop()) > 50) {
-                            Log.e(TAG, "onResponse: 上边偏移" + Math.abs(rectF.top - rectBean.getTop()));
-                        }
-                        if (Math.abs(rectF.bottom - rectBean.getBottom()) > 50) {
-                            Log.e(TAG, "onResponse: 下边偏移" + Math.abs(rectF.bottom - rectBean.getBottom()));
-                        }
-
-//                        NewVersionBean.Deviation deviation = mArryList.get(i).getDeviation(); //每个零件允许偏移的位置
-                    }
-
-
-                    cameraView.setVisibility(View.GONE);
-                    mImageView.setVisibility(View.VISIBLE);
-                    mImageView.setImageBitmap(bitmap);
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("vivi", "onFailure: " + t.getMessage());
-            }
-        });
-
-
-    }
-
-
-    public static File saveBitmapFile(Bitmap bitmap, String filepath) {
-        File file = new File(filepath);//将要保存图片的路径
-        try {
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-            bos.flush();
-            bos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;
-
     }
 
 
@@ -448,6 +399,7 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
         public void onManagerConnected(int status) {
             switch (status) {
                 case BaseLoaderCallback.SUCCESS:
+
                     break;
                 default:
                     super.onManagerConnected(status);
@@ -510,4 +462,114 @@ public class ScanTwoThinkActivity extends Activity implements View.OnClickListen
 
         return false;
     }
+
+    @Override
+    public void getClassifyDataSuccess(ResponseBody responseBody) {
+        try {
+            String string = responseBody.string();
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray category_index = jsonObject.getJSONArray("category_index");
+            mClassifyList.clear();
+            for (int i = 0; i < category_index.length(); i++) {
+                mClassifyList.add(category_index.getJSONObject(i).getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void checkObjectSuccess(ResponseBody responseBody) {
+        try {
+
+            String string = responseBody.string();
+            JSONObject json = new JSONObject(string);
+
+            for (int i = 0; i < mLocationList.size(); i++) {
+                int left = mLocationList.get(i).getLeft();
+                int right = mLocationList.get(i).getRight();
+                int top = mLocationList.get(i).getTop();
+                int bottom = mLocationList.get(i).getBottom();
+
+                JSONArray datas = json.getJSONArray("datas");
+
+                List<Classifier.Recognition> location = LocationUtils.getLocation(datas.getJSONObject(i), Math.abs(left - right), Math.abs(top - bottom));
+
+                Rect rect = new Rect();  //目标零件的正确位置
+                rect.left = mLocationList.get(i).getLeftDistance();
+                rect.top = mLocationList.get(i).getTopDistance();
+                rect.right = rect.left + mLocationList.get(i).getWidth();
+                rect.bottom = rect.top + mLocationList.get(i).getHeight();
+
+
+                Bitmap bitmap = mShortBitmapList.get(i);
+
+                Mat mat = new Mat();
+                Utils.bitmapToMat(bitmap, mat);
+                Imgproc.rectangle(mat, new Point(rect.left, rect.top), new Point(rect.right, rect.bottom), new Scalar(255, 180, 0), 2);
+
+                Utils.matToBitmap(mat, bitmap);
+
+                Log.e(TAG, "onResponse: ");
+                String name = mArryList.get(i).getName();
+
+                for (int j = 0; j < location.size(); j++) {
+                    RectF rectF = location.get(j).getLocation();  //检测零件返回的位置
+
+                    String id = location.get(j).getTitle();
+
+                    String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
+
+                    if (name.equals(classifyName)) {  //判断分类
+                        if (location.get(j).getConfidence() > 0.5) {    //相识度大于一半才进行判断，其余的pass
+
+                            Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 0, 0), 2);
+
+                            Utils.matToBitmap(mat, bitmap);
+
+                            if (Math.abs(rect.left - rectF.left) > 40) {
+                                continue;
+                            }
+                            if (Math.abs(rect.right - rectF.right) > 40) {
+                                continue;
+                            }
+                            if (Math.abs(rect.top - rectF.top) > 40) {
+                                continue;
+                            }
+                            if (Math.abs(rect.bottom - rectF.bottom) > 40) {
+                                continue;
+                            }
+
+                            mList.get(i).setIsSuccess("ok");
+                            mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                    if (j == location.size() - 1) {
+                        if (TextUtils.isEmpty(mList.get(i).getIsSuccess())) {
+                            mList.get(i).setIsSuccess("ng");
+                            mList.get(i).setError(UiUtils.getString(R.string.location_deviation));
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void getModelSuccess(ModelBean modelBean) {
+
+    }
+
+    @Override
+    public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
 }

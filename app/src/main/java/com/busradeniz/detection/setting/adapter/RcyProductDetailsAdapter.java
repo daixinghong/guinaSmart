@@ -80,7 +80,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getBottom().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getBottom().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -98,7 +98,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getBottom().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getBottom().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -117,7 +117,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getLeft().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getLeft().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -136,7 +136,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getLeft().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getLeft().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -154,7 +154,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getRight().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getRight().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -172,7 +172,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getRight().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getRight().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -190,7 +190,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getTop().setNegative(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getTop().setNegative(Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -208,7 +208,7 @@ public class RcyProductDetailsAdapter extends RecyclerView.Adapter<RcyProductDet
             @Override
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString())) {
-                    mList.get(position).getDeviation().getTop().setPuls(Float.parseFloat(s.toString()));
+                    mList.get(position).getDeviation().getTop().setPuls(Integer.parseInt(s.toString()));
                 }
             }
         });
