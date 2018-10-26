@@ -10,13 +10,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.busradeniz.detection.R;
-import com.busradeniz.detection.bean.ChooseVersionBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
 import com.busradeniz.detection.bean.SupportBean;
-import com.busradeniz.detection.check.DeviceAutoCheckActivity;
 import com.busradeniz.detection.check.ScanTwoThinkActivity;
 import com.busradeniz.detection.check.fragment.DebugFragment;
 import com.busradeniz.detection.check.fragment.WorkFragment;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
+import com.busradeniz.detection.setting.CreateVersionActivity;
+import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.IntentUtils;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
 public class RcyProductListAdapter extends RecyclerView.Adapter<RcyProductListAdapter.CheckResultHolder> {
 
     private Context mContext;
-    private List<ChooseVersionBean> mList;
+    private List<ConfigureListBean.DatasBean> mList;
     private OnItemClickListener mOnItemClickListener;
     private DebugFragment mDebugFragment;
     private WorkFragment mWorkFragment;
@@ -38,7 +39,7 @@ public class RcyProductListAdapter extends RecyclerView.Adapter<RcyProductListAd
         this.mOnItemClickListener = onItemClickListener;
     }
 
-    public RcyProductListAdapter(Context context, List<ChooseVersionBean> list, WorkFragment workFragment, SupportBeanDao supportBeanDao) {
+    public RcyProductListAdapter(Context context, List<ConfigureListBean.DatasBean> list, WorkFragment workFragment, SupportBeanDao supportBeanDao) {
         this.mContext = context;
         this.mList = list;
         this.mWorkFragment = workFragment;
@@ -55,21 +56,28 @@ public class RcyProductListAdapter extends RecyclerView.Adapter<RcyProductListAd
 
     @Override
     public void onBindViewHolder(CheckResultHolder holder, final int position) {
-        holder.mTvProjectName.setText(mList.get(position).getProjectName());
+        holder.mTvProjectName.setText(mList.get(position).getName());
 
+        holder.mRlSeeDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(Constant.STATUS, true);
+                bundle.putInt(Constant.ID, mList.get(position).getId());
+                IntentUtils.startActivityForParms(mContext, CreateVersionActivity.class, bundle);
+
+
+            }
+        });
 
         holder.mRlAuto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                IntentUtils.startActivity(mContext, DeviceAutoCheckActivity.class);
-                queryData(true, false);
-                //把这个产品状态设置为true
-                if (queryData(mList.get(position).getProjectName(), true)) {
 
-                } else {
-
-                }
-                IntentUtils.startActivity(mContext, ScanTwoThinkActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt(Constant.ID, mList.get(position).getId());
+                IntentUtils.startActivityForParms(mContext, ScanTwoThinkActivity.class, bundle);
             }
         });
 
@@ -128,14 +136,15 @@ public class RcyProductListAdapter extends RecyclerView.Adapter<RcyProductListAd
         private final TextView mTvProjectName;
         private final TextView mTvCheckType;
         private final RelativeLayout mRlAuto;
+        private final RelativeLayout mRlSeeDetails;
 
         public CheckResultHolder(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
             mTvProjectName = itemView.findViewById(R.id.tv_project_name);
             mTvCheckType = itemView.findViewById(R.id.tv_check_type);
             mRlAuto = itemView.findViewById(R.id.rl_auto);
+            mRlSeeDetails = itemView.findViewById(R.id.rl_see_details);
         }
-
 
     }
 }

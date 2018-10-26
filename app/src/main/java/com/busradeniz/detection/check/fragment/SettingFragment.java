@@ -12,7 +12,11 @@ import android.widget.RelativeLayout;
 
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.ToastUtils;
+import com.busradeniz.detection.base.BaseBean;
+import com.busradeniz.detection.bean.ConfigureInfoBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
 import com.busradeniz.detection.check.bean.ModelBean;
+import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.setting.adapter.RcyModelAdapter;
 import com.busradeniz.detection.setting.presenter.SettingInterface;
 import com.busradeniz.detection.setting.presenter.SettingPresenter;
@@ -23,7 +27,9 @@ import com.busradeniz.detection.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 public class SettingFragment extends Fragment implements SettingInterface, View.OnClickListener {
@@ -88,7 +94,47 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
     }
 
     @Override
+    public void createConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public RequestBody getParms() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        return null;
+    }
+
+    @Override
+    public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
+    }
+
+    @Override
+    public void getConfigureInfoSuccess(ConfigureInfoBean bean) {
+
+    }
+
+    @Override
+    public void updataConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public void commitCheckResultSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
     public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void getRecordListSuccess(RecordListBean recordListBean) {
 
     }
 

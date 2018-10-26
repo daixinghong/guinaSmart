@@ -20,9 +20,11 @@ public interface Constant {
 
     String MODEL_URL = "model_url";
 
-    String  BAUDRATES = "1500000";
+    String BAUDRATES = "1500000";
 
+    String STATUS = "status";
 
+    String ID = "id";
 
 
 }

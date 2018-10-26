@@ -23,14 +23,18 @@ import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.ToastUtils;
 import com.busradeniz.detection.base.BaseActivity;
+import com.busradeniz.detection.base.BaseBean;
+import com.busradeniz.detection.bean.ConfigureInfoBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
+import com.busradeniz.detection.bean.LocationBean;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.adapter.RcyCheckResultAdapter;
 import com.busradeniz.detection.check.bean.CheckResultBean;
 import com.busradeniz.detection.check.bean.ModelBean;
+import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.check.bean.RectBean;
 import com.busradeniz.detection.env.Logger;
-import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
 import com.busradeniz.detection.setting.ChooseVersionActivity;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.setting.DrawRectActivity;
@@ -46,7 +50,6 @@ import com.busradeniz.detection.utils.LocationUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -65,9 +68,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 
@@ -101,15 +108,17 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private TextView mTvCheckName;
     private ImageView mIvSetting;
     private DrawerLayout mDrawerLayout;
-    private SupportBeanDao mSupportBeanDao;
-    private List<RectBean> mLocationList;
-    private TextView mMtvProjectName;
+    private List<RectBean> mLocationList = new ArrayList<>();
     private ImageView mIvBack;
     private SupportBean mSupportBean;
-    private List<NewVersionBean> mArryList;
+    private List<NewVersionBean> mArryList = new ArrayList<>();
     private List<Bitmap> mShortBitmapList;
     private SettingPresenter mPresenter;
     private List<String> mClassifyList = new ArrayList<>();
+    private Bitmap mCorrectBitmap;
+    private int mId;
+    private int flag;
+    private String mDesc;
 
 
     @Override
@@ -177,15 +186,15 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                             Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
                             Utils.matToBitmap(recognize, bitmap2);
 
-                            Bitmap correctBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
-                            mImageView.setImageBitmap(correctBitmap);
+                            mCorrectBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
+                            mImageView.setImageBitmap(mCorrectBitmap);
 
                             mShortBitmapList = new ArrayList<>();
                             for (int i = 0; i < mLocationList.size(); i++) {
                                 RectBean rectBean = mLocationList.get(i);
                                 int width = Math.abs(rectBean.getLeft() - rectBean.getRight());
                                 int height = Math.abs(rectBean.getTop() - rectBean.getBottom());
-                                Bitmap cropBitmap = Bitmap.createBitmap(correctBitmap, rectBean.getLeft(), rectBean.getTop(), width, height);
+                                Bitmap cropBitmap = Bitmap.createBitmap(mCorrectBitmap, rectBean.getLeft(), rectBean.getTop(), width, height);
                                 mShortBitmapList.add(cropBitmap);
                             }
 
@@ -261,6 +270,12 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
     private void intData() {
 
+
+        Bundle bundleExtra = getIntent().getBundleExtra(Constant.BUNDLE_PARMS);
+
+        mId = bundleExtra.getInt(Constant.ID);
+
+
         Menu menu = mNavigationView.getMenu();
         menu.findItem(R.id.support).setOnMenuItemClickListener(this);
         menu.findItem(R.id.choose_version).setOnMenuItemClickListener(this);
@@ -274,64 +289,8 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
         mPresenter = new SettingPresenter(this);
         mPresenter.getTag();
+        mPresenter.getConfigureInfo(mId);
 
-        try {
-            mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
-            mSupportBean = queryData(true);
-
-
-            String location = mSupportBean.getLocation();
-            mTvCheckName.setText(mSupportBean.getProjectName());
-            mMtvProjectName.setText(mSupportBean.getProjectName());
-            Gson gson = new Gson();
-
-
-            String data = mSupportBean.getData();   //每个零件正确的位置
-            mArryList = gson.fromJson(data, new TypeToken<List<NewVersionBean>>() { //解析每个零件正确的位置
-            }.getType());
-
-            for (int i = 0; i < mArryList.size(); i++) {
-                String name = mArryList.get(i).getName();
-                CheckResultBean checkResultBean = new CheckResultBean();
-                checkResultBean.setName(name);
-                mList.add(checkResultBean);
-            }
-            mAdapter.notifyDataSetChanged();
-
-
-            mLocationList = new ArrayList<>();
-
-            //解析检测对象的位置信息
-            JSONArray jsonArray = new JSONArray(location);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                RectBean rectBean = new RectBean();
-
-                rectBean.setWidth(jsonObject.getInt("width"));
-                rectBean.setHeight(jsonObject.getInt("height"));
-                rectBean.setTopDistance(jsonObject.getInt("top_distance"));
-                rectBean.setLeftDistance(jsonObject.getInt("left_distance"));
-                JSONObject checkLocation = jsonObject.getJSONObject("checkLocation");
-
-                rectBean.setLeft(checkLocation.getInt("left"));
-                rectBean.setTop(checkLocation.getInt("top"));
-                rectBean.setRight(checkLocation.getInt("right"));
-                rectBean.setBottom(checkLocation.getInt("bottom"));
-
-                mLocationList.add(rectBean);
-            }
-
-        } catch (Exception e) {
-
-        }
-
-    }
-
-
-    public SupportBean queryData(boolean status) {
-        return mSupportBeanDao.queryBuilder().where(SupportBeanDao.Properties.SelectedStatus.eq(status)).build().unique();
 
     }
 
@@ -343,7 +302,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
         btnDetectObject = findViewById(R.id.btnDetectObject);
         mImageView = findViewById(R.id.iv_image);
         mNavigationView = findViewById(R.id.nav);
-        mMtvProjectName = findViewById(R.id.tv_model);
         mIvBack = findViewById(R.id.iv_back);
         mRcyDislikeInfoList = findViewById(R.id.rcy_dislike_info_list);
         LinearLayoutManager manager = new LinearLayoutManager(this) {
@@ -371,12 +329,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                 }
             }
         });
-    }
-
-
-    public void recognizeImage(List<Bitmap> bitmaps) {
-
-
     }
 
 
@@ -482,6 +434,9 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     public void checkObjectSuccess(ResponseBody responseBody) {
         try {
 
+
+            //把标记重置
+            flag = 0;
             String string = responseBody.string();
             JSONObject json = new JSONObject(string);
 
@@ -547,6 +502,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                     }
                     if (j == location.size() - 1) {
                         if (TextUtils.isEmpty(mList.get(i).getIsSuccess())) {
+                            flag = 1;
                             mList.get(i).setIsSuccess("ng");
                             mList.get(i).setError(UiUtils.getString(R.string.location_deviation));
                             mAdapter.notifyDataSetChanged();
@@ -555,6 +511,8 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                 }
 
             }
+
+            mPresenter.commitCheckResult();
 
 
         } catch (Exception e) {
@@ -568,7 +526,140 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
+    public void createConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public RequestBody getParms() {
+
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+
+        File filesDir = getFilesDir();
+        File file = saveBitmapFile(mCorrectBitmap, filesDir.getAbsolutePath() + "text.jpg");
+        RequestBody requestBody = RequestBody.create(
+                MediaType.parse("multipart/form-data"), file);
+        builder.addFormDataPart("image", file.getName(), requestBody);
+        if (flag == 0) {
+            builder.addFormDataPart("defect", "位置OK");
+        } else {
+            builder.addFormDataPart("defect", "位置偏移");
+        }
+        builder.addFormDataPart("config_id", mId + "");
+        builder.addFormDataPart("result", flag + "");
+
+        return builder.build();
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        return null;
+    }
+
+    @Override
+    public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
+    }
+
+    @Override
+    public void getConfigureInfoSuccess(ConfigureInfoBean bean) {
+
+        if (bean.getResult() == 0) {
+            ConfigureInfoBean.DataBean data = bean.getData();
+
+            mTvCheckName.setText(data.getName());
+
+            String location = data.getData();
+            Gson gson = new Gson();
+            LocationBean locationBean = gson.fromJson(location, LocationBean.class);
+
+            List<LocationBean.DeviationBeanX> deviationList = locationBean.getDeviation();
+            List<LocationBean.LocationBeanX> locationBeanXList = locationBean.getLocation();
+
+            for (int i = 0; i < locationBeanXList.size(); i++) {
+                RectBean rectBean = new RectBean();
+                rectBean.setLeftDistance(locationBeanXList.get(i).getLeft_distance());
+                rectBean.setTopDistance(locationBeanXList.get(i).getTop_distance());
+                rectBean.setWidth(locationBeanXList.get(i).getWidth());
+                rectBean.setHeight(locationBeanXList.get(i).getHeight());
+                rectBean.setTop(deviationList.get(i).getLocation().getTop());
+                rectBean.setRight(deviationList.get(i).getLocation().getRight());
+                rectBean.setBottom(deviationList.get(i).getLocation().getBottom());
+                rectBean.setLeft(deviationList.get(i).getLocation().getLeft());
+                mLocationList.add(rectBean);
+            }
+
+
+            for (int i = 0; i < deviationList.size(); i++) {
+                NewVersionBean newVersionBean = new NewVersionBean();
+                LocationBean.DeviationBeanX.DeviationBean deviation = deviationList.get(i).getDeviation();
+
+                NewVersionBean.Deviation beanDeviation = new NewVersionBean.Deviation();
+
+                NewVersionBean.Deviation.Left leftBottom = new NewVersionBean.Deviation.Left();
+                leftBottom.setNegative(deviation.getLeft().getNegative());
+                leftBottom.setPuls(deviation.getLeft().getPuls());
+
+                beanDeviation.setLeft(leftBottom);
+
+                NewVersionBean.Deviation.Left topBottom = new NewVersionBean.Deviation.Left();
+                topBottom.setNegative(deviation.getTop().getNegative());
+                topBottom.setPuls(deviation.getTop().getPuls());
+
+                beanDeviation.setTop(topBottom);
+
+                NewVersionBean.Deviation.Left rightBottom = new NewVersionBean.Deviation.Left();
+                rightBottom.setNegative(deviation.getRight().getNegative());
+                rightBottom.setPuls(deviation.getRight().getPuls());
+
+                beanDeviation.setRight(rightBottom);
+
+                NewVersionBean.Deviation.Left bottom = new NewVersionBean.Deviation.Left();
+                bottom.setNegative(deviation.getBottom().getNegative());
+                bottom.setPuls(deviation.getBottom().getPuls());
+
+                beanDeviation.setBottom(bottom);
+
+                newVersionBean.setDeviation(beanDeviation);
+
+                newVersionBean.setName(deviationList.get(i).getName());
+                newVersionBean.setStatus(deviationList.get(i).isStatus());
+                NewVersionBean.Location beanLocation = new NewVersionBean.Location();
+
+                beanLocation.setBottom(deviationList.get(i).getLocation().getBottom());
+                beanLocation.setTop(deviationList.get(i).getLocation().getTop());
+                beanLocation.setLeft(deviationList.get(i).getLocation().getLeft());
+                beanLocation.setRight(deviationList.get(i).getLocation().getRight());
+
+                newVersionBean.setLocation(beanLocation);
+
+                mArryList.add(newVersionBean);
+            }
+
+            mAdapter.notifyDataSetChanged();
+
+        }
+
+    }
+
+    @Override
+    public void updataConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public void commitCheckResultSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
     public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void getRecordListSuccess(RecordListBean recordListBean) {
 
     }
 

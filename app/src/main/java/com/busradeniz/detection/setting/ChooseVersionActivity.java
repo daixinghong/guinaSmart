@@ -11,11 +11,15 @@ import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.ToastUtils;
 import com.busradeniz.detection.base.BaseActivity;
+import com.busradeniz.detection.base.BaseBean;
 import com.busradeniz.detection.bean.ChooseVersionBean;
+import com.busradeniz.detection.bean.ConfigureInfoBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.ScanTwoThinkActivity;
 import com.busradeniz.detection.check.bean.ModelBean;
+import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
 import com.busradeniz.detection.setting.adapter.RcyChooseVersionAdapter;
 import com.busradeniz.detection.setting.adapter.RcyModelAdapter;
@@ -34,7 +38,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 public class ChooseVersionActivity extends BaseActivity implements View.OnClickListener, SettingInterface {
@@ -244,7 +250,47 @@ public class ChooseVersionActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
+    public void createConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public RequestBody getParms() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        return null;
+    }
+
+    @Override
+    public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
+    }
+
+    @Override
+    public void getConfigureInfoSuccess(ConfigureInfoBean bean) {
+
+    }
+
+    @Override
+    public void updataConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public void commitCheckResultSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
     public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void getRecordListSuccess(RecordListBean recordListBean) {
 
     }
 

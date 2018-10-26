@@ -608,8 +608,10 @@
     <string name="start_check">开始检测</string>
     <string name="create_configure">新建配置</string>
     <string name="choose">选择</string>
+    <string name="see_details">查看详情</string>
 
     <string name="no_serial_device">找不到串口设备</string>
+    <string name="updata_success">更新成功</string>
 
 
 </resources>

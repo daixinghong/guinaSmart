@@ -32,6 +32,9 @@ public class SettingPresenter {
         mSettingInterface = settingInterface;
     }
 
+    /**
+     * 获取零件名字
+     */
     public void getTag() {
         RetrofitNetwork
                 .getObserableIntence()
@@ -49,7 +52,9 @@ public class SettingPresenter {
 
     }
 
-
+    /**
+     * 获取检测模型
+     */
     public void getModel() {
         RetrofitNetwork
                 .getObserableIntence()
@@ -57,6 +62,82 @@ public class SettingPresenter {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mSettingInterface::getModelSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 新建配置
+     */
+    public void createConfigure() {
+        RetrofitNetwork
+                .getObserableIntence()
+                .createConfigure(mSettingInterface.getParms())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::createConfigureSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 获取配置列表
+     */
+    public void getConfigureList() {
+        RetrofitNetwork
+                .getObserableIntence()
+                .getConfigureList(mSettingInterface.getMap())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::getConfigureListSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 获取配置信息
+     *
+     * @param id
+     */
+    public void getConfigureInfo(int id) {
+        RetrofitNetwork
+                .getObserableIntence()
+                .getConfigureInfo(id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::getConfigureInfoSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 更新配置信息
+     *
+     * @param id
+     */
+    public void updataConfigure(int id) {
+        RetrofitNetwork
+                .getObserableIntence()
+                .updataConfigure(id, mSettingInterface.getParms())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::updataConfigureSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 提交检测结果
+     */
+    public void commitCheckResult() {
+        RetrofitNetwork
+                .getObserableIntence()
+                .commitCheckResult(mSettingInterface.getParms())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::commitCheckResultSuccess, mSettingInterface::getDataError);
+    }
+
+    /**
+     * 查看检测记录
+     */
+    public void seeRecord() {
+        RetrofitNetwork
+                .getObserableIntence()
+                .seeRecord(mSettingInterface.getMap())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSettingInterface::getRecordListSuccess, mSettingInterface::getDataError);
     }
 
 

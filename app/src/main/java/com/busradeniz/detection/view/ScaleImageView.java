@@ -2,6 +2,7 @@ package com.busradeniz.detection.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -91,6 +92,8 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     private int mDex;
     private int mDey;
     private EditText mEtPartName;
+
+    private Bitmap mBitmap;
 
     public ScaleImageView(Context context) {
         this(context, null);
@@ -371,7 +374,11 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
     public interface UpdataAdapterInterface {
 
-        void setUpdataAdapterListener(List<Rect> rects, List<String> strings);
+        void setUpdataAdapterListener(int index,String strings);
+
+        void setAddListener(Rect rects, String strings);
+
+        void setDeleteListListener(int index);
 
     }
 
@@ -382,6 +389,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+
 
         if (mIsModify) {
             int x = (int) event.getX();
@@ -406,7 +414,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
                                     //列表更新回调
                                     if (mUpdataAdapterInterface != null)
-                                        mUpdataAdapterInterface.setUpdataAdapterListener(mOriginalRectList, mPartNameList);
+                                        mUpdataAdapterInterface.setUpdataAdapterListener(finalI,mEtPartName.getText().toString().trim());
                                 }
                             });
 
@@ -433,10 +441,11 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
                             mRectList.remove(i);
                             mPartNameList.remove(i);
                             mOriginalRectList.remove(i);
+
                             postInvalidate();
                             //列表更新回调
                             if (mUpdataAdapterInterface != null)
-                                mUpdataAdapterInterface.setUpdataAdapterListener(mOriginalRectList, mPartNameList);
+                                mUpdataAdapterInterface.setDeleteListListener(i);
                             break;
                         }
                     }
@@ -506,7 +515,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
                                     //列表更新回调
                                     if (mUpdataAdapterInterface != null)
-                                        mUpdataAdapterInterface.setUpdataAdapterListener(mOriginalRectList, mPartNameList);
+                                        mUpdataAdapterInterface.setAddListener(originalRect, mEtPartName.getText().toString().trim());
 
                                 }
                             });

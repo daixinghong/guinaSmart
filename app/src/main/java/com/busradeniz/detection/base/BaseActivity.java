@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.busradeniz.detection.bean.BaseErrorBean;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,13 +49,13 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseErro
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
     }
 
 }

@@ -54,6 +54,7 @@ public class RcyCreateModleListAdapter extends RecyclerView.Adapter<RcyCreateMod
         holder.mTvRightStand.setText(mList.get(position).getLocation().getRight() + "");
         holder.mTvTopStand.setText(mList.get(position).getLocation().getTop() + "");
         holder.mTvBottomStand.setText(mList.get(position).getLocation().getBottom() + "");
+        holder.mCbChoose.setChecked(mList.get(position).isStatus());
 //        if (mList.get(position).isStatus()) {
 //            holder.mRlNameItem.setBackgroundColor(mContext.getResources().getColor(R.color.color_358fc1));
 //        } else {

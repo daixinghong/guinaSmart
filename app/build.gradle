@@ -113,6 +113,8 @@ dependencies {
     // eventbus
     implementation 'org.greenrobot:eventbus:3.1.1'
 
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+
 
 }
 

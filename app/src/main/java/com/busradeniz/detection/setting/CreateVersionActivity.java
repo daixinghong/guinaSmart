@@ -17,12 +17,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.bumptech.glide.Glide;
 import com.busradeniz.detection.BaseApplication;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.base.BaseActivity;
+import com.busradeniz.detection.base.BaseBean;
+import com.busradeniz.detection.bean.ConfigureInfoBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
+import com.busradeniz.detection.bean.LocationBean;
 import com.busradeniz.detection.bean.NewVersionBean;
-import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.bean.ModelBean;
+import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
 import com.busradeniz.detection.setting.adapter.RcyCreateModleListAdapter;
 import com.busradeniz.detection.setting.presenter.SettingInterface;
@@ -52,26 +57,26 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.tensorflow.framework.DataType;
-import org.tensorflow.framework.TensorProto;
-import org.tensorflow.framework.TensorShapeProto;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import tensorflow.serving.Model;
 import tensorflow.serving.Predict;
 import tensorflow.serving.PredictionServiceGrpc;
 
@@ -104,6 +109,8 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     private List<Bitmap> mShortBitmapList;
     private List<Map<String, Object>> mRects;
     private boolean mCheckIsOk;
+    private boolean mIsUpdata;
+    private int mId;
 
 
     @Override
@@ -140,7 +147,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
         };
         mRcyList.setLayoutManager(manager);
 
-        DialogUtils.showTopDialog(getSupportFragmentManager(), R.layout.ldialog_top_tips, 10000);
+//        DialogUtils.showTopDialog(getSupportFragmentManager(), R.layout.ldialog_top_tips, 10000);
 
     }
 
@@ -179,8 +186,21 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     }
 
     private void initData() {
+
+        Bundle bundleExtra = getIntent().getBundleExtra(Constant.BUNDLE_PARMS);
+
+        if (bundleExtra != null) {
+            mIsUpdata = bundleExtra.getBoolean(Constant.STATUS);
+            mId = bundleExtra.getInt(Constant.ID);
+        }
+
         mPresenter = new SettingPresenter(this);
         mPresenter.getTag();
+
+        if (mIsUpdata) {
+            mPresenter.getConfigureInfo(mId);
+        }
+
         initTensorFlowAndLoadModel();
 
         mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
@@ -206,6 +226,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     }
 
     public void notifyAdapter(List<Rect> rects, List<String> strings) {
+
         for (int i = 0; i < strings.size(); i++) {
             NewVersionBean newVersionBean = new NewVersionBean();
             NewVersionBean.Deviation deviation = new NewVersionBean.Deviation();
@@ -224,7 +245,6 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
             location.setTop(rects.get(i).top);
             location.setRight(rects.get(i).right);
             location.setBottom(rects.get(i).bottom);
-
             newVersionBean.setLocation(location);
             mList.add(newVersionBean);
         }
@@ -243,13 +263,42 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
             }
         });
         mIvImage.setUpdataAdapterInterface(new ScaleImageView.UpdataAdapterInterface() {
+
             @Override
-            public void setUpdataAdapterListener(List<Rect> rects, List<String> strings) {
+            public void setUpdataAdapterListener(int index, String strings) {
 
-                mList.clear();
-                notifyAdapter(rects, strings);
+                mList.get(index).setName(strings);
+                mAdapter.notifyDataSetChanged();
+            }
 
-                mRlSave.setVisibility(View.VISIBLE);
+            @Override
+            public void setAddListener(Rect rects, String strings) {
+
+                NewVersionBean newVersionBean = new NewVersionBean();
+                NewVersionBean.Deviation deviation = new NewVersionBean.Deviation();
+                NewVersionBean.Deviation.Left left = new NewVersionBean.Deviation.Left();
+                deviation.setLeft(left);
+                NewVersionBean.Deviation.Left right = new NewVersionBean.Deviation.Left();
+                deviation.setRight(right);
+                NewVersionBean.Deviation.Left top = new NewVersionBean.Deviation.Left();
+                deviation.setTop(top);
+                NewVersionBean.Deviation.Left bottom = new NewVersionBean.Deviation.Left();
+                deviation.setBottom(bottom);
+                newVersionBean.setDeviation(deviation);
+                newVersionBean.setName(strings);
+                NewVersionBean.Location location = new NewVersionBean.Location();
+                location.setLeft(rects.left);
+                location.setTop(rects.top);
+                location.setRight(rects.right);
+                location.setBottom(rects.bottom);
+                newVersionBean.setLocation(location);
+                mList.add(newVersionBean);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void setDeleteListListener(int index) {
+                mList.remove(index);
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -330,14 +379,15 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                         mBitmap = BitmapFactory.decodeFile(file.getPath());
 
                         long startTime = System.currentTimeMillis();
+
                         try {
-//                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
-//                            fileDir.createNewFile();
-//
-//                            FileOutputStream out = new FileOutputStream(fileDir);
-//                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-//                            out.flush();
-//                            out.close();
+                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
+                            fileDir.createNewFile();
+
+                            FileOutputStream out = new FileOutputStream(fileDir);
+                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                            out.flush();
+                            out.close();
 
                             mWidth = mBitmap.getWidth() / 4;
                             mHeight = mBitmap.getHeight() / 4;
@@ -348,8 +398,23 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                             //获取hed图
                             Mat recognize = detector.recognize(bitmaps, mWidth, mHeight);
 
+
                             //矫正图片
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, mBitmap, 1);
+
+
+                            Bitmap bitmap = Bitmap.createBitmap(mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                            Utils.matToBitmap(recognize, bitmap);
+
+                            File fileDirs = new File("/sdcard/image/" + startTime + ".png");
+                            fileDirs.createNewFile();
+
+                            FileOutputStream outs = new FileOutputStream(fileDir);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outs);
+                            outs.flush();
+                            outs.close();
+
+
 
                             //发送请求
                             mPresenter.requestModel(CreateVersionActivity.this, mCorrectBitmap);
@@ -623,6 +688,197 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
+    public void createConfigureSuccess(BaseBean baseBean) {
+
+        if (baseBean.getResult() == 0) {
+            ToastUtils.showTextToast(UiUtils.getString(R.string.save_success));
+            finish();
+        }
+
+    }
+
+    @Override
+    public RequestBody getParms() {
+
+        Gson gson = new Gson();
+
+        Map<String, Object> dataMap = new HashMap<>();
+
+        dataMap.put("deviation", mList);
+        dataMap.put("location", mRects);
+
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+
+        if (!mIsUpdata) {
+            File filesDir = getFilesDir();
+            File file = saveBitmapFile(mCorrectBitmap, filesDir.getAbsolutePath() + "text.jpg");
+            RequestBody requestBody = RequestBody.create(
+                    MediaType.parse("multipart/form-data"), file);
+            builder.addFormDataPart("image", file.getName(), requestBody);
+        }
+
+        builder.addFormDataPart("name", mEtProjectName.getText().toString().trim());
+        builder.addFormDataPart("config_type_id", "1");
+        builder.addFormDataPart("data", gson.toJson(dataMap));
+
+        return builder.build();
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        return null;
+    }
+
+    @Override
+    public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
+    }
+
+    @Override
+    public void getConfigureInfoSuccess(ConfigureInfoBean bean) {
+
+        if (bean.getResult() == 0) {
+            ConfigureInfoBean.DataBean data = bean.getData();
+
+            String url = Constant.URL + "api/record/download?url=" + data.getPath();
+
+            Glide.with(this).load(url).into(mIvImage);
+
+            Bitmap bitmap = returnBitMap(url);
+
+
+            mCameraView.setVisibility(View.GONE);
+            mIvImage.setVisibility(View.VISIBLE);
+            mIvMakePhoto.setVisibility(View.GONE);
+            mEtProjectName.setText(data.getName());
+            mEtProjectName.setSelection(data.getName().length());
+
+            String location = data.getData();
+            Gson gson = new Gson();
+            LocationBean locationBean = gson.fromJson(location, LocationBean.class);
+
+            List<LocationBean.DeviationBeanX> deviationList = locationBean.getDeviation();
+
+
+            List<Rect> list = new ArrayList<>();
+            List<Rect> originalList = new ArrayList<>();
+            List<String> partNameList = new ArrayList<>();
+            for (int i = 0; i < deviationList.size(); i++) {
+                NewVersionBean newVersionBean = new NewVersionBean();
+                LocationBean.DeviationBeanX.DeviationBean deviation = deviationList.get(i).getDeviation();
+
+                NewVersionBean.Deviation beanDeviation = new NewVersionBean.Deviation();
+
+                NewVersionBean.Deviation.Left leftBottom = new NewVersionBean.Deviation.Left();
+                leftBottom.setNegative(deviation.getLeft().getNegative());
+                leftBottom.setPuls(deviation.getLeft().getPuls());
+
+                beanDeviation.setLeft(leftBottom);
+
+                NewVersionBean.Deviation.Left topBottom = new NewVersionBean.Deviation.Left();
+                topBottom.setNegative(deviation.getTop().getNegative());
+                topBottom.setPuls(deviation.getTop().getPuls());
+
+                beanDeviation.setTop(topBottom);
+
+                NewVersionBean.Deviation.Left rightBottom = new NewVersionBean.Deviation.Left();
+                rightBottom.setNegative(deviation.getRight().getNegative());
+                rightBottom.setPuls(deviation.getRight().getPuls());
+
+                beanDeviation.setRight(rightBottom);
+
+                NewVersionBean.Deviation.Left bottom = new NewVersionBean.Deviation.Left();
+                bottom.setNegative(deviation.getBottom().getNegative());
+                bottom.setPuls(deviation.getBottom().getPuls());
+
+                beanDeviation.setBottom(bottom);
+
+                newVersionBean.setDeviation(beanDeviation);
+
+
+                newVersionBean.setName(deviationList.get(i).getName());
+                newVersionBean.setStatus(deviationList.get(i).isStatus());
+                NewVersionBean.Location beanLocation = new NewVersionBean.Location();
+
+                beanLocation.setBottom(deviationList.get(i).getLocation().getBottom());
+                beanLocation.setTop(deviationList.get(i).getLocation().getTop());
+                beanLocation.setLeft(deviationList.get(i).getLocation().getLeft());
+                beanLocation.setRight(deviationList.get(i).getLocation().getRight());
+
+
+                LocationBean.DeviationBeanX.LocationBeanB rectF = deviationList.get(i).getLocation();
+
+                Rect rect = new Rect(rectF.getLeft(), rectF.getTop(), rectF.getRight(), rectF.getBottom());
+                Rect originalRect = new Rect(rectF.getLeft(), rectF.getTop(), rectF.getRight(), rectF.getBottom());
+                list.add(rect);
+                originalList.add(originalRect);
+
+                partNameList.add(deviationList.get(i).getName());
+
+                newVersionBean.setLocation(beanLocation);
+
+                mList.add(newVersionBean);
+            }
+
+            mIvImage.setRectList(list);
+            mRlSave.setVisibility(View.VISIBLE);
+            mIvImage.setOriginalRectList(originalList);
+            mIvImage.setPartNameList(partNameList);
+            mIvImage.postInvalidate();
+            mAdapter.notifyDataSetChanged();
+
+        }
+
+    }
+
+
+    public Bitmap returnBitMap(final String url) {
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL imageurl = null;
+
+                try {
+                    imageurl = new URL(url);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    HttpURLConnection conn = (HttpURLConnection) imageurl.openConnection();
+                    conn.setDoInput(true);
+                    conn.connect();
+                    InputStream is = conn.getInputStream();
+                    mCorrectBitmap = BitmapFactory.decodeStream(is);
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        return mCorrectBitmap;
+
+    }
+
+
+    @Override
+    public void updataConfigureSuccess(BaseBean baseBean) {
+
+        if (baseBean.getResult() == 0) {
+            ToastUtils.showTextToast(UiUtils.getString(R.string.updata_success));
+            finish();
+        }
+    }
+
+    @Override
+    public void commitCheckResultSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
     public void testCutPhotoSuccess(ResponseBody responseBody) {
 
         try {
@@ -692,32 +948,24 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                 }
             }
 
-            if (count == jsonArray.length()) { //如果检测ok 就直接保存
-                final List<SupportBean> supportBeans = mSupportBeanDao.loadAll();
-                DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
-                DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
-                    @Override
-                    public void onConfirmClickListener(View view) {
+            DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
+            DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
+                @Override
+                public void onConfirmClickListener(View view) {
 
-                        SupportBean supportBean = new SupportBean();
-                        supportBean.setProjectName(mEtProjectName.getText().toString().trim());
+                    if (mIsUpdata) {  //更新
+                        mPresenter.updataConfigure(mId);
 
-                        Gson gson = new Gson();
-                        String s = gson.toJson(mList);
+                    } else {        //新建
+                        mPresenter.createConfigure();
 
-                        supportBean.setData(s);
-                        supportBean.setLocation(gson.toJson(mRects));
-
-                        if (supportBeans.size() != 0) {
-                            supportBean.set_id(supportBeans.get(supportBeans.size() - 1).get_id() + 1);
-                        } else {
-                            supportBean.set_id(supportBean.get_id() + 1);
-                        }
-                        mSupportBeanDao.insert(supportBean);
-                        ToastUtils.showTextToast(UiUtils.getString(R.string.save_success));
-                        finish();
                     }
-                });
+
+                }
+            });
+
+            if (count == jsonArray.length()) { //如果检测ok 就直接保存
+
             } else {  //不ok
 
 
@@ -730,73 +978,10 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
     }
 
-
-    public void test(int width, int height, Mat mats) {
-
-
-        mats.convertTo(mats, CvType.CV_32FC3);
-        float[] floats = new float[(int) mats.total() * mats.channels()];
-
-        mats.get(0, 0, floats);
-
-        List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < floats.length; i++) {
-            list.add((int) floats[i]);
-        }
-
-
-        DataType dataType = DataType.DT_UINT8;
-
-//这里还是先用block模式
-        if (mStub == null) {
-            ManagedChannel channel = ManagedChannelBuilder.forAddress("192.168.1.97", 9000).usePlaintext(true).keepAliveTime(600, TimeUnit.SECONDS).maxInboundMessageSize(100 * 1024 * 1024).build();
-            mStub = PredictionServiceGrpc.newBlockingStub(channel);
-            Log.e(TAG, "test: sss s ");
-        }
-
-//创建请求
-        if (mPredictRequestBuilder == null) {
-            mPredictRequestBuilder = Predict.PredictRequest.newBuilder();
-            Model.ModelSpec.Builder modelSpecBuilder = Model.ModelSpec.newBuilder();
-            modelSpecBuilder.setName("faster_50");
-            modelSpecBuilder.setSignatureName("detection_signature");
-            mPredictRequestBuilder.setModelSpec(modelSpecBuilder);
-        }
-
-//设置入参,访问默认是最新版本，如果需要特定版本可以使用tensorProtoBuilder.setVersionNumber方法
-        TensorProto.Builder tensorProtoBuilder = TensorProto.newBuilder();
-        tensorProtoBuilder.setDtype(dataType);
-        TensorShapeProto.Builder tensorShapeBuilder = TensorShapeProto.newBuilder();
-        tensorShapeBuilder.addDim(TensorShapeProto.Dim.newBuilder().setSize(1));
-        tensorShapeBuilder.addDim(TensorShapeProto.Dim.newBuilder().setSize(width));
-
-        tensorShapeBuilder.addDim(TensorShapeProto.Dim.newBuilder().setSize(height));
-
-        tensorShapeBuilder.addDim(TensorShapeProto.Dim.newBuilder().setSize(3));
-        tensorProtoBuilder.setTensorShape(tensorShapeBuilder.build());
-        tensorProtoBuilder.addAllIntVal(list);
-        mPredictRequestBuilder.putInputs("inputs", tensorProtoBuilder.build());
-        Predict.PredictRequest build = mPredictRequestBuilder.build();
-        long l = System.currentTimeMillis();
-
-//访问并获取结果
-        Predict.PredictResponse predictResponse = mStub.predict(build);
-        long end = System.currentTimeMillis();
-        Log.e(TAG, "test: " + (end - l));
-
-        TensorProto detection_boxes = predictResponse.getOutputsOrThrow("detection_boxes");
-        TensorProto num_detections = predictResponse.getOutputsOrThrow("num_detections");
-        TensorProto detection_scores = predictResponse.getOutputsOrThrow("detection_scores");
-        TensorProto detection_classes = predictResponse.getOutputsOrThrow("detection_classes");
-
-
-//        final RectF detection =
-//                new RectF(
-//                        outputLocations[4 * i + 1] * 480,
-//                        outputLocations[4 * i] * 800,
-//                        outputLocations[4 * i + 3] * 480,
-//                        outputLocations[4 * i + 2] * 800);
-
+    @Override
+    public void getRecordListSuccess(RecordListBean recordListBean) {
 
     }
+
+
 }
