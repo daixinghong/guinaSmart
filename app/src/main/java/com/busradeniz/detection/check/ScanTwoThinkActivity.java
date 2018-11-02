@@ -1,11 +1,9 @@
 package com.busradeniz.detection.check;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,13 +26,13 @@ import com.busradeniz.detection.bean.ConfigureInfoBean;
 import com.busradeniz.detection.bean.ConfigureListBean;
 import com.busradeniz.detection.bean.LocationBean;
 import com.busradeniz.detection.bean.NewVersionBean;
-import com.busradeniz.detection.bean.SupportBean;
 import com.busradeniz.detection.check.adapter.RcyCheckResultAdapter;
 import com.busradeniz.detection.check.bean.CheckResultBean;
 import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.check.bean.RectBean;
 import com.busradeniz.detection.env.Logger;
+import com.busradeniz.detection.message.IMessage;
 import com.busradeniz.detection.setting.ChooseVersionActivity;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.setting.DrawRectActivity;
@@ -47,10 +45,19 @@ import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.LocationUtils;
+import com.busradeniz.detection.utils.SerialPortManager;
 import com.busradeniz.detection.utils.UiUtils;
-import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
+import com.wonderkiln.camerakit.CameraKitError;
+import com.wonderkiln.camerakit.CameraKitEvent;
+import com.wonderkiln.camerakit.CameraKitEventListener;
+import com.wonderkiln.camerakit.CameraKitImage;
+import com.wonderkiln.camerakit.CameraKitVideo;
+import com.wonderkiln.camerakit.CameraView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
@@ -63,9 +70,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -95,13 +100,10 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private Classifier detector;
     private ImageView mImageView;
     private Executor executor = Executors.newSingleThreadExecutor();
-    private Bitmap bitmap;
     private List<CheckResultBean> mList = new ArrayList<>();
     private NavigationView mNavigationView;
     private Bitmap mBitmaps;
-    private float mWidth;
     private boolean mStatus;
-    private float mHeight;
     private Bitmap mResizeBitmap;
     private RecyclerView mRcyDislikeInfoList;
     private RcyCheckResultAdapter mAdapter;
@@ -110,7 +112,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private DrawerLayout mDrawerLayout;
     private List<RectBean> mLocationList = new ArrayList<>();
     private ImageView mIvBack;
-    private SupportBean mSupportBean;
     private List<NewVersionBean> mArryList = new ArrayList<>();
     private List<Bitmap> mShortBitmapList;
     private SettingPresenter mPresenter;
@@ -118,8 +119,10 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private Bitmap mCorrectBitmap;
     private int mId;
     private int flag;
-    private String mDesc;
-
+    private TextView mTvCheckResult;
+    private String[] mComandArray;
+    private boolean mCheckStatus;
+    private String mResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +141,18 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     public int getActivityLayoutId() {
         return R.layout.activity_two_think_scan;
     }
@@ -147,32 +162,27 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
 
         mIvBack.setOnClickListener(this);
-        cameraView.addCallback(new CameraView.Callback() {
+
+        cameraView.addCameraKitListener(new CameraKitEventListener() {
             @Override
-            public void onCameraOpened(CameraView cameraView) {
-                super.onCameraOpened(cameraView);
+            public void onEvent(CameraKitEvent cameraKitEvent) {
+
             }
 
             @Override
-            public void onCameraClosed(CameraView cameraView) {
-                super.onCameraClosed(cameraView);
+            public void onError(CameraKitError cameraKitError) {
+
             }
 
             @Override
-            public void onPictureTaken(final CameraView cameraView, final byte[] data) {
-                super.onPictureTaken(cameraView, data);
-
+            public void onImage(CameraKitImage cameraKitImage) {
+                Bitmap bitmap = cameraKitImage.getBitmap();
                 BaseApplication.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "picture.jpg");
-                        OutputStream os = null;
+                        mTvCheckResult.setText(UiUtils.getString(R.string.checking));
+                        mTvCheckResult.setTextColor(UiUtils.getColor(R.color.mo_line));
                         try {
-                            os = new FileOutputStream(file);
-                            os.write(data);
-                            os.close();
-                            Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
-//                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.xixix5);
                             TF_OD_API_INPUT_SIZE = bitmap.getWidth() / 4;
                             TF_Wdith_API_INPUT_SIZE = bitmap.getHeight() / 4;
 
@@ -180,11 +190,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
                             mImageView.setVisibility(View.VISIBLE);
                             cameraView.setVisibility(View.GONE);
-                            mImageView.setImageBitmap(bitmap);
                             Mat recognize = detector.recognize(mBitmaps, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE);
-
-                            Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
-                            Utils.matToBitmap(recognize, bitmap2);
 
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
                             mImageView.setImageBitmap(mCorrectBitmap);
@@ -198,42 +204,20 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                                 mShortBitmapList.add(cropBitmap);
                             }
 
-
-                            try {
-                                FileOutputStream out = null;
-                                for (int i = 0; i < mShortBitmapList.size(); i++) {
-                                    long startTime = System.currentTimeMillis();
-                                    File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
-                                    fileDir.createNewFile();
-                                    out = new FileOutputStream(fileDir);
-                                    mShortBitmapList.get(i).compress(Bitmap.CompressFormat.JPEG, 100, out);
-
-                                }
-                                out.flush();
-                                out.close();
-                            } catch (Exception e) {
-
-                            }
-
                             //发送请求
                             mPresenter.sendPhotoGetResult(ScanTwoThinkActivity.this, mShortBitmapList);
-
 
                         } catch (Exception e) {
                             ToastUtils.showTextToast(UiUtils.getString(R.string.photo_check_fild));
 
-                        } finally {
-                            if (os != null) {
-                                try {
-                                    os.close();
-                                } catch (IOException e) {
-                                    // Ignore
-                                }
-                            }
                         }
 
                     }
                 });
+            }
+
+            @Override
+            public void onVideo(CameraKitVideo cameraKitVideo) {
 
             }
         });
@@ -259,7 +243,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                     return;
                 }
                 System.gc();
-                cameraView.takePicture();
+                cameraView.captureImage();
             }
         });
 
@@ -272,8 +256,9 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
 
         Bundle bundleExtra = getIntent().getBundleExtra(Constant.BUNDLE_PARMS);
-
         mId = bundleExtra.getInt(Constant.ID);
+
+        mComandArray = UiUtils.getStringArray(R.array.comand_array);
 
 
         Menu menu = mNavigationView.getMenu();
@@ -314,6 +299,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
         mTvCheckName = findViewById(R.id.tv_check_title);
         mIvSetting = findViewById(R.id.iv_setting);
         mDrawerLayout = findViewById(R.id.activity_na);
+        mTvCheckResult = findViewById(R.id.tv_check_result);
     }
 
     private void initTensorFlowAndLoadModel() {
@@ -432,92 +418,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void checkObjectSuccess(ResponseBody responseBody) {
-        try {
 
-
-            //把标记重置
-            flag = 0;
-            String string = responseBody.string();
-            JSONObject json = new JSONObject(string);
-
-            for (int i = 0; i < mLocationList.size(); i++) {
-                int left = mLocationList.get(i).getLeft();
-                int right = mLocationList.get(i).getRight();
-                int top = mLocationList.get(i).getTop();
-                int bottom = mLocationList.get(i).getBottom();
-
-                JSONArray datas = json.getJSONArray("datas");
-
-                List<Classifier.Recognition> location = LocationUtils.getLocation(datas.getJSONObject(i), Math.abs(left - right), Math.abs(top - bottom));
-
-                Rect rect = new Rect();  //目标零件的正确位置
-                rect.left = mLocationList.get(i).getLeftDistance();
-                rect.top = mLocationList.get(i).getTopDistance();
-                rect.right = rect.left + mLocationList.get(i).getWidth();
-                rect.bottom = rect.top + mLocationList.get(i).getHeight();
-
-
-                Bitmap bitmap = mShortBitmapList.get(i);
-
-                Mat mat = new Mat();
-                Utils.bitmapToMat(bitmap, mat);
-                Imgproc.rectangle(mat, new Point(rect.left, rect.top), new Point(rect.right, rect.bottom), new Scalar(255, 180, 0), 2);
-
-                Utils.matToBitmap(mat, bitmap);
-
-                Log.e(TAG, "onResponse: ");
-                String name = mArryList.get(i).getName();
-
-                for (int j = 0; j < location.size(); j++) {
-                    RectF rectF = location.get(j).getLocation();  //检测零件返回的位置
-
-                    String id = location.get(j).getTitle();
-
-                    String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
-
-                    if (name.equals(classifyName)) {  //判断分类
-                        if (location.get(j).getConfidence() > 0.5) {    //相识度大于一半才进行判断，其余的pass
-
-                            Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 0, 0), 2);
-
-                            Utils.matToBitmap(mat, bitmap);
-
-                            if (Math.abs(rect.left - rectF.left) > 40) {
-                                continue;
-                            }
-                            if (Math.abs(rect.right - rectF.right) > 40) {
-                                continue;
-                            }
-                            if (Math.abs(rect.top - rectF.top) > 40) {
-                                continue;
-                            }
-                            if (Math.abs(rect.bottom - rectF.bottom) > 40) {
-                                continue;
-                            }
-
-                            mList.get(i).setIsSuccess("ok");
-                            mAdapter.notifyDataSetChanged();
-                            break;
-                        }
-                    }
-                    if (j == location.size() - 1) {
-                        if (TextUtils.isEmpty(mList.get(i).getIsSuccess())) {
-                            flag = 1;
-                            mList.get(i).setIsSuccess("ng");
-                            mList.get(i).setError(UiUtils.getString(R.string.location_deviation));
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-
-            }
-
-            mPresenter.commitCheckResult();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -577,19 +478,27 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
             List<LocationBean.DeviationBeanX> deviationList = locationBean.getDeviation();
             List<LocationBean.LocationBeanX> locationBeanXList = locationBean.getLocation();
 
+
             for (int i = 0; i < locationBeanXList.size(); i++) {
                 RectBean rectBean = new RectBean();
                 rectBean.setLeftDistance(locationBeanXList.get(i).getLeft_distance());
                 rectBean.setTopDistance(locationBeanXList.get(i).getTop_distance());
                 rectBean.setWidth(locationBeanXList.get(i).getWidth());
                 rectBean.setHeight(locationBeanXList.get(i).getHeight());
-                rectBean.setTop(deviationList.get(i).getLocation().getTop());
-                rectBean.setRight(deviationList.get(i).getLocation().getRight());
-                rectBean.setBottom(deviationList.get(i).getLocation().getBottom());
-                rectBean.setLeft(deviationList.get(i).getLocation().getLeft());
-                mLocationList.add(rectBean);
-            }
 
+                rectBean.setTop(locationBeanXList.get(i).getCheckLocation().getTop());
+                rectBean.setRight(locationBeanXList.get(i).getCheckLocation().getRight());
+                rectBean.setBottom(locationBeanXList.get(i).getCheckLocation().getBottom());
+                rectBean.setLeft(locationBeanXList.get(i).getCheckLocation().getLeft());
+                rectBean.setName(locationBeanXList.get(i).getName());
+                mLocationList.add(rectBean);
+
+                CheckResultBean checkResultBean = new CheckResultBean();
+                checkResultBean.setName(locationBeanXList.get(i).getName());
+                mList.add(checkResultBean);
+
+            }
+            mAdapter.notifyDataSetChanged();
 
             for (int i = 0; i < deviationList.size(); i++) {
                 NewVersionBean newVersionBean = new NewVersionBean();
@@ -637,7 +546,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                 mArryList.add(newVersionBean);
             }
 
-            mAdapter.notifyDataSetChanged();
 
         }
 
@@ -655,12 +563,164 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void testCutPhotoSuccess(ResponseBody responseBody) {
+        try {
 
+            //把标记重置
+            flag = 0;
+            String string = responseBody.string();
+            JSONObject json = new JSONObject(string);
+
+            for (int i = 0; i < mLocationList.size(); i++) {
+                int left = mLocationList.get(i).getLeft();
+                int right = mLocationList.get(i).getRight();
+                int top = mLocationList.get(i).getTop();
+                int bottom = mLocationList.get(i).getBottom();
+
+                JSONArray datas = json.getJSONArray("datas");
+
+                List<Classifier.Recognition> location = LocationUtils.getLocation(datas.getJSONObject(i), Math.abs(left - right), Math.abs(top - bottom));
+
+                Rect rect = new Rect();  //目标零件的正确位置
+                rect.left = mLocationList.get(i).getLeftDistance();
+                rect.top = mLocationList.get(i).getTopDistance();
+                rect.right = rect.left + mLocationList.get(i).getWidth();
+                rect.bottom = rect.top + mLocationList.get(i).getHeight();
+
+                Bitmap bitmap = mShortBitmapList.get(i);
+
+                Mat mat = new Mat();
+                Utils.bitmapToMat(bitmap, mat);
+                Imgproc.rectangle(mat, new Point(rect.left, rect.top), new Point(rect.right, rect.bottom), new Scalar(255, 180, 0), 2);
+
+                Utils.matToBitmap(mat, bitmap);
+
+                Log.e(TAG, "onResponse: ");
+                String name = mLocationList.get(i).getName();
+
+                for (int j = 0; j < location.size(); j++) {
+                    RectF rectF = location.get(j).getLocation();  //检测零件返回的位置
+
+                    String id = location.get(j).getTitle();
+
+                    String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
+
+                    if (name.equals(classifyName)) {  //判断分类
+                        if (location.get(j).getConfidence() > 0.5) {    //相识度大于一半才进行判断，其余的pass
+
+//                            Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 0, 0), 2);
+//
+//                            Utils.matToBitmap(mat, bitmap);
+//
+//                            if (Math.abs(rect.left - rectF.left) > 40) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.right - rectF.right) > 40) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.top - rectF.top) > 40) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.bottom - rectF.bottom) > 40) {
+//                                continue;
+//                            }
+
+                            mList.get(i).setIsSuccess("ok");
+                            mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                    if (j == location.size() - 1) {
+                        if (TextUtils.isEmpty(mList.get(i).getIsSuccess())) {
+                            flag = 1;
+                            mList.get(i).setIsSuccess("ng");
+                            mList.get(i).setError(UiUtils.getString(R.string.location_deviation));
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+
+            }
+
+            if (flag == 0) {
+                mTvCheckResult.setTextColor(UiUtils.getColor(R.color.color_50FF00));
+                mTvCheckResult.setText("success");
+            } else {
+                mTvCheckResult.setTextColor(UiUtils.getColor(R.color.red));
+                mTvCheckResult.setText("fail");
+            }
+            mResult = "";
+
+            mPresenter.commitCheckResult();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void getRecordListSuccess(RecordListBean recordListBean) {
 
+    }
+
+    /**
+     * 连接plc收到消息的回调
+     *
+     * @param message
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(IMessage message) {
+
+        if (mCheckStatus)
+            if (message.getMessage().equals(mComandArray[3]))
+                return;
+
+        if (mStatus) {
+            if (message.getMessage().equals(mComandArray[1]))
+                return;
+        }
+
+        if (message.getMessage().equals(mComandArray[1])) {  //开始摄像
+
+            mStatus = true;
+            mCheckStatus = false;
+
+            System.gc();
+            cameraView.captureImage();
+        } else if (message.getMessage().equals(mComandArray[3])) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            if (mResult != null) {
+                                mStatus = false;
+                                mCheckStatus = true;
+
+                                cameraView.setVisibility(View.VISIBLE);
+                                mImageView.setVisibility(View.GONE);
+
+                                mList.clear();
+                                mAdapter.notifyDataSetChanged();
+
+                                if (flag == 1) {
+                                    SerialPortManager.instance().sendCommand(mComandArray[5]);
+                                } else {
+                                    SerialPortManager.instance().sendCommand(mComandArray[4]);
+                                }
+                                mResult = null;
+                                break;
+                            }
+
+                        }
+                        Thread.sleep(500);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.busradeniz.detection.check;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.serialport.SerialPortFinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -19,7 +20,11 @@ import com.busradeniz.detection.check.fragment.WorkFragment;
 import com.busradeniz.detection.message.IMessage;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.utils.Constant;
+import com.busradeniz.detection.utils.Device;
 import com.busradeniz.detection.utils.IntentUtils;
+import com.busradeniz.detection.utils.SerialPortManager;
+import com.busradeniz.detection.utils.ToastUtils;
+import com.busradeniz.detection.utils.UiUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -39,6 +44,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
     private ConfigureFragment mConfigureFragment;
     private StatisticsFragment mStatisticsFragment;
     private SettingFragment mSettingFragment;
+    private String[] mCommandArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +80,51 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
 
     private void initData() {
 
+        mCommandArray = UiUtils.getStringArray(R.array.comand_array);
+
+        SerialPortFinder serialPortFinder = new SerialPortFinder();
+
+        String[] allDevicesPath = serialPortFinder.getAllDevicesPath();
+
+        if (allDevicesPath == null || allDevicesPath.length == 0) {
+            ToastUtils.showTextToast("找不到串口设备");
+            return;
+        }
+
+        Device device = new Device(allDevicesPath[0], Constant.BAUDRATES);
+
+        boolean open = SerialPortManager.instance().open(device) != null;
+
+        if (open) {
+            ToastUtils.showTextToast("成功");
+            sendData();
+        } else {
+            ToastUtils.showTextToast("失败");
+        }
+
     }
+
+    /**
+     * 发送命令
+     */
+    private void sendData() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                        SerialPortManager.instance().sendCommand(mCommandArray[0]);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
 
     public void hideAllFragment(FragmentTransaction transaction) {
         if (mWorkFragment != null) {

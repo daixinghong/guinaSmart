@@ -4,17 +4,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="@dimen/dp_40">
 
         <ImageView
             android:id="@+id/iv_selected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="@dimen/dp_10"
             android:src="@mipmap/selected"
             android:visibility="gone" />
 
@@ -23,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="35dp"
+            android:layout_marginLeft="@dimen/dp_35"
             android:textColor="@color/color_242525" />
 
         <View

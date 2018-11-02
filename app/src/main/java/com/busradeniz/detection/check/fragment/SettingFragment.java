@@ -24,6 +24,7 @@ import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.UiUtils;
+import com.wonderkiln.camerakit.CameraView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
 
     private List<String> mModelList = new ArrayList<>();
     private RelativeLayout mRlReplaceModel;
+    private CameraView mCameraView;
 
     @Nullable
     @Override
@@ -68,7 +70,20 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
 
     private void initView(View view) {
         mRlReplaceModel = view.findViewById(R.id.rl_replace_model);
+        mCameraView = view.findViewById(R.id.camera);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mCameraView.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mCameraView.stop();
     }
 
     @Override

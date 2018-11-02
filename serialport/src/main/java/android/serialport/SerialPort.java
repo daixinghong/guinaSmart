@@ -52,7 +52,7 @@ public class SerialPort {
     private FileInputStream mFileInputStream;
     private FileOutputStream mFileOutputStream;
 
-    public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+    public SerialPort(File device, int baudrate, int dataBits,int stopBits,char parity) throws SecurityException, IOException {
 
 		/* Check access permission */
         if (!device.canRead() || !device.canWrite()) {
@@ -71,7 +71,7 @@ public class SerialPort {
             }
         }
 
-        mFd = open(device.getAbsolutePath(), baudrate, flags);
+        mFd = open(device.getAbsolutePath(), baudrate, dataBits,stopBits,parity);
         if (mFd == null) {
             Log.e(TAG, "native open returns null");
             throw new IOException();
@@ -80,18 +80,18 @@ public class SerialPort {
         mFileOutputStream = new FileOutputStream(mFd);
     }
 
-    public SerialPort(String devicePath, int baudrate, int flags)
-        throws SecurityException, IOException {
-        this(new File(devicePath), baudrate, flags);
-    }
-
-    public SerialPort(File device, int baudrate) throws SecurityException, IOException {
-        this(device, baudrate, 0);
-    }
-
-    public SerialPort(String devicePath, int baudrate) throws SecurityException, IOException {
-        this(new File(devicePath), baudrate, 0);
-    }
+//    public SerialPort(String devicePath, int baudrate, int flags)
+//        throws SecurityException, IOException {
+//        this(new File(devicePath), baudrate, flags);
+//    }
+//
+//    public SerialPort(File device, int baudrate) throws SecurityException, IOException {
+//        this(device, baudrate, 0);
+//    }
+//
+//    public SerialPort(String devicePath, int baudrate) throws SecurityException, IOException {
+//        this(new File(devicePath), baudrate, 0);
+//    }
 
     // Getters and setters
     public InputStream getInputStream() {
@@ -103,7 +103,7 @@ public class SerialPort {
     }
 
     // JNI
-    private native static FileDescriptor open(String path, int baudrate, int flags);
+    private native static FileDescriptor open(String path, int baudrate, int dataBits,int stopBits,char parity);
 
     public native void close();
 

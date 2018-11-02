@@ -70,7 +70,7 @@ public class SerialPortManager {
         try {
             File device = new File(devicePath);
             int baurate = Integer.parseInt(baudrateString);
-            mSerialPort = new SerialPort(device, baurate, 0);
+            mSerialPort = new SerialPort(device, baurate, 8,1,'E');
 
             mReadThread = new SerialReadThread(mSerialPort.getInputStream());
             mReadThread.start();

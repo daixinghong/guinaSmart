@@ -3,8 +3,8 @@ package com.busradeniz.detection.base;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +26,7 @@ import java.util.Map;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
-public class BaseRecordFragment extends Fragment implements SettingInterface {
+public abstract class BaseRecordFragment extends Fragment implements SettingInterface, View.OnClickListener {
 
 
     private RecyclerView mRcyResultList;
@@ -52,9 +52,7 @@ public class BaseRecordFragment extends Fragment implements SettingInterface {
 
     private void initView(View inflate) {
         mRcyResultList = inflate.findViewById(R.id.rcy_result_list);
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mRcyResultList.setLayoutManager(staggeredGridLayoutManager);
-        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        mRcyResultList.setLayoutManager(new GridLayoutManager(getActivity(), 3));
 
     }
 
@@ -92,6 +90,8 @@ public class BaseRecordFragment extends Fragment implements SettingInterface {
 
     }
 
+    abstract  public int getFlags();
+
     @Override
     public RequestBody getParms() {
         return null;
@@ -104,13 +104,14 @@ public class BaseRecordFragment extends Fragment implements SettingInterface {
         map.put("pagesize", 20);
         map.put("start_time", "");
         map.put("end_time", "");
-//        map.put("config_id", 1);
+        map.put("result",getFlags());
 
         return map;
     }
 
     @Override
     public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
 
     }
 
@@ -146,6 +147,11 @@ public class BaseRecordFragment extends Fragment implements SettingInterface {
 
     @Override
     public void getDataError(Throwable throwable) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
 
     }
 }

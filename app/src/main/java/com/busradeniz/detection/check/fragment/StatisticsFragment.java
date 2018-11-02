@@ -11,14 +11,31 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.busradeniz.detection.R;
+import com.busradeniz.detection.base.BaseBean;
+import com.busradeniz.detection.bean.ConfigureInfoBean;
+import com.busradeniz.detection.bean.ConfigureListBean;
+import com.busradeniz.detection.check.bean.ModelBean;
+import com.busradeniz.detection.check.bean.RecordListBean;
+import com.busradeniz.detection.setting.presenter.SettingInterface;
+import com.busradeniz.detection.setting.presenter.SettingPresenter;
 
-public class StatisticsFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+
+public class StatisticsFragment extends Fragment implements SettingInterface, View.OnClickListener {
 
 
     private RadioButton mRbOn;
     private RadioGroup mRgGroup;
     private RightRecordFragment mRightRecordFragment;
     private ErrorRecordFragment mErrorRecordFragment;
+    private SettingPresenter mPresenter;
+    private List<ConfigureListBean.DatasBean> mList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -85,6 +102,8 @@ public class StatisticsFragment extends Fragment {
 
     private void initData() {
 
+        mPresenter = new SettingPresenter(this);
+        mPresenter.getConfigureList();
 
     }
 
@@ -92,6 +111,7 @@ public class StatisticsFragment extends Fragment {
 
         mRbOn = inflate.findViewById(R.id.rb_on);
         mRgGroup = inflate.findViewById(R.id.rg_group);
+
 
     }
 
@@ -114,4 +134,79 @@ public class StatisticsFragment extends Fragment {
     }
 
 
+    @Override
+    public void getClassifyDataSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void checkObjectSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void getModelSuccess(ModelBean modelBean) {
+
+    }
+
+    @Override
+    public void createConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public RequestBody getParms() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("page", 1);
+        map.put("pagesize", 20);
+        map.put("desc", "");
+        map.put("config_type_id", 1);
+        return map;
+    }
+
+    @Override
+    public void getConfigureListSuccess(ConfigureListBean configureListBean) {
+
+
+    }
+
+    @Override
+    public void getConfigureInfoSuccess(ConfigureInfoBean bean) {
+
+    }
+
+    @Override
+    public void updataConfigureSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public void commitCheckResultSuccess(BaseBean baseBean) {
+
+    }
+
+    @Override
+    public void testCutPhotoSuccess(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void getRecordListSuccess(RecordListBean recordListBean) {
+
+    }
+
+    @Override
+    public void getDataError(Throwable throwable) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
 }

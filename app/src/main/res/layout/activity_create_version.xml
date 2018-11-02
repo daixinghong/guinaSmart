@@ -25,7 +25,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.7">
 
-                <com.google.android.cameraview.CameraView
+
+                <com.wonderkiln.camerakit.CameraView
                     android:id="@+id/cameraView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -33,8 +34,13 @@
                     android:keepScreenOn="true"
                     app:aspectRatio="4:3"
                     app:autoFocus="true"
-                    app:facing="back"
-                    app:flash="auto" />
+                    app:facing="back" />
+
+                <!--<com.google.android.cameraview.CameraView-->
+                    <!--android:id="@+id/cameraView"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                   <!--/>-->
 
                 <com.busradeniz.detection.view.ScaleImageView
                     android:id="@+id/iv_image"
@@ -72,8 +78,9 @@
                         android:id="@+id/big_size"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/enlarge"
+                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/big"
                         app:fabSize="mini" />
 
@@ -81,8 +88,9 @@
                         android:id="@+id/short_size"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/narrow"
+                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/shorts"
                         app:fabSize="mini" />
 
@@ -91,8 +99,9 @@
                         android:id="@+id/fab_download"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/draw"
+                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/draw"
                         app:fabSize="mini" />
 
@@ -100,7 +109,8 @@
                         android:id="@+id/fab_browser"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
+                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/delete"
                         android:src="@mipmap/delete"
                         app:fabSize="mini" />
@@ -109,7 +119,8 @@
                         android:id="@+id/fab_finger"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
+                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/drag"
                         android:src="@mipmap/finger"
                         app:fabSize="mini" />
@@ -118,7 +129,8 @@
                         android:id="@+id/fab_edit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/dp_5"
+                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/updata"
                         android:src="@mipmap/edit"
                         app:fabSize="mini" />
@@ -181,7 +193,7 @@
                                         android:layout_height="match_parent"
                                         android:layout_marginLeft="@dimen/dp_10"
                                         android:background="@null"
-                                        android:focusable="true"
+                                        android:focusable="false"
                                         android:hint="@string/please_input"
                                         android:textSize="@dimen/sp_14" />
 

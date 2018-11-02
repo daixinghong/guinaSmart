@@ -37,6 +37,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     private static final String TAG = ScaleImageView.class.getSimpleName();
     public static final float SCALE_MAX = 3.0f;
     private static final float SCALE_MID = 1.5f;
+    private final Paint mBluePaint;
 
     /**
      * 初始化时的缩放比例，如果图片宽或高大于屏幕，此值将小于0
@@ -94,6 +95,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     private EditText mEtPartName;
 
     private Bitmap mBitmap;
+    private List<Integer> mFlagList;
 
     public ScaleImageView(Context context) {
         this(context, null);
@@ -107,6 +109,12 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(StrokeWidth);
+
+        mBluePaint = new Paint();
+        mBluePaint.setColor(Color.BLUE);
+        mBluePaint.setAntiAlias(true);
+        mBluePaint.setStyle(Paint.Style.STROKE);
+        mBluePaint.setStrokeWidth(StrokeWidth);
 
         mCanvas = new Canvas();
         mCanvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
@@ -186,6 +194,10 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
     public void setPartNameList(List<String> partNameList) {
         mPartNameList = partNameList;
+    }
+
+    public void setFlagList(List<Integer> flagList) {
+        mFlagList = flagList;
     }
 
     /**
@@ -278,8 +290,10 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
             for (int i = 0; i < mRectList.size(); i++) {
                 mRectList.get(i).right = (int) (mRectList.get(i).right * scaleFactor);
+                mRectList.get(i).left = (int) (mRectList.get(i).left * scaleFactor);
+                mRectList.get(i).top = (int) (mRectList.get(i).top * scaleFactor);
+                mRectList.get(i).bottom = (int) (mRectList.get(i).bottom * scaleFactor);
             }
-
 
             checkBorderAndCenterWhenScale();
             setImageMatrix(mScaleMatrix);
@@ -358,9 +372,29 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        for (int i = 0; i < mRectList.size(); i++) {
-            canvas.drawRect(mRectList.get(i), mPaint);
+        if (mFlagList != null && mFlagList.size() != 0) {
+            boolean status = false;
+            for (int i = 0; i < mRectList.size(); i++) {
+
+                for (int j = 0; j < mFlagList.size(); j++) {
+                    if (i == mFlagList.get(j)) {
+                        status = true;
+                        break;
+                    }
+                }
+                if (status) {
+                    canvas.drawRect(mRectList.get(i), mPaint);
+                } else {
+                    canvas.drawRect(mRectList.get(i), mBluePaint);
+                }
+                status = false;
+            }
+        } else {
+            for (int i = 0; i < mRectList.size(); i++) {
+                canvas.drawRect(mRectList.get(i), mBluePaint);
+            }
         }
+
     }
 
     /**
@@ -374,7 +408,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
     public interface UpdataAdapterInterface {
 
-        void setUpdataAdapterListener(int index,String strings);
+        void setUpdataAdapterListener(int index, String strings);
 
         void setAddListener(Rect rects, String strings);
 
@@ -414,7 +448,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
                                     //列表更新回调
                                     if (mUpdataAdapterInterface != null)
-                                        mUpdataAdapterInterface.setUpdataAdapterListener(finalI,mEtPartName.getText().toString().trim());
+                                        mUpdataAdapterInterface.setUpdataAdapterListener(finalI, mEtPartName.getText().toString().trim());
                                 }
                             });
 
@@ -438,10 +472,23 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
                 case MotionEvent.ACTION_DOWN:
                     for (int i = 0; i < mRectList.size(); i++) {
                         if (x > mRectList.get(i).left && x < mRectList.get(i).right && y > mRectList.get(i).top && y < mRectList.get(i).bottom) {
+
+                            for (int j = 0; j < mFlagList.size(); j++) {
+                                if (i == mFlagList.get(j)) {
+                                    mFlagList.remove(j);
+                                    break;
+                                }
+                            }
+
+                            for (int a = 0; a < mFlagList.size(); a++) {
+                                if (i < mFlagList.get(a)) {
+                                    mFlagList.set(a, mFlagList.get(a) - 1);
+                                }
+                            }
+
                             mRectList.remove(i);
                             mPartNameList.remove(i);
                             mOriginalRectList.remove(i);
-
                             postInvalidate();
                             //列表更新回调
                             if (mUpdataAdapterInterface != null)
@@ -533,7 +580,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
             } else {
                 if (mGestureDetector.onTouchEvent(event))
                     return true;
-//            mScaleGestureDetector.onTouchEvent(event);
+//                mScaleGestureDetector.onTouchEvent(event);
 
                 float x = 0, y = 0;
                 // 拿到触摸点的个数

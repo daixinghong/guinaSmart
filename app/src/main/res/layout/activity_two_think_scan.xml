@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <com.google.android.cameraview.CameraView
+                <com.wonderkiln.camerakit.CameraView
                     android:id="@+id/cameraView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -30,7 +30,18 @@
                     android:keepScreenOn="true"
                     app:aspectRatio="4:3"
                     app:autoFocus="true"
-                    app:facing="back"></com.google.android.cameraview.CameraView>
+                    app:facing="back" />
+
+
+                <!--<com.google.android.cameraview.CameraView-->
+                    <!--android:id="@+id/cameraView"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:adjustViewBounds="true"-->
+                    <!--android:keepScreenOn="true"-->
+                    <!--app:aspectRatio="4:3"-->
+                    <!--app:autoFocus="true"-->
+                    <!--app:facing="back"></com.google.android.cameraview.CameraView>-->
 
                 <ImageView
                     android:id="@+id/iv_back"
@@ -52,6 +63,7 @@
 
 
                 <ImageView
+                    android:visibility="gone"
                     android:id="@+id/iv_setting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -150,6 +162,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:visibility="gone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/dp_10"
@@ -174,6 +187,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:visibility="gone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/dp_10"
@@ -199,6 +213,7 @@
 
 
                         <LinearLayout
+                            android:visibility="gone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/dp_5"
@@ -324,12 +339,13 @@
                             android:textSize="@dimen/sp_14" />
 
                         <TextView
+                            android:textColor="@color/mo_line"
                             android:id="@+id/tv_check_result"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/dp_7"
-                            android:text="fail" />
+                            android:text="@string/checking" />
 
 
                     </LinearLayout>

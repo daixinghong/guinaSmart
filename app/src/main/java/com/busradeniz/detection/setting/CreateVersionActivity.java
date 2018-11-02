@@ -4,13 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -28,7 +28,7 @@ import com.busradeniz.detection.bean.LocationBean;
 import com.busradeniz.detection.bean.NewVersionBean;
 import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.check.bean.RecordListBean;
-import com.busradeniz.detection.greendaodemo.db.SupportBeanDao;
+import com.busradeniz.detection.message.IMessage;
 import com.busradeniz.detection.setting.adapter.RcyCreateModleListAdapter;
 import com.busradeniz.detection.setting.presenter.SettingInterface;
 import com.busradeniz.detection.setting.presenter.SettingPresenter;
@@ -41,10 +41,18 @@ import com.busradeniz.detection.utils.LocationUtils;
 import com.busradeniz.detection.utils.ToastUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.busradeniz.detection.view.ScaleImageView;
-import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
 import com.novaapps.floatingactionmenu.FloatingActionMenu;
+import com.wonderkiln.camerakit.CameraKitError;
+import com.wonderkiln.camerakit.CameraKitEvent;
+import com.wonderkiln.camerakit.CameraKitEventListener;
+import com.wonderkiln.camerakit.CameraKitImage;
+import com.wonderkiln.camerakit.CameraKitVideo;
+import com.wonderkiln.camerakit.CameraView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
@@ -59,10 +67,8 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -77,8 +83,6 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import tensorflow.serving.Predict;
-import tensorflow.serving.PredictionServiceGrpc;
 
 public class CreateVersionActivity extends BaseActivity implements View.OnClickListener, SettingInterface {
 
@@ -86,7 +90,6 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     private CameraView mCameraView;
     private int mWidth;
     private int mHeight;
-    private Classifier mDetector;
     private ScaleImageView mIvImage;
     private Bitmap mBitmap;
     private Executor executor = Executors.newSingleThreadExecutor();
@@ -96,8 +99,6 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     private SettingPresenter mPresenter;
     private List<String> mClassifyList = new ArrayList<>();
     private int mResizeShortCount = 1;
-    private PredictionServiceGrpc.PredictionServiceBlockingStub mStub;
-    private Predict.PredictRequest.Builder mPredictRequestBuilder;
     private FloatingActionMenu mFloatingActionMenu;
     private FloatingActionButton mFabMain;
     private RecyclerView mRcyList;
@@ -105,12 +106,14 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     private List<NewVersionBean> mList = new ArrayList<>();
     private RelativeLayout mRlSave;
     private EditText mEtProjectName;
-    private SupportBeanDao mSupportBeanDao;
     private List<Bitmap> mShortBitmapList;
     private List<Map<String, Object>> mRects;
-    private boolean mCheckIsOk;
     private boolean mIsUpdata;
     private int mId;
+    private List<Integer> mFlagsList = new ArrayList<>();
+    private List<Integer> mCheckIndexList = new ArrayList<>();
+    private boolean mStatus;
+    private String[] mComandArray;
 
 
     @Override
@@ -149,6 +152,38 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
 //        DialogUtils.showTopDialog(getSupportFragmentManager(), R.layout.ldialog_top_tips, 10000);
 
+
+    }
+
+
+    private static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) w / h;
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        for (Camera.Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        return optimalSize;
     }
 
     @Override
@@ -185,6 +220,18 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
         mCameraView.stop();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
     private void initData() {
 
         Bundle bundleExtra = getIntent().getBundleExtra(Constant.BUNDLE_PARMS);
@@ -203,7 +250,8 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
         initTensorFlowAndLoadModel();
 
-        mSupportBeanDao = BaseApplication.getApplicatio().getDaoSession().getSupportBeanDao();
+        mComandArray = UiUtils.getStringArray(R.array.comand_array);
+
         mAdapter = new RcyCreateModleListAdapter(this, mList);
         mRcyList.setAdapter(mAdapter);
 
@@ -298,6 +346,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
             @Override
             public void setDeleteListListener(int index) {
+
                 mList.remove(index);
                 mAdapter.notifyDataSetChanged();
             }
@@ -351,43 +400,44 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
             }
         });
 
+        mCameraView.addCameraKitListener(new CameraKitEventListener() {
+            @Override
+            public void onEvent(CameraKitEvent cameraKitEvent) {
 
-        mCameraView.addCallback(new CameraView.Callback() {
+            }
 
             @Override
-            public void onPictureTaken(CameraView cameraView, final byte[] data) {
-                super.onPictureTaken(cameraView, data);
+            public void onError(CameraKitError cameraKitError) {
 
+            }
+
+            @Override
+            public void onImage(CameraKitImage cameraKitImage) {
                 if (mCorrectBitmap != null)
                     mCorrectBitmap.recycle();
+
+                mBitmap = cameraKitImage.getBitmap();
 
                 BaseApplication.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                                "picture.jpg");
-                        OutputStream os = null;
-                        try {
-                            os = new FileOutputStream(file);
-                            os.write(data);
-                            os.close();
 
-                        } catch (Exception e) {
-                            Log.e(TAG, "run: " + e.getMessage());
-                        }
+//                        mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.image4);
 
-                        mBitmap = BitmapFactory.decodeFile(file.getPath());
-
-                        long startTime = System.currentTimeMillis();
 
                         try {
-                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
-                            fileDir.createNewFile();
-
-                            FileOutputStream out = new FileOutputStream(fileDir);
-                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                            out.flush();
-                            out.close();
+//                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
+//
+//                            if(!fileDir.exists()){
+//                                fileDir.mkdirs();
+//                            }
+//
+//                            fileDir.createNewFile();
+//
+//                            FileOutputStream out = new FileOutputStream(fileDir);
+//                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//                            out.flush();
+//                            out.close();
 
                             mWidth = mBitmap.getWidth() / 4;
                             mHeight = mBitmap.getHeight() / 4;
@@ -398,23 +448,27 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                             //获取hed图
                             Mat recognize = detector.recognize(bitmaps, mWidth, mHeight);
 
+                            Mat det = new Mat();
+                            recognize.convertTo(recognize, CvType.CV_8UC3);
+                            Imgproc.resize(recognize, det, new Size(recognize.cols(), recognize.rows()));
+
+                            Bitmap sBitmap2 = Bitmap.createBitmap(recognize.cols(), recognize.rows(), Bitmap.Config.ARGB_4444);
+                            Utils.matToBitmap(det, sBitmap2);
 
                             //矫正图片
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, mBitmap, 1);
 
-
-                            Bitmap bitmap = Bitmap.createBitmap(mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                            Utils.matToBitmap(recognize, bitmap);
-
-                            File fileDirs = new File("/sdcard/image/" + startTime + ".png");
-                            fileDirs.createNewFile();
-
-                            FileOutputStream outs = new FileOutputStream(fileDir);
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outs);
-                            outs.flush();
-                            outs.close();
-
-
+//                            File fileDirs = new File("/sdcard/image/" + startTime + ".png");
+//                            if(!fileDirs.exists()){
+//                                fileDirs.mkdirs();
+//                            }
+//
+//                            fileDirs.createNewFile();
+//
+//                            FileOutputStream outs = new FileOutputStream(fileDirs);
+//                            sBitmap2.compress(Bitmap.CompressFormat.JPEG, 100, outs);
+//                            outs.flush();
+//                            outs.close();
 
                             //发送请求
                             mPresenter.requestModel(CreateVersionActivity.this, mCorrectBitmap);
@@ -425,10 +479,14 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
                     }
                 });
+            }
 
+            @Override
+            public void onVideo(CameraKitVideo cameraKitVideo) {
 
             }
         });
+
 
     }
 
@@ -521,7 +579,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                     return;
                 }
                 System.gc();
-                mCameraView.takePicture();
+                mCameraView.captureImage();
 
                 break;
             case R.id.rl_back:
@@ -537,9 +595,11 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
                 mShortBitmapList = new ArrayList<>();
                 mRects = new ArrayList<>();
+                mCheckIndexList.clear();
 
                 for (int i = 0; i < mList.size(); i++) {
                     if (mList.get(i).isStatus()) {
+                        mCheckIndexList.add(i);
                         Map<String, Object> map = new HashMap<>();
                         Rect rect = new Rect();
                         int left = mList.get(i).getLocation().getLeft();
@@ -745,8 +805,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
             Glide.with(this).load(url).into(mIvImage);
 
-            Bitmap bitmap = returnBitMap(url);
-
+            returnBitMap(url);
 
             mCameraView.setVisibility(View.GONE);
             mIvImage.setVisibility(View.VISIBLE);
@@ -887,7 +946,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
             JSONArray jsonArray = json.getJSONArray("datas");
 
-            int count = 0;
+            mFlagsList.clear();
 
             for (int j = 0; j < jsonArray.length(); j++) {
 
@@ -917,59 +976,62 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                 for (int i = 0; i < location.size(); i++) {
 
                     String id = location.get(i).getTitle();
-
                     String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
 
                     if (name.equals(classifyName)) {
-                        if (location.get(i).getConfidence() >= 0.5) {
+                        if (location.get(i).getConfidence() >= 0.3) {
                             RectF rectF = location.get(i).getLocation();    //检测获取到的结果
 
                             Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 180, 0), 5);
 
                             Utils.matToBitmap(mat, bitmap);
 
-                            if (Math.abs(rect.left - rectF.left) > 10) {
+                            if (Math.abs(rect.left - rectF.left) > 50) {
                                 continue;
                             }
-                            if (Math.abs(rect.right - rectF.right) > 10) {
+                            if (Math.abs(rect.right - rectF.right) > 50) {
                                 continue;
                             }
-                            if (Math.abs(rect.top - rectF.top) > 10) {
+                            if (Math.abs(rect.top - rectF.top) > 50) {
                                 continue;
                             }
-                            if (Math.abs(rect.bottom - rectF.bottom) > 10) {
+                            if (Math.abs(rect.bottom - rectF.bottom) > 50) {
                                 continue;
                             }
-                            count++;
                             break;
                         }
                     }
 
-                }
-            }
-
-            DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
-            DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
-                @Override
-                public void onConfirmClickListener(View view) {
-
-                    if (mIsUpdata) {  //更新
-                        mPresenter.updataConfigure(mId);
-
-                    } else {        //新建
-                        mPresenter.createConfigure();
-
+                    if (i == location.size() - 1) {
+                        mFlagsList.add(mCheckIndexList.get(j));
                     }
 
                 }
-            });
-
-            if (count == jsonArray.length()) { //如果检测ok 就直接保存
-
-            } else {  //不ok
-
 
             }
+
+
+            if (mFlagsList.size() != 0) {   //不ok
+                ToastUtils.showTextToast("检测有误");
+                mIvImage.setFlagList(mFlagsList);
+                mIvImage.postInvalidate();
+            } else {                        //检测ok
+                DialogUtils.showIosDialog(getSupportFragmentManager(), UiUtils.getString(R.string.confirm_save) + "\"" + (mEtProjectName.getText().toString().trim()) + "\"" + UiUtils.getString(R.string.the_mondel));
+                DialogUtils.setOnConfirmClickListener(new DialogUtils.IosDialogListener() {
+                    @Override
+                    public void onConfirmClickListener(View view) {
+
+                        if (mIsUpdata) {  //更新
+                            mPresenter.updataConfigure(mId);
+
+                        } else {        //新建
+                            mPresenter.createConfigure();
+                        }
+
+                    }
+                });
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -983,5 +1045,25 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
     }
 
+
+    /**
+     * 连接plc收到消息的回调
+     *
+     * @param message
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(IMessage message) {
+
+        if (mStatus)
+            if (message.getMessage().equals(mComandArray[1]))
+                return;
+
+        if (message.getMessage().equals(mComandArray[1])) {  //开始摄像
+
+            mStatus = true;
+            System.gc();
+            mCameraView.captureImage();
+        }
+    }
 
 }
