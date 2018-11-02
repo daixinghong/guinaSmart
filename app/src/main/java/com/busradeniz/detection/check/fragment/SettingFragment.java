@@ -1,12 +1,10 @@
 package com.busradeniz.detection.check.fragment;
 
 import android.app.Fragment;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +24,6 @@ import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.UiUtils;
-import com.cjt2325.cameralibrary.JCameraView;
-import com.cjt2325.cameralibrary.listener.JCameraListener;
 
 import java.util.ArrayList;
 import java.util.List;

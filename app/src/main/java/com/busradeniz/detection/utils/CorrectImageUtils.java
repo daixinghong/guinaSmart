@@ -1,11 +1,7 @@
 package com.busradeniz.detection.utils;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
-
-import com.busradeniz.detection.BaseApplication;
-import com.busradeniz.detection.R;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -203,9 +199,9 @@ public class CorrectImageUtils {
         Mat origin_lines = new Mat();
         Mat hedMat = new Mat();
         if (isDebug) {
-            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.test13);
-            Utils.bitmapToMat(hedBitmap, hedMat);
-            hedMat = fix_image_to_detect_edge(hedMat);
+//            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.test13);
+//            Utils.bitmapToMat(hedBitmap, hedMat);
+//            hedMat = fix_image_to_detect_edge(hedMat);
         } else {
             hedMat = fix_image_to_detect_edge(bitmap);
         }
