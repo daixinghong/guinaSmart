@@ -97,6 +97,7 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     private Bitmap mBitmap;
     private List<Integer> mFlagList;
 
+
     public ScaleImageView(Context context) {
         this(context, null);
     }
@@ -198,6 +199,10 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
 
     public void setFlagList(List<Integer> flagList) {
         mFlagList = flagList;
+    }
+
+    public List<Integer> getFlagList() {
+        return mFlagList;
     }
 
     /**

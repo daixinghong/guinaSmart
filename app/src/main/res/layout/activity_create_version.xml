@@ -23,24 +23,29 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.7">
+                android:layout_weight="1">
 
 
-                <com.wonderkiln.camerakit.CameraView
+                <!--<com.wonderkiln.camerakit.CameraView-->
+                <!--android:id="@+id/cameraView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:keepScreenOn="true"-->
+                <!--app:aspectRatio="4:3"-->
+                <!--app:autoFocus="true"-->
+                <!--app:facing="back" />-->
+
+                <com.google.android.cameraview.CameraView
                     android:id="@+id/cameraView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="@dimen/dp_400"
+                    android:layout_height="@dimen/dp_250"
                     android:adjustViewBounds="true"
                     android:keepScreenOn="true"
                     app:aspectRatio="4:3"
                     app:autoFocus="true"
-                    app:facing="back" />
+                    app:facing="back"></com.google.android.cameraview.CameraView>
 
-                <!--<com.google.android.cameraview.CameraView-->
-                    <!--android:id="@+id/cameraView"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent"-->
-                   <!--/>-->
 
                 <com.busradeniz.detection.view.ScaleImageView
                     android:id="@+id/iv_image"
@@ -62,8 +67,7 @@
                     android:id="@+id/fab_menu_line"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="@dimen/dp_10"
-                    >
+                    android:layout_marginBottom="@dimen/dp_10">
 
 
                     <android.support.design.widget.FloatingActionButton
@@ -80,8 +84,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/enlarge"
-                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/big"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
                     <android.support.design.widget.FloatingActionButton
@@ -90,8 +94,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/narrow"
-                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/shorts"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
 
@@ -101,8 +105,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
                         android:contentDescription="@string/draw"
-                        android:textSize="@dimen/sp_15"
                         android:src="@mipmap/draw"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
                     <android.support.design.widget.FloatingActionButton
@@ -110,9 +114,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/delete"
                         android:src="@mipmap/delete"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
                     <android.support.design.widget.FloatingActionButton
@@ -120,9 +124,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/drag"
                         android:src="@mipmap/finger"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
                     <android.support.design.widget.FloatingActionButton
@@ -130,9 +134,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:textSize="@dimen/sp_15"
                         android:contentDescription="@string/updata"
                         android:src="@mipmap/edit"
+                        android:textSize="@dimen/sp_15"
                         app:fabSize="mini" />
 
                 </com.novaapps.floatingactionmenu.FloatingActionMenu>

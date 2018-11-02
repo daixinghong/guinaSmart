@@ -1,9 +1,11 @@
 package com.busradeniz.detection.check;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,13 +49,8 @@ import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.LocationUtils;
 import com.busradeniz.detection.utils.SerialPortManager;
 import com.busradeniz.detection.utils.UiUtils;
+import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
-import com.wonderkiln.camerakit.CameraKitError;
-import com.wonderkiln.camerakit.CameraKitEvent;
-import com.wonderkiln.camerakit.CameraKitEventListener;
-import com.wonderkiln.camerakit.CameraKitImage;
-import com.wonderkiln.camerakit.CameraKitVideo;
-import com.wonderkiln.camerakit.CameraView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -64,13 +61,17 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private String[] mComandArray;
     private boolean mCheckStatus;
     private String mResult;
+    private TextView mTvModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,39 +162,57 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
     private void initEvent() {
 
-
         mIvBack.setOnClickListener(this);
 
-        cameraView.addCameraKitListener(new CameraKitEventListener() {
+        cameraView.addCallback(new CameraView.Callback() {
             @Override
-            public void onEvent(CameraKitEvent cameraKitEvent) {
+            public void onPictureTaken(CameraView cameraView, byte[] data) {
+                super.onPictureTaken(cameraView, data);
+                for (int i = 0; i < mList.size(); i++) {
+                    mList.get(i).setError("");
+                    mList.get(i).setIsSuccess("");
+                }
+                mAdapter.notifyDataSetChanged();
 
-            }
+                mTvCheckResult.setText(UiUtils.getString(R.string.checking));
+                mTvCheckResult.setTextColor(UiUtils.getColor(R.color.mo_line));
 
-            @Override
-            public void onError(CameraKitError cameraKitError) {
-
-            }
-
-            @Override
-            public void onImage(CameraKitImage cameraKitImage) {
-                Bitmap bitmap = cameraKitImage.getBitmap();
                 BaseApplication.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        mTvCheckResult.setText(UiUtils.getString(R.string.checking));
-                        mTvCheckResult.setTextColor(UiUtils.getColor(R.color.mo_line));
+
+                        OutputStream os = null;
                         try {
+
+                            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                                    "picture.jpg");
+                            os = new FileOutputStream(file);
+                            os.write(data);
+                            os.close();
+
+                            Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
+
                             TF_OD_API_INPUT_SIZE = bitmap.getWidth() / 4;
                             TF_Wdith_API_INPUT_SIZE = bitmap.getHeight() / 4;
 
                             mBitmaps = Bitmap.createScaledBitmap(bitmap, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE, false);
 
-                            mImageView.setVisibility(View.VISIBLE);
-                            cameraView.setVisibility(View.GONE);
+
                             Mat recognize = detector.recognize(mBitmaps, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE);
 
+                            Mat det = new Mat();
+                            recognize.convertTo(recognize, CvType.CV_8UC3);
+                            Imgproc.resize(recognize, det, new Size(recognize.cols(), recognize.rows()));
+
+                            Bitmap sBitmap2 = Bitmap.createBitmap(recognize.cols(), recognize.rows(), Bitmap.Config.ARGB_4444);
+                            Utils.matToBitmap(det, sBitmap2);
+
+
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
+
+
+                            cameraView.setVisibility(View.GONE);
+                            mImageView.setVisibility(View.VISIBLE);
                             mImageView.setImageBitmap(mCorrectBitmap);
 
                             mShortBitmapList = new ArrayList<>();
@@ -210,14 +230,20 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                         } catch (Exception e) {
                             ToastUtils.showTextToast(UiUtils.getString(R.string.photo_check_fild));
 
+                        } catch (Error error) {
+
+                        } finally {
+                            if (os != null) {
+                                try {
+                                    os.close();
+                                } catch (IOException e) {
+                                    // Ignore
+                                }
+                            }
                         }
 
                     }
                 });
-            }
-
-            @Override
-            public void onVideo(CameraKitVideo cameraKitVideo) {
 
             }
         });
@@ -228,10 +254,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
 
-                for (int i = 0; i < mList.size(); i++) {
-                    mList.get(i).setError("");
-                    mList.get(i).setIsSuccess("");
-                }
+                mCorrectBitmap = null;
 
                 if (mResizeBitmap != null && !mResizeBitmap.isRecycled()) {
                     mResizeBitmap.recycle();
@@ -242,8 +265,9 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                     mImageView.setVisibility(View.GONE);
                     return;
                 }
+
                 System.gc();
-                cameraView.captureImage();
+                cameraView.takePicture();
             }
         });
 
@@ -281,6 +305,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
 
     private void intView() {
+
         cameraView = findViewById(R.id.cameraView);
         textViewResult = findViewById(R.id.textViewResult);
         textViewResult.setMovementMethod(new ScrollingMovementMethod());
@@ -300,6 +325,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
         mIvSetting = findViewById(R.id.iv_setting);
         mDrawerLayout = findViewById(R.id.activity_na);
         mTvCheckResult = findViewById(R.id.tv_check_result);
+        mTvModel = findViewById(R.id.tv_model);
     }
 
     private void initTensorFlowAndLoadModel() {
@@ -470,7 +496,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
             ConfigureInfoBean.DataBean data = bean.getData();
 
             mTvCheckName.setText(data.getName());
-
+            mTvModel.setText(data.getName());
             String location = data.getData();
             Gson gson = new Gson();
             LocationBean locationBean = gson.fromJson(location, LocationBean.class);
@@ -685,8 +711,9 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
             mStatus = true;
             mCheckStatus = false;
 
+            mCorrectBitmap = null;
             System.gc();
-            cameraView.captureImage();
+            cameraView.takePicture();
         } else if (message.getMessage().equals(mComandArray[3])) {
 
             new Thread(new Runnable() {

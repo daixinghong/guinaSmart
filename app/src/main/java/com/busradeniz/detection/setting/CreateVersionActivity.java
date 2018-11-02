@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,14 +42,9 @@ import com.busradeniz.detection.utils.LocationUtils;
 import com.busradeniz.detection.utils.ToastUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.busradeniz.detection.view.ScaleImageView;
+import com.google.android.cameraview.CameraView;
 import com.google.gson.Gson;
 import com.novaapps.floatingactionmenu.FloatingActionMenu;
-import com.wonderkiln.camerakit.CameraKitError;
-import com.wonderkiln.camerakit.CameraKitEvent;
-import com.wonderkiln.camerakit.CameraKitEventListener;
-import com.wonderkiln.camerakit.CameraKitImage;
-import com.wonderkiln.camerakit.CameraKitVideo;
-import com.wonderkiln.camerakit.CameraView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,8 +63,10 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -400,35 +398,44 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
             }
         });
 
-        mCameraView.addCameraKitListener(new CameraKitEventListener() {
+        mCameraView.addCallback(new CameraView.Callback() {
             @Override
-            public void onEvent(CameraKitEvent cameraKitEvent) {
+            public void onPictureTaken(CameraView cameraView, byte[] data) {
+                super.onPictureTaken(cameraView, data);
 
-            }
+                if(mIvImage.getFlagList()!=null)
+                    mIvImage.getFlagList().clear();
 
-            @Override
-            public void onError(CameraKitError cameraKitError) {
+                if(mIvImage.getPartNameList()!=null)
+                    mIvImage.getPartNameList().clear();
 
-            }
+                if(mIvImage.getRectList()!=null)
+                     mIvImage.getRectList().clear();
 
-            @Override
-            public void onImage(CameraKitImage cameraKitImage) {
-                if (mCorrectBitmap != null)
-                    mCorrectBitmap.recycle();
-
-                mBitmap = cameraKitImage.getBitmap();
-
+                if(mIvImage.getPartNameList()!=null)
+                    mIvImage.getPartNameList().clear();
+                
                 BaseApplication.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-
-//                        mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.image4);
-
-
+                        OutputStream os = null;
                         try {
+                            if (mCorrectBitmap != null)
+                                mCorrectBitmap.recycle();
+
+                            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                                    "picture.jpg");
+                            os = new FileOutputStream(file);
+                            os.write(data);
+                            os.close();
+
+//                          mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.image4);
+                            mBitmap = BitmapFactory.decodeFile(file.getPath());
+
+//                            long startTime = System.currentTimeMillis();
 //                            File fileDir = new File("/sdcard/srcImage/" + startTime + ".png");
 //
-//                            if(!fileDir.exists()){
+//                            if (!fileDir.exists()) {
 //                                fileDir.mkdirs();
 //                            }
 //
@@ -438,7 +445,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 //                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 //                            out.flush();
 //                            out.close();
-
+//
                             mWidth = mBitmap.getWidth() / 4;
                             mHeight = mBitmap.getHeight() / 4;
                             mCameraView.setVisibility(View.GONE);
@@ -479,10 +486,6 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
                     }
                 });
-            }
-
-            @Override
-            public void onVideo(CameraKitVideo cameraKitVideo) {
 
             }
         });
@@ -579,7 +582,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                     return;
                 }
                 System.gc();
-                mCameraView.captureImage();
+                mCameraView.takePicture();
 
                 break;
             case R.id.rl_back:
@@ -597,6 +600,8 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                 mRects = new ArrayList<>();
                 mCheckIndexList.clear();
 
+                int addTopValue, addLeftValue;
+
                 for (int i = 0; i < mList.size(); i++) {
                     if (mList.get(i).isStatus()) {
                         mCheckIndexList.add(i);
@@ -609,30 +614,42 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                         int leftDistance = 0;
                         int topDistance = 0;
 
-                        if (left - 40 >= 0) {
-                            leftDistance = 40;
-                            rect.left = left - 40;
+                        if (Math.abs(left - right) < 20) {
+                            addLeftValue = 100;
+                        } else {
+                            addLeftValue = 60;
+                        }
+
+                        if (Math.abs(top - bottom) < 20) {
+                            addTopValue = 100;
+                        } else {
+                            addTopValue = 60;
+                        }
+
+                        if (left - addLeftValue >= 0) {
+                            leftDistance = addLeftValue;
+                            rect.left = left - addLeftValue;
                         } else {
                             leftDistance = Math.abs(0 - left);
                             rect.left = 0;
                         }
 
-                        if (top - 40 >= 0) {
-                            rect.top = top - 40;
-                            topDistance = 40;
+                        if (top - addTopValue >= 0) {
+                            rect.top = top - addTopValue;
+                            topDistance = addTopValue;
                         } else {
                             rect.top = 0;
                             topDistance = Math.abs(0 - top);
                         }
 
-                        if (right + 40 <= 400) {
-                            rect.right = right + 40;
+                        if (right + addLeftValue <= 400) {
+                            rect.right = right + addLeftValue;
                         } else {
                             rect.right = 400;
                         }
 
-                        if (bottom + 40 <= 800) {
-                            rect.bottom = bottom + 40;
+                        if (bottom + addTopValue <= 800) {
+                            rect.bottom = bottom + addTopValue;
                         } else {
                             rect.bottom = 800;
                         }
@@ -718,6 +735,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                     mIvImage.setPartNameList(partName);
                     Bitmap bitmap = Bitmap.createBitmap(mCorrectBitmap.getWidth(), mCorrectBitmap.getHeight(), Bitmap.Config.ARGB_8888);
                     Utils.matToBitmap(mat, bitmap);
+                    mIvImage.setBackgroundResource(0);
                     mIvImage.setImageBitmap(bitmap);
                     mCameraView.setVisibility(View.GONE);
                     mIvImage.setVisibility(View.VISIBLE);
@@ -979,25 +997,25 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                     String classifyName = mClassifyList.get(Integer.parseInt(id) - 1);
 
                     if (name.equals(classifyName)) {
-                        if (location.get(i).getConfidence() >= 0.3) {
+                        if (location.get(i).getConfidence() >= 0.5) {
                             RectF rectF = location.get(i).getLocation();    //检测获取到的结果
 
                             Imgproc.rectangle(mat, new Point(rectF.left, rectF.top), new Point(rectF.right, rectF.bottom), new Scalar(255, 180, 0), 5);
 
                             Utils.matToBitmap(mat, bitmap);
 
-                            if (Math.abs(rect.left - rectF.left) > 50) {
-                                continue;
-                            }
-                            if (Math.abs(rect.right - rectF.right) > 50) {
-                                continue;
-                            }
-                            if (Math.abs(rect.top - rectF.top) > 50) {
-                                continue;
-                            }
-                            if (Math.abs(rect.bottom - rectF.bottom) > 50) {
-                                continue;
-                            }
+//                            if (Math.abs(rect.left - rectF.left) > 50) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.right - rectF.right) > 50) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.top - rectF.top) > 50) {
+//                                continue;
+//                            }
+//                            if (Math.abs(rect.bottom - rectF.bottom) > 50) {
+//                                continue;
+//                            }
                             break;
                         }
                     }
@@ -1062,7 +1080,7 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
 
             mStatus = true;
             System.gc();
-            mCameraView.captureImage();
+            mCameraView.takePicture();
         }
     }
 

@@ -8,7 +8,7 @@ public class NewVersionBean implements Serializable {
     private String classify;
     private Location location;
     private Deviation deviation;
-    private boolean status;
+    private boolean status = true;
 
     public boolean isStatus() {
         return status;

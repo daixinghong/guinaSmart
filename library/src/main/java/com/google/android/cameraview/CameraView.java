@@ -133,7 +133,7 @@ public class CameraView extends FrameLayout {
         if (Build.VERSION.SDK_INT < 14) {
             preview = new SurfaceViewPreview(context, this);
         } else {
-            preview = new TextureViewPreview(context, this);
+            preview = new SurfaceViewPreview(context, this);
         }
         return preview;
     }

@@ -91,7 +91,7 @@ public class CorrectImageUtils {
         double[] origin_selected_rd = null;
         double[] origin_selected_ld = null;
 
-        if (markH > markW) {
+        if (markW > markH) {
             if ((left_edge_length + right_edge_length) > (top_edge_length + down_edge_length)) {
                 origin_selected_lu = new double[]{rect_with_points.get(0)[0] - x, rect_with_points.get(0)[1] - y};
                 origin_selected_ru = new double[]{rect_with_points.get(1)[0] - x, rect_with_points.get(1)[1] - y};

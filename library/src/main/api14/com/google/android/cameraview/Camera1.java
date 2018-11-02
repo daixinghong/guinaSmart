@@ -23,7 +23,6 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.util.SparseArrayCompat;
-import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
@@ -377,8 +376,6 @@ class Camera1 extends CameraViewImpl {
     }
 
 
-
-
     private AspectRatio chooseAspectRatio() {
         AspectRatio r = null;
         for (AspectRatio ratio : mPreviewSizes.ratios()) {
@@ -404,15 +401,12 @@ class Camera1 extends CameraViewImpl {
         if (mShowingPreview) {
             mCamera.stopPreview();
         }
+
+//        Camera.Size closelyPreSize = getCloselyPreSize(false, mPreview.getWidth(), mPreview.getHeight(), mCameraParameters.getSupportedPreviewSizes());
+//
+//        if (closelyPreSize != null)
+//            mCameraParameters.setPreviewSize(closelyPreSize.width, closelyPreSize.height);
         mCameraParameters.setPreviewSize(size.getWidth(), size.getHeight());
-        List<Camera.Size> supportedPreviewSizes = mCameraParameters.getSupportedPreviewSizes();
-
-//        Camera.Size optimalSize = getOptimalSize(supportedPreviewSizes, mPreview.getWidth(), mPreview.getHeight());
-//
-//        Camera.Parameters parameters = mCamera.getParameters();
-//
-//        parameters.setPreviewSize(2560, 1440);
-
         mCameraParameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
 
         mCameraParameters.setRotation(calcCameraRotation(mDisplayOrientation));
@@ -425,16 +419,50 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    public Camera.Size getCameraSize() {
-        if (null != mCamera) {
-            Camera.Parameters parameters = mCamera.getParameters();
-            DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-            Camera.Size preSize = Util.getCloselyPreSize(true, metrics.widthPixels, metrics.heightPixels,
-                    parameters.getSupportedPreviewSizes());
-            return preSize;
+    /**
+     * 通过对比得到与宽高比最接近的预览尺寸（如果有相同尺寸，优先选择）
+     *
+     * @param isPortrait    是否竖屏
+     * @param surfaceWidth  需要被进行对比的原宽
+     * @param surfaceHeight 需要被进行对比的原高
+     * @param preSizeList   需要对比的预览尺寸列表
+     * @return 得到与原宽高比例最接近的尺寸
+     */
+    public Camera.Size getCloselyPreSize(boolean isPortrait, int surfaceWidth, int surfaceHeight, List<Camera.Size> preSizeList) {
+        int reqTmpWidth;
+        int reqTmpHeight;
+        // 当屏幕为垂直的时候需要把宽高值进行调换，保证宽大于高
+        if (isPortrait) {
+            reqTmpWidth = surfaceHeight;
+            reqTmpHeight = surfaceWidth;
+        } else {
+            reqTmpWidth = surfaceWidth;
+            reqTmpHeight = surfaceHeight;
         }
-        return null;
+        //先查找preview中是否存在与surfaceview相同宽高的尺寸
+        for (Camera.Size size : preSizeList) {
+            if ((size.width == reqTmpWidth) && (size.height == reqTmpHeight)) {
+                return size;
+            }
+        }
+
+        // 得到与传入的宽高比最接近的size
+        float reqRatio = ((float) reqTmpWidth) / reqTmpHeight;
+        float curRatio, deltaRatio;
+        float deltaRatioMin = Float.MAX_VALUE;
+        Camera.Size retSize = null;
+        for (Camera.Size size : preSizeList) {
+            curRatio = ((float) size.width) / size.height;
+            deltaRatio = Math.abs(reqRatio - curRatio);
+            if (deltaRatio < deltaRatioMin) {
+                deltaRatioMin = deltaRatio;
+                retSize = size;
+            }
+        }
+
+        return retSize;
     }
+
 
     @SuppressWarnings("SuspiciousNameCombination")
     private Size chooseOptimalSize(SortedSet<Size> sizes) {
