@@ -1,0 +1,6 @@
+-classpath 'C:\\Users\\lenovo\\AppData\\Local\\Android\\Sdk\\platforms\\android-23\\android.jar'
+-d 'E:\\androidCode\\guinaSmart\\menulibrary\\build\\docs\\javadoc'
+-doctitle 'menulibrary API'
+-quiet 
+-windowtitle 'menulibrary API'
+'E:\\androidCode\\guinaSmart\\menulibrary\\src\\main\\java\\com\\novaapps\\floatingactionmenu\\FloatingActionMenu.java'

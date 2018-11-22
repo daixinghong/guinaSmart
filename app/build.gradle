@@ -17,8 +17,11 @@ android {
     buildTypes {
 
         release {
-            minifyEnabled false
+//            buildConfigField "boolean", "LOG_DEBUG", "false" //不显示log
+//            minifyEnabled false
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
 
 //        greendao {

@@ -15,6 +15,7 @@ import com.busradeniz.detection.ToastUtils;
 import com.busradeniz.detection.base.BaseBean;
 import com.busradeniz.detection.bean.ConfigureInfoBean;
 import com.busradeniz.detection.bean.ConfigureListBean;
+import com.busradeniz.detection.check.SystemSettingActivity;
 import com.busradeniz.detection.check.bean.ModelBean;
 import com.busradeniz.detection.check.bean.RecordListBean;
 import com.busradeniz.detection.setting.adapter.RcyModelAdapter;
@@ -22,6 +23,7 @@ import com.busradeniz.detection.setting.presenter.SettingInterface;
 import com.busradeniz.detection.setting.presenter.SettingPresenter;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.DialogUtils;
+import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.SpUtils;
 import com.busradeniz.detection.utils.UiUtils;
 
@@ -37,6 +39,7 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
 
     private List<String> mModelList = new ArrayList<>();
     private RelativeLayout mRlReplaceModel;
+    private RelativeLayout mRlSystem;
 
     @Nullable
     @Override
@@ -56,11 +59,10 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
 
     private void initEvent() {
         mRlReplaceModel.setOnClickListener(this);
+        mRlSystem.setOnClickListener(this);
     }
 
     private void initData() {
-
-
         SettingPresenter presenter = new SettingPresenter(this);
         presenter.getModel();
 
@@ -68,6 +70,7 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
 
     private void initView(View view) {
         mRlReplaceModel = view.findViewById(R.id.rl_replace_model);
+        mRlSystem = view.findViewById(R.id.rl_system_setting);
     }
 
     @Override
@@ -174,6 +177,12 @@ public class SettingFragment extends Fragment implements SettingInterface, View.
                 });
 
                 DialogUtils.createDialog(view);
+                break;
+            case R.id.rl_system_setting:
+
+
+                IntentUtils.startActivity(getActivity(),SystemSettingActivity.class);
+
                 break;
         }
     }

@@ -1,7 +1,11 @@
 package com.busradeniz.detection.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import com.busradeniz.detection.BaseApplication;
+import com.busradeniz.detection.R;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -29,9 +33,9 @@ public class CorrectImageUtils {
     private static final String TAG = "Zang Chaofei";
 
     private static int kHoughLinesPThreshold = 50;
-    private static double kHoughLinesPMinLinLength = 35.0;
+    private static double kHoughLinesPMinLinLength = 30.0;
     private static double kHoughLinesPMaxLineGap = 3.0;
-    private static int kMergeLinesMaxDistance = 60;
+    private static int kMergeLinesMaxDistance = 30;
     private static boolean is_cross_in_image = false;
     private static int kPointOnLineMaxOffset = 8;
     private static double kIntersectionMinAngle = 45;
@@ -43,6 +47,7 @@ public class CorrectImageUtils {
     private static Bitmap sBitmap2;
 
     public static Bitmap correctImage(Mat dstbitmap, Bitmap srcBitmap, int resize) {
+
         founded_rect_with_points = findContours(dstbitmap);
 
         for (int i = 0; i < founded_rect_with_points.size(); i++) {
@@ -87,7 +92,8 @@ public class CorrectImageUtils {
         double[] origin_selected_rd = null;
         double[] origin_selected_ld = null;
 
-        if (markW > markH) {
+        if (markH > markW) {
+            Log.e(TAG, "rectify_img_roi: zheli" );
             if ((left_edge_length + right_edge_length) > (top_edge_length + down_edge_length)) {
                 origin_selected_lu = new double[]{rect_with_points.get(0)[0] - x, rect_with_points.get(0)[1] - y};
                 origin_selected_ru = new double[]{rect_with_points.get(1)[0] - x, rect_with_points.get(1)[1] - y};
@@ -194,19 +200,20 @@ public class CorrectImageUtils {
 
     public static List<double[]> findContours(Mat bitmap) {
 
-        boolean isDebug = false;
+        boolean isDebug = true;
         Mat edgesMat = new Mat();
         Mat origin_lines = new Mat();
         Mat hedMat = new Mat();
         if (isDebug) {
-//            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.test13);
-//            Utils.bitmapToMat(hedBitmap, hedMat);
-//            hedMat = fix_image_to_detect_edge(hedMat);
+            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.dd);
+            Utils.bitmapToMat(hedBitmap, hedMat);
+            hedMat = fix_image_to_detect_edge(hedMat);
         } else {
             hedMat = fix_image_to_detect_edge(bitmap);
         }
 
         sBitmap2 = Bitmap.createBitmap(hedMat.cols(), hedMat.rows(), Bitmap.Config.ARGB_4444);
+//        Imgproc.erode(hedMat, hedMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
         Imgproc.Canny(hedMat, edgesMat, 50, 3 * 50, 3, true);
         Imgproc.HoughLinesP(edgesMat, origin_lines, 1, Math.PI / 180,
                 kHoughLinesPThreshold, kHoughLinesPMinLinLength, kHoughLinesPMaxLineGap);
@@ -230,33 +237,12 @@ public class CorrectImageUtils {
 //
 //        }
 
-        List<Integer> rightList = Arrays.asList(2, 13, 0, 29, 3, 18, 26, 25, 11, 27, 1, 7, 28);
-        List<Integer> leftList = Arrays.asList(17, 10, 12, 22, 20, 6, 26, 8, 15, 24, 5);
-        List<Integer> topList = Arrays.asList(14, 19);
-        List<Integer> bottomList = Arrays.asList(9, 4, 16, 21, 23);
+        List<Integer> rightList = Arrays.asList(6);
+        List<Integer> leftList = Arrays.asList(8);
+        List<Integer> topList = Arrays.asList(10,1,3,9,7);
+        List<Integer> bottomList = Arrays.asList(2,5,0);
 
         for (int i = 0; i < origin_lines.rows(); i++) {
-
-
-            if (rightList.contains(i)) {
-//                continue;
-            }
-
-
-            if (leftList.contains(i)) {
-//                continue;
-            }
-
-
-            if (topList.contains(i)) {
-//                continue;
-            }
-
-
-            if (bottomList.contains(i)) {
-//                continue;
-            }
-
 
             double[] original_segment_line = new double[5];
             if (origin_lines.get(i, 0)[0] <= origin_lines.get(i, 0)[2]) {
@@ -278,11 +264,9 @@ public class CorrectImageUtils {
 //                    new Point(origin_lines.get(i, 0)[2], origin_lines.get(i, 0)[3]),
 //                    new Scalar(255, 0, 0), 2);
 
-
             Random random = new Random();
             int i1 = random.nextInt(70);
             Imgproc.putText(hedMat, i + "", new Point(origin_lines.get(i, 0)[0] + i1, origin_lines.get(i, 0)[1]), 1, 1, new Scalar(255, 255, 0));
-
         }
         Utils.matToBitmap(hedMat, sBitmap2);
 
@@ -323,10 +307,10 @@ public class CorrectImageUtils {
 //                    new Scalar(255, 0, 0), 1);
 
 
-//
-//            Imgproc.line(hedMat, new Point(original_segment_line[0], original_segment_line[1]),
-//                    new Point(original_segment_line[2], original_segment_line[3]),
-//                    new Scalar(0, 0, 255), 2);
+
+            Imgproc.line(hedMat, new Point(original_segment_line[0], original_segment_line[1]),
+                    new Point(original_segment_line[2], original_segment_line[3]),
+                    new Scalar(0, 0, 255), 2);
         }
 
 //        Utils.matToBitmap(hedMat, sBitmap2);
@@ -1462,7 +1446,7 @@ public class CorrectImageUtils {
                 segment_line_and_reference_line_pair_b.get(0),
                 imageWidth, imageHeight);
         //下面这个值是经验参数
-        double k_merge_lines_max_distance = ((imageWidth + imageHeight) / (segment_line_a_length + segment_line_b_length)) * 0.40 * kMergeLinesMaxDistance;
+        double k_merge_lines_max_distance = ((imageWidth + imageHeight) / (segment_line_a_length + segment_line_b_length)) * 0.30 * kMergeLinesMaxDistance;
         if (k_merge_lines_max_distance < 30) {
             k_merge_lines_max_distance = 30;
         }

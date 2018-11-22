@@ -2,7 +2,7 @@ package com.busradeniz.detection.utils;
 
 public interface Constant {
 
-    String URL = "http://192.168.1.187:8000/";
+    String URL = "http://192.168.80.113:8000/";
 
     String KEY = "key";
 
@@ -20,11 +20,17 @@ public interface Constant {
 
     String MODEL_URL = "model_url";
 
-    String BAUDRATES = "1500000";
+    String BAUDRATES = "9600";
 
     String STATUS = "status";
 
     String ID = "id";
+
+    String LEFT_NIGHT = "left_night";
+
+    String RIGHT_NIGHT = "right_night";
+
+    String START_STATUS = "start_status";
 
 
 }

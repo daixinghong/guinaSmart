@@ -78,7 +78,8 @@
         <activity
             android:name=".setting.CreateVersionActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".check.CreateAppearanceConfigureActivity"></activity>
+        <activity android:name=".check.CreateAppearanceConfigureActivity" />
+        <activity android:name=".check.SystemSettingActivity"></activity>
     </application>
 
 </manifest>

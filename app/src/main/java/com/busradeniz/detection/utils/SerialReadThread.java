@@ -2,6 +2,8 @@ package com.busradeniz.detection.utils;
 
 import android.os.SystemClock;
 
+import com.busradeniz.detection.R;
+import com.busradeniz.detection.message.CallBackInterface;
 import com.busradeniz.detection.message.LogManager;
 import com.busradeniz.detection.message.RecvMessage;
 import com.licheedev.myutils.LogPlus;
@@ -17,10 +19,21 @@ public class SerialReadThread extends Thread {
 
     private static final String TAG = "SerialReadThread";
 
+    private CallBackInterface mCallBackInterface;
+
     private BufferedInputStream mInputStream;
+
+    private String mCommand;
+
+    private String[]  mReadList = UiUtils.getStringArray(R.array.read_list);
 
     public SerialReadThread(InputStream is) {
         mInputStream = new BufferedInputStream(is);
+    }
+
+
+    public void setCallBack(CallBackInterface callBack){
+        this.mCallBackInterface = callBack;
     }
 
 
@@ -68,6 +81,27 @@ public class SerialReadThread extends Thread {
     private void onDataReceive(byte[] received, int size) {
         // TODO: 2018/3/22 解决粘包、分包等
         String hexStr = ByteUtil.bytes2HexStr(received, 0, size);
+
+//      if(mCommand.equals(mReadList[0])){        //设备运行
+//          if(mCallBackInterface!=null)
+//          mCallBackInterface.runCallBack(hexStr);
+//
+//      }else if(mCommand.equals(UiUtils.getString(R.string.get_three_color_night_status))){  //三色灯
+//          if(mCallBackInterface!=null)
+//          mCallBackInterface.tricolorLampCallBack(hexStr);
+//
+//      }else if(mCommand.equals(UiUtils.getString(R.string.get_left_night_status))){  //左灯
+//          if(mCallBackInterface!=null)
+//          mCallBackInterface.leftNightCallBack(hexStr);
+//
+//      }else if(mCommand.equals(UiUtils.getString(R.string.get_right_night_status))){  //右灯
+//          if(mCallBackInterface!=null)
+//          mCallBackInterface.rightNightCallBack(hexStr);
+//      }else{
+//          if(mCallBackInterface!=null)
+//              mCallBackInterface.runCallBack(hexStr);
+//      }
+
         LogManager.instance().post(new RecvMessage(hexStr));
     }
 
@@ -83,5 +117,9 @@ public class SerialReadThread extends Thread {
         } finally {
             super.interrupt();
         }
+    }
+
+    public void setCommand(String command) {
+        this.mCommand = command;
     }
 }

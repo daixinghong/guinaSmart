@@ -88,15 +88,14 @@ public class ScaleImageView extends ImageView implements ScaleGestureDetector.On
     public boolean mIsDelete;
     private int mResize = 1;
     private List<String> mPartNameList = new ArrayList<>();
-    private boolean mIsModify;
+    public  boolean mIsModify;
 
     private int mDex;
     private int mDey;
     private EditText mEtPartName;
 
     private Bitmap mBitmap;
-    private List<Integer> mFlagList;
-
+    private List<Integer> mFlagList = new ArrayList<>();
 
     public ScaleImageView(Context context) {
         this(context, null);

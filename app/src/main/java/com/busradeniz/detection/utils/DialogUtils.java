@@ -58,13 +58,29 @@ public class DialogUtils {
 
         dialog.setView(view, 0, 0, 0, 0);
 
-        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
         return dialog;
     }
 
     public static AlertDialog createDialog(View view) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.dialog);
+
+
+        dialog = builder.create();
+
+
+        dialog.setView(view, 0, 0, 0, 0);
+
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+
+        return dialog;
+    }
+
+    public static AlertDialog createDialogNotShow(View view) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.dialog);
 

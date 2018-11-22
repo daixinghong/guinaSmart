@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="E:\android-tensorflow-detection1875\android-tensorflow-detection\menulibrary\src\main\shaders"/></dataSet><dataSet config="debug"><source path="E:\android-tensorflow-detection1875\android-tensorflow-detection\menulibrary\src\debug\shaders"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="E:\androidCode\guinaSmart\menulibrary\src\main\shaders"/></dataSet><dataSet config="debug"><source path="E:\androidCode\guinaSmart\menulibrary\src\debug\shaders"/></dataSet></merger>

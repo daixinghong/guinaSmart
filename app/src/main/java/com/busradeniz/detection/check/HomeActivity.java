@@ -2,9 +2,10 @@ package com.busradeniz.detection.check;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.serialport.SerialPortFinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -17,17 +18,22 @@ import com.busradeniz.detection.check.fragment.ConfigureFragment;
 import com.busradeniz.detection.check.fragment.SettingFragment;
 import com.busradeniz.detection.check.fragment.StatisticsFragment;
 import com.busradeniz.detection.check.fragment.WorkFragment;
-import com.busradeniz.detection.message.IMessage;
 import com.busradeniz.detection.setting.CreateVersionActivity;
 import com.busradeniz.detection.utils.Constant;
+import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.Device;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.SerialPortManager;
 import com.busradeniz.detection.utils.ToastUtils;
 import com.busradeniz.detection.utils.UiUtils;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class HomeActivity extends BaseActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
@@ -45,6 +51,9 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
     private StatisticsFragment mStatisticsFragment;
     private SettingFragment mSettingFragment;
     private String[] mCommandArray;
+    private Bitmap mCorrectBitmap;
+    private String[] mReadList;
+    private ThreadPoolExecutor mThreadPoolExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +87,51 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
         mRlWord.setChecked(true);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    //OpenCV库加载并初始化成功后的回调函数
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case BaseLoaderCallback.SUCCESS:
+
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
+
     private void initData() {
 
+        if (!OpenCVLoader.initDebug()) {
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, mLoaderCallback);
+        } else {
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+
+        Mat mat = new Mat();
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.yy);
+        Utils.bitmapToMat(bitmap,mat);
+        mCorrectBitmap = CorrectImageUtils.correctImage(mat, bitmap, 1);
+
+
+//        Bundle bundle = new Bundle();
+//        bundle.putInt(Constant.ID,10);
+//        IntentUtils.startActivityForParms(this,ScanTwoThinkActivity.class,bundle);
+//        mCorrectBitmap = CorrectImageUtils.correctImage(null, null, 1);
+
         mCommandArray = UiUtils.getStringArray(R.array.comand_array);
+
+        mReadList = UiUtils.getStringArray(R.array.read_list);
+
 
         SerialPortFinder serialPortFinder = new SerialPortFinder();
 
@@ -108,21 +159,21 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
      * 发送命令
      */
     private void sendData() {
-
         new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                while (true) {
-                    try {
-                        Thread.sleep(1000);
-                        SerialPortManager.instance().sendCommand(mCommandArray[0]);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                @Override
+                public void run() {
+                    while (true) {
+                        try {
+//                            SerialPortManager.instance().sendCommand(mReadList[21]);
+                            Thread.sleep(300);
+                            SerialPortManager.instance().sendCommand(mCommandArray[0]);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
-        }).start();
+            }).start();
+
     }
 
 
@@ -224,10 +275,4 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener, 
         transaction.commit();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onEvent(IMessage message) {
-        // 收到消息，刷新界面
-        Log.e("vivi", "onMessageEvent: " + message.getMessage());
-
-    }
 }

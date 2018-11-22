@@ -1,6 +1,6 @@
 package com.busradeniz.detection;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.busradeniz.detection.bean.PermissionBean;
 import com.busradeniz.detection.check.OPenMachineCheckActivity;
 import com.busradeniz.detection.setting.adapter.RcyPermissionAdapter;
+import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.UiUtils;
 
@@ -87,12 +88,11 @@ public class StartAppActivity extends AppCompatActivity {
 
         if (permissionBeanList.size() != 0) {
             //弹出dialog获取权限
-            final Dialog dialog = new Dialog(this, R.style.dialog);
-            View view = View.inflate(this, R.layout.dialog_permission_hint_view, null);
+            View view = DialogUtils.inflateView(this, R.layout.dialog_permission_hint_view);
+
             RecyclerView rcyPermissionList = view.findViewById(R.id.rcy_permission_list);
             rcyPermissionList.setLayoutManager(new LinearLayoutManager(this));
             TextView tvNextStep = view.findViewById(R.id.tv_next_step);
-            dialog.setCanceledOnTouchOutside(false);
             RcyPermissionAdapter adapter = new RcyPermissionAdapter(this, permissionBeanList);
 
             rcyPermissionList.setAdapter(adapter);
@@ -100,7 +100,7 @@ public class StartAppActivity extends AppCompatActivity {
             tvNextStep.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialog.dismiss();
+                    DialogUtils.dissDialog();
                     String[] stringArray = new String[permissionBeanList.size()];
                     for (int i = 0; i < permissionBeanList.size(); i++) {
                         stringArray[i] = permissionBeanList.get(i).getPermissionCode();
@@ -110,8 +110,7 @@ public class StartAppActivity extends AppCompatActivity {
                             stringArray, REQUEST_CODE);
                 }
             });
-
-            dialog.setContentView(view);
+            AlertDialog dialog = DialogUtils.createDialogNotShow(view);
 
             Window dialogWindow = dialog.getWindow();
             WindowManager m = getWindowManager();
@@ -120,6 +119,7 @@ public class StartAppActivity extends AppCompatActivity {
             p.width = (int) (d.getWidth() * 0.9); // 宽度设置为屏幕的0.65
             dialogWindow.setAttributes(p);
             dialog.show();
+
         } else {
             mTvView.startAnimation(anima);
         }

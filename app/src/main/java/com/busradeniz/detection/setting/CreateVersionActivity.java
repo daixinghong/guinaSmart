@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -39,6 +40,7 @@ import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.LocationUtils;
+import com.busradeniz.detection.utils.SerialPortManager;
 import com.busradeniz.detection.utils.ToastUtils;
 import com.busradeniz.detection.utils.UiUtils;
 import com.busradeniz.detection.view.ScaleImageView;
@@ -112,6 +114,8 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
     private List<Integer> mCheckIndexList = new ArrayList<>();
     private boolean mStatus;
     private String[] mComandArray;
+    private boolean mCheckStatus;
+    private String mIsStartCamera;
 
 
     @Override
@@ -390,10 +394,10 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                         mFloatingActionMenu.close();
                         mFabMain.setImageResource(R.mipmap.edit);
                         modify = true;
-                        mIvImage.setModify(modify);
                         break;
                 }
                 mIvImage.mIsDelete = delete;
+                mIvImage.mIsModify = modify;
 
             }
         });
@@ -465,17 +469,18 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                             //矫正图片
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, mBitmap, 1);
 
-//                            File fileDirs = new File("/sdcard/image/" + startTime + ".png");
-//                            if(!fileDirs.exists()){
-//                                fileDirs.mkdirs();
-//                            }
-//
-//                            fileDirs.createNewFile();
-//
-//                            FileOutputStream outs = new FileOutputStream(fileDirs);
-//                            sBitmap2.compress(Bitmap.CompressFormat.JPEG, 100, outs);
-//                            outs.flush();
-//                            outs.close();
+                            SerialPortManager.instance().sendCommand(mComandArray[2]);
+
+                            long startTime = System.currentTimeMillis();
+
+                            File fileDirs = new File("/sdcard/image/" + startTime + ".png");
+
+                            fileDirs.createNewFile();
+
+                            FileOutputStream outs = new FileOutputStream(fileDirs);
+                            bitmaps.compress(Bitmap.CompressFormat.JPEG, 100, outs);
+                            outs.flush();
+                            outs.close();
 
                             //发送请求
                             mPresenter.requestModel(CreateVersionActivity.this, mCorrectBitmap);
@@ -614,16 +619,16 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
                         int leftDistance = 0;
                         int topDistance = 0;
 
-                        if (Math.abs(left - right) < 20) {
-                            addLeftValue = 100;
+                        if (Math.abs(left - right) < 40) {
+                            addLeftValue = 120;
                         } else {
-                            addLeftValue = 60;
+                            addLeftValue = 100;
                         }
 
-                        if (Math.abs(top - bottom) < 20) {
-                            addTopValue = 100;
+                        if (Math.abs(top - bottom) < 40) {
+                            addTopValue = 120;
                         } else {
-                            addTopValue = 60;
+                            addTopValue = 100;
                         }
 
                         if (left - addLeftValue >= 0) {
@@ -1071,16 +1076,41 @@ public class CreateVersionActivity extends BaseActivity implements View.OnClickL
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IMessage message) {
+        Log.e(TAG, "onEvent: "+message.getMessage() );
+
+        if(message.getMessage().equals(mComandArray[11])){ //手机到达感应器位置
+            if(mIsStartCamera==null){
+                //开始放行
+                Log.e(TAG, "onEvent: 开始放行" );
+                SerialPortManager.instance().sendCommand(mComandArray[10]);
+                mIsStartCamera = "";
+            }
+        }
+
+
+        if (mCheckStatus)
+            if (message.getMessage().equals(mComandArray[3]))
+                return;
 
         if (mStatus)
             if (message.getMessage().equals(mComandArray[1]))
                 return;
 
+
         if (message.getMessage().equals(mComandArray[1])) {  //开始摄像
 
+            Log.e(TAG, "onEvent: 开始摄像" );
             mStatus = true;
+            mCheckStatus =false;
             System.gc();
             mCameraView.takePicture();
+        } else if (message.getMessage().equals(mComandArray[3])) {
+
+            Log.e(TAG, "onEvent: result" );
+            mStatus = false;
+            mCheckStatus = true;
+            SerialPortManager.instance().sendCommand(mComandArray[4]);
+
         }
     }
 

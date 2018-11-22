@@ -42,7 +42,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseErro
             e.printStackTrace();
         }
         return file;
-
     }
 
 

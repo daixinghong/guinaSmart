@@ -1,5 +1,6 @@
 package com.busradeniz.detection.check;
 
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -13,9 +14,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +49,7 @@ import com.busradeniz.detection.tensorflow.Classifier;
 import com.busradeniz.detection.tensorflow.TensorFlowObjectDetectionAPIModel;
 import com.busradeniz.detection.utils.Constant;
 import com.busradeniz.detection.utils.CorrectImageUtils;
+import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.LocationUtils;
 import com.busradeniz.detection.utils.SerialPortManager;
@@ -75,8 +80,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -104,7 +114,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private List<CheckResultBean> mList = new ArrayList<>();
     private NavigationView mNavigationView;
     private Bitmap mBitmaps;
-    private boolean mStatus;
+    private int  mStatus;
     private Bitmap mResizeBitmap;
     private RecyclerView mRcyDislikeInfoList;
     private RcyCheckResultAdapter mAdapter;
@@ -123,8 +133,17 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private TextView mTvCheckResult;
     private String[] mComandArray;
     private boolean mCheckStatus;
-    private String mResult;
+    private String mResult = "";
     private TextView mTvModel;
+    private boolean mIsStart;
+    private String mIsStartCamera = null;
+    private int mIntoMaterialStatus;
+    private int mWaitStatus;
+    private int mSleepStatus;
+    private ThreadPoolExecutor mThreadPoolExecutor;
+    private int mArriveCutPhotoPlace;
+    private int mArriveWaitResultPlace;
+    private int mIsArriveCutPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +182,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     private void initEvent() {
 
         mIvBack.setOnClickListener(this);
-
         cameraView.addCallback(new CameraView.Callback() {
             @Override
             public void onPictureTaken(CameraView cameraView, byte[] data) {
@@ -192,11 +210,23 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
 
+                            mWaitStatus = 0;
+                            if (mIntoMaterialStatus == 1 && mWaitStatus == 0) {
+                                //开始放行
+                                Log.e(TAG, "onEvent: 开始放行");
+                                SerialPortManager.instance().sendCommand(mComandArray[10]);
+
+                                mIntoMaterialStatus = 0;
+                                mWaitStatus =1;
+                                mSleepStatus = 0;
+
+//                                exceptionPrecoss();
+                            }
+
                             TF_OD_API_INPUT_SIZE = bitmap.getWidth() / 4;
                             TF_Wdith_API_INPUT_SIZE = bitmap.getHeight() / 4;
 
                             mBitmaps = Bitmap.createScaledBitmap(bitmap, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE, false);
-
 
                             Mat recognize = detector.recognize(mBitmaps, TF_OD_API_INPUT_SIZE, TF_Wdith_API_INPUT_SIZE);
 
@@ -207,8 +237,27 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                             Bitmap sBitmap2 = Bitmap.createBitmap(recognize.cols(), recognize.rows(), Bitmap.Config.ARGB_4444);
                             Utils.matToBitmap(det, sBitmap2);
 
+                            long startTime = System.currentTimeMillis();
+
+                            File fileDirs = new File("/sdcard/srcImage/" + startTime + ".png");
+
+                            fileDirs.createNewFile();
+
+                            FileOutputStream outs = new FileOutputStream(fileDirs);
+                            sBitmap2.compress(Bitmap.CompressFormat.JPEG, 100, outs);
+                            outs.flush();
+                            outs.close();
 
                             mCorrectBitmap = CorrectImageUtils.correctImage(recognize, bitmap, 1);
+
+//                            File fileDirss = new File("/sdcard/image/" + startTime + ".png");
+//
+//                            fileDirss.createNewFile();
+//
+//                            FileOutputStream outss = new FileOutputStream(fileDirss);
+//                            mCorrectBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outss);
+//                            outss.flush();
+//                            outss.close();
 
 
                             cameraView.setVisibility(View.GONE);
@@ -224,10 +273,15 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                                 mShortBitmapList.add(cropBitmap);
                             }
 
+                            Log.e(TAG, "run: 嘎嘎，来到这里");
                             //发送请求
                             mPresenter.sendPhotoGetResult(ScanTwoThinkActivity.this, mShortBitmapList);
 
                         } catch (Exception e) {
+//                            System.gc();
+//                            cameraView.takePicture();
+                            mResult = "";
+                            flag = 1;
                             ToastUtils.showTextToast(UiUtils.getString(R.string.photo_check_fild));
 
                         } catch (Error error) {
@@ -285,6 +339,10 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
         mComandArray = UiUtils.getStringArray(R.array.comand_array);
 
 
+        mThreadPoolExecutor = new ThreadPoolExecutor(3,5,1,TimeUnit.SECONDS,
+               new LinkedBlockingQueue<Runnable>(100));
+
+
         Menu menu = mNavigationView.getMenu();
         menu.findItem(R.id.support).setOnMenuItemClickListener(this);
         menu.findItem(R.id.choose_version).setOnMenuItemClickListener(this);
@@ -299,7 +357,6 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
         mPresenter = new SettingPresenter(this);
         mPresenter.getTag();
         mPresenter.getConfigureInfo(mId);
-
 
     }
 
@@ -524,6 +581,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
                 mList.add(checkResultBean);
 
             }
+
             mAdapter.notifyDataSetChanged();
 
             for (int i = 0; i < deviationList.size(); i++) {
@@ -591,6 +649,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     public void testCutPhotoSuccess(ResponseBody responseBody) {
         try {
 
+            Log.e(TAG, "testCutPhotoSuccess: 来到这里");
             //把标记重置
             flag = 0;
             String string = responseBody.string();
@@ -681,6 +740,7 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
 
         } catch (Exception e) {
             e.printStackTrace();
+            mResult = "";
         }
     }
 
@@ -697,57 +757,264 @@ public class ScanTwoThinkActivity extends BaseActivity implements View.OnClickLi
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IMessage message) {
 
+        Log.e(TAG, "onEvent: "+message.getMessage());
+
+        //如果读取到设备待机状态
+        if(message.equals(UiUtils.getString(R.string.stop))){
+            //设备 停止了
+            Log.e(TAG, "run: 设备停止了" );
+
+        }else if(message.equals(UiUtils.getString(R.string.running_result))){
+            //设备运行中
+            Log.e(TAG, "run: 设备运行了" );
+        }
+
+        if (message.getMessage().equals(mComandArray[11])) {
+
+            if(mSleepStatus!=1)
+                 mIntoMaterialStatus = 1;
+
+            if (mIntoMaterialStatus==1&&mWaitStatus == 0) {
+                //开始放行
+                Log.e(TAG, "onEvent: 开始放行");
+                SerialPortManager.instance().sendCommand(mComandArray[10]);
+
+                exceptionPrecoss(); //异常处理
+
+                mIntoMaterialStatus = 0;
+                mWaitStatus = 1;
+                mSleepStatus = 1;
+            }
+
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                        mSleepStatus=0;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            mThreadPoolExecutor.execute(runnable);
+
+        }
+
         if (mCheckStatus)
             if (message.getMessage().equals(mComandArray[3]))
                 return;
 
-        if (mStatus) {
-            if (message.getMessage().equals(mComandArray[1]))
-                return;
-        }
-
         if (message.getMessage().equals(mComandArray[1])) {  //开始摄像
 
-            mStatus = true;
-            mCheckStatus = false;
+            mArriveCutPhotoPlace = 1;
+            mIsArriveCutPhoto = 1;
+            if(mStatus==0){
 
-            mCorrectBitmap = null;
-            System.gc();
-            cameraView.takePicture();
+                mCheckStatus =false;
+
+                System.gc();
+                cameraView.takePicture();
+
+                Log.e(TAG, "onEvent: 摄像完成");
+                SerialPortManager.instance().sendCommand(mComandArray[2]);
+                mIsArriveCutPhoto = 0;
+//                exception2Process();
+
+                mStatus =1;
+            }
+
+
         } else if (message.getMessage().equals(mComandArray[3])) {
-
-            new Thread(new Runnable() {
+            mStatus = 0;
+            Log.e(TAG, "onEvent: result" );
+            mArriveWaitResultPlace = 1;
+            Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     try {
                         while (true) {
+                            Log.e(TAG, "run: " +mResult );
                             if (mResult != null) {
-                                mStatus = false;
                                 mCheckStatus = true;
-
-                                cameraView.setVisibility(View.VISIBLE);
-                                mImageView.setVisibility(View.GONE);
-
-                                mList.clear();
-                                mAdapter.notifyDataSetChanged();
+                                Log.e(TAG, "run: send result" );
 
                                 if (flag == 1) {
-                                    SerialPortManager.instance().sendCommand(mComandArray[5]);
-                                } else {
                                     SerialPortManager.instance().sendCommand(mComandArray[4]);
+                                } else {
+                                    SerialPortManager.instance().sendCommand(mComandArray[5]);
                                 }
-                                mResult = null;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mImageView.setVisibility(View.GONE);
+                                        cameraView.setVisibility(View.VISIBLE);
+                                    }
+                                });
+//                                mResult = null;
                                 break;
                             }
-
+                            Thread.sleep(200);
                         }
-                        Thread.sleep(500);
+
                     } catch (Exception e) {
+                        Log.e(TAG, "run: 报错了吗 " );
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            };
+            mThreadPoolExecutor.execute(runnable);
+
         }
+    }
+
+    public void exceptionPrecoss(){
+            System.gc();
+            new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //放行后10秒钟执行该程序,如果没有达到拍照位则报警
+                if(mArriveCutPhotoPlace==1){
+                    //到达了拍照位,正常,将状态复位
+                    mArriveCutPhotoPlace = 0;
+                }else{
+                    //没有到达拍照位,不正常,设备报警，这时候,放行气缸不再放行，知道处理完异常之后再继续放行
+                    Log.e(TAG, "run: 没有达到拍照位" );
+                    //弹出dialog提示是放行处异常
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            View view = DialogUtils.inflateView(ScanTwoThinkActivity.this, R.layout.dialog_device_exception_view);
+                            TextView tvExceptionInfo =   view.findViewById(R.id.tv_exception_info);
+                            TextView tvNextStep =  view.findViewById(R.id.tv_next_step);
+                            AlertDialog dialog = DialogUtils.createDialog(view);
+                            //如果这里读取到移位气缸1限位
+
+                            tvNextStep.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    dialog.dismiss();
+                                    //如果这里产品跑位
+                                    Log.e(TAG, "onClickss: "+ mIntoMaterialStatus );
+                                    if(mIntoMaterialStatus==1){
+                                        Log.e(TAG, "onClick: 发送了" );
+                                        SerialPortManager.instance().sendCommand(mComandArray[10]);
+                                        mIntoMaterialStatus = 0;
+                                        mWaitStatus = 1;
+                                        exceptionPrecoss();
+                                    }else{
+                                        mWaitStatus = 0;
+                                    }
+                                    mSleepStatus = 0;
+
+                                }
+                            });
+
+                            tvExceptionInfo.setText("第一次阶段产品跑位");
+
+
+
+                            Window dialogWindow = dialog.getWindow();
+                            WindowManager m = getWindowManager();
+                            Display d = m.getDefaultDisplay(); // 获取屏幕宽、高用
+                            WindowManager.LayoutParams p = dialogWindow.getAttributes(); // 获取对话框当前的参数值
+                            p.width = (int) (d.getWidth() * 0.9); // 宽度设置为屏幕的0.65
+                            dialogWindow.setAttributes(p);
+                            dialog.show();
+                        }
+                    });
+
+                }
+
+            }
+        },10000);
+    }
+
+    public void exception2Process(){
+
+        System.gc();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //放行后10秒钟执行该程序,如果没有达到拍照位则报警,这时候拍照放行不再动作,知道处理完异常之后再继续放行
+                if(mArriveWaitResultPlace==1){
+                    //到达了分拣位,正常,将状态复位
+                    mArriveWaitResultPlace = 0;
+                }else{
+                    //没有到达分拣位,不正常,设备报警
+                    Log.e(TAG, "run: 没有达到分拣位" );
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            View view = DialogUtils.inflateView(ScanTwoThinkActivity.this, R.layout.dialog_device_exception_view);
+                            TextView tvExceptionInfo =   view.findViewById(R.id.tv_exception_info);
+                            TextView tvNextStep =  view.findViewById(R.id.tv_next_step);
+                            AlertDialog dialog = DialogUtils.createDialog(view);
+                            //如果是气缸限位,点击了已处理，然后然后再请检测是否已处理，ok则继续运行，如果错误，则继续报警
+
+                            //如果这里读取到移位气缸1限位
+
+                            //如果这里产品跑位
+
+                            tvNextStep.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    dialog.dismiss();
+                                    Log.e(TAG, "onClick: xx"+mIsArriveCutPhoto );
+                                    if(mIsArriveCutPhoto==1){
+                                        mCheckStatus = false;
+                                        SerialPortManager.instance().sendCommand(mComandArray[2]);
+                                        mStatus = 0;
+                                        mIsArriveCutPhoto = 0;
+                                        exception2Process();
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    Thread.sleep(500);
+                                                    if(mIntoMaterialStatus==1){
+                                                        SerialPortManager.instance().sendCommand(mComandArray[10]);
+                                                        mIntoMaterialStatus = 0;
+                                                        mWaitStatus = 1;
+                                                        exceptionPrecoss();
+                                                    }else{
+                                                        mWaitStatus = 0;
+                                                    }
+                                                    mSleepStatus = 0;
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        }).start();
+
+
+                                    }
+                                }
+                            });
+
+                            tvExceptionInfo.setText("第二阶段产品跑位");
+
+
+
+                            Window dialogWindow = dialog.getWindow();
+                            WindowManager m = getWindowManager();
+                            Display d = m.getDefaultDisplay(); // 获取屏幕宽、高用
+                            WindowManager.LayoutParams p = dialogWindow.getAttributes(); // 获取对话框当前的参数值
+                            p.width = (int) (d.getWidth() * 0.9); // 宽度设置为屏幕的0.65
+                            dialogWindow.setAttributes(p);
+                            dialog.show();
+                        }
+                    });
+
+                }
+
+            }
+        },10000);
+
     }
 
 }
