@@ -41,6 +41,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
 
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+                <!-- <category android:name="android.intent.category.HOME" /> -->
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -55,31 +58,40 @@
         <service android:name="com.bimsdk.usb.io.MyVoiceService" />
         <service android:name="com.bimsdk.usb.io.USBService" />
 
-        <activity android:name=".setting.SettingActivity" />
+        <activity android:name=".setting.view.activity.SettingActivity" />
         <!-- android:screenOrientation="portrait" -->
         <activity
-            android:name=".check.ScanTwoThinkActivity"
+            android:name=".check.view.activity.WorkingActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".setting.SupportFuncationActivity" />
-        <activity android:name=".setting.ChooseVersionActivity" />
+        <activity android:name=".setting.view.activity.SupportFuncationActivity" />
+        <activity android:name=".setting.view.activity.ChooseVersionActivity" />
         <activity android:name=".base.BaseActivity" />
-        <activity android:name=".setting.ProductDetailsActivity" />
-        <activity android:name=".setting.DrawRectActivity" />
-        <activity android:name=".setting.WriteParmsActivity" />
+        <activity android:name=".setting.view.activity.ProductDetailsActivity" />
+        <activity android:name=".setting.view.activity.DrawRectActivity" />
+        <activity android:name=".setting.view.activity.WriteParmsActivity" />
         <activity
-            android:name=".check.OPenMachineCheckActivity"
+            android:name=".check.view.activity.OPenMachineCheckActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".check.HomeActivity"
+            android:name=".check.view.activity.HomeActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".check.DeviceAutoCheckActivity"
+            android:name=".check.view.activity.DeviceAutoCheckActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".setting.CreateVersionActivity"
+            android:name=".setting.view.activity.CreateVersionActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".check.CreateAppearanceConfigureActivity" />
-        <activity android:name=".check.SystemSettingActivity"></activity>
+        <activity android:name=".check.view.activity.CreateAppearanceConfigureActivity" />
+        <activity
+            android:name=".setting.view.activity.MonitorViewActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".setting.view.activity.SystemSettingActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".setting.view.activity.ParmsSettingActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".setting.view.activity.AlarmActivity"></activity>
     </application>
 
 </manifest>

@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import com.busradeniz.detection.R;
 import com.busradeniz.detection.bean.ConfigureInfoBean;
 import com.busradeniz.detection.bean.ConfigureListBean;
-import com.busradeniz.detection.check.adapter.RcyRecordListAdapter;
-import com.busradeniz.detection.check.bean.ModelBean;
-import com.busradeniz.detection.check.bean.RecordListBean;
+import com.busradeniz.detection.check.view.adapter.RcyRecordListAdapter;
+import com.busradeniz.detection.check.model.ModelBean;
+import com.busradeniz.detection.check.model.RecordListBean;
 import com.busradeniz.detection.setting.presenter.SettingInterface;
 import com.busradeniz.detection.setting.presenter.SettingPresenter;
 

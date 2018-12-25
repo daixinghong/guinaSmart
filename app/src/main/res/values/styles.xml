@@ -21,7 +21,6 @@
         <!--<item name="android:windowAnimationStyle">@style/AnimationActivity</item>-->
     </style>
 
-
     <style name="AppTheme.NoActionBarWithBackGround">
         <item name="windowActionBar">false</item>//取消Actionbar
         <item name="windowNoTitle">true</item>

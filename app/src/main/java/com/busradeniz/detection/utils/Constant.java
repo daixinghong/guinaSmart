@@ -2,7 +2,7 @@ package com.busradeniz.detection.utils;
 
 public interface Constant {
 
-    String URL = "http://192.168.80.113:8000/";
+    String URL = "http://192.168.10.161:8000/";
 
     String KEY = "key";
 

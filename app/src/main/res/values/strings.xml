@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">andorid-tensorflow-detection</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
 
@@ -612,11 +612,19 @@
 
     <string name="no_serial_device">找不到串口设备</string>
     <string name="updata_success">更新成功</string>
-    <string name="system_setting">系统设置</string>
+    <string name="system_setting">手动操作</string>
+    <string name="monitor">监控画面</string>
     <string name="device_exception">设备异常</string>
     <string name="exception_info">异常信息:</string>
     <string name="already_processed">已处理</string>
-
+    <string name="parms_setting">参数设置</string>
+    <string name="use">应用</string>
+    <string name="use_success">应用成功</string>
+    <string name="alarm">历史报警</string>
+    <string name="run">运行</string>
+    <string name="runing">运行中</string>
+    <string name="stop_string">暂停</string>
+    <string name="stopping">暂停中</string>
 
 
     <string-array name="comand_array">
@@ -652,7 +660,6 @@
         <item>02453030303030363031034346</item>
 
         <item></item>
-        
 
 
     </string-array>
@@ -750,11 +757,11 @@
     <string name="night_close_result">823030303003C333</string>
 
     <string name="left_night_open">02453730333030033432</string>
-    
+
     <string name="right_night_open">02453730333030033432</string>
-     
+
     <string name="right_night_close">02453830343030033434</string>
-   
+
     <string name="left_night_close">02453830333030033433</string>
 
     <string name="get_left_night_status">02453030343034383032034441</string>
@@ -763,5 +770,187 @@
 
     <string name="get_three_color_night_status">02453030343034433032034535</string>
 
+    <string-array name="action_name">
+        <item>进料区有料光电开关</item>
+        <item>进料区出料光电开关</item>
+        <item>检测区有料光电开关</item>
+        <item>检测区出料光电开关</item>
+        <item>分选区有料光电开关</item>
+        <item>分选区出料光电开关</item>
+        <item>进料区挡料气缸</item>
+        <item>进料区推料气缸</item>
+        <item>检测区挡料气缸</item>
+        <item>检测区挡料平移气缸</item>
+        <item>分选区挡料气缸</item>
+        <item>分选区挡料平移气缸</item>
+        <item>分选区推料气缸</item>
+    </string-array>
+
+    <string-array name="action_command">
+        <item>x0</item>
+        <item>x1</item>
+        <item>x2</item>
+        <item>x3</item>
+        <item>x4</item>
+        <item>x5</item>
+        <item>y4</item>
+        <item>y5</item>
+        <item>y6</item>
+        <item>y7</item>
+        <item>y10</item>
+        <item>y11</item>
+        <item>y12</item>
+
+    </string-array>
+
+    <string-array name="light_name">
+        <item>报警灯红灯</item>
+        <item>报警灯绿灯</item>
+        <item>报警灯黄灯</item>
+    </string-array>
+
+    <string-array name="light_command">
+
+        <item>y13</item>
+        <item>y14</item>
+        <item>y15</item>
+
+    </string-array>
+
+    <string-array name="exception_name">
+
+        <item>进料区挡料气缸后退不到位</item>
+        <item>进料区挡料气缸前进不到位</item>
+        <item>进料区推料气缸后退不到位</item>
+        <item>进料区推料气缸前进不到位</item>
+        <item>检测区挡料平移气缸后退不到位</item>
+        <item>检测区挡料平移气缸前进不到位</item>
+        <item>分选区挡料平移气缸后退不到位</item>
+        <item>分选区挡料平移气缸前进不到位</item>
+        <item>分选区推料气缸后退不到位</item>
+        <item>分选区推料气缸前进不到位</item>
+        <item>急停按钮被按下</item>
+        <item>进料区有料光电位置区域卡料</item>
+        <item>进料区出料光电位置区域卡料</item>
+        <item>检测区有料光电位置区域卡料</item>
+        <item>检测区出料光电位置区域卡料</item>
+        <item>分选区有料光电位置区域卡料</item>
+        <item>分选区出料光电位置区域卡料</item>
+
+    </string-array>
+
+    <string-array name="exception_command">
+        <item>m500</item>
+        <item>m501</item>
+        <item>m502</item>
+        <item>m503</item>
+        <item>m504</item>
+        <item>m505</item>
+        <item>m506</item>
+        <item>m507</item>
+        <item>m508</item>
+        <item>m509</item>
+        <item>m510</item>
+        <item>m511</item>
+        <item>m512</item>
+        <item>m513</item>
+        <item>m514</item>
+        <item>m515</item>
+        <item>m516</item>
+        <item>m517</item>
+        <item>m518</item>
+        <item>m519</item>
+        <item>m520</item>
+    </string-array>
+
+
+    <string name="start">m0</string>
+    <string name="stop_device">m1</string>
+    <string name="cut_photo_finish">m11</string>
+    <string name="result_ok">m12</string>
+    <string name="result_ng">m13</string>
+    <string name="reset_ok">m94</string>
+    <string name="stoping">m95</string>
+    <string name="exceptioning">m99</string>
+
+    <string-array name="hand_action">
+        <item>进料区挡料气缸</item>
+        <item>进料区推料气缸</item>
+        <item>检测区挡料气缸</item>
+        <item>检测区挡料平移气缸</item>
+        <item>分选区挡料气缸</item>
+        <item>分选区挡料平移气缸</item>
+        <item>分选区推料气缸</item>
+        <item>CCD背光板1</item>
+        <item>CCD背光板2</item>
+        <item>CCD背光板3</item>
+        <item>CCD背光板4</item>
+    </string-array>
+
+    <string-array name="action_status_command">
+        <item>y4</item>
+        <item>y5</item>
+        <item>y6</item>
+        <item>y7</item>
+        <item>y10</item>
+        <item>y11</item>
+        <item>y12</item>
+        <item>y0</item>
+        <item>y1</item>
+        <item>y2</item>
+        <item>y3</item>
+    </string-array>
+
+    <string-array name="hand_action_command">
+        <item>m150</item>
+        <item>m151</item>
+        <item>m152</item>
+        <item>m153</item>
+        <item>m154</item>
+        <item>m155</item>
+        <item>m156</item>
+        <item>m1000</item>
+        <item>m1001</item>
+        <item>m1002</item>
+        <item>m1003</item>
+
+    </string-array>
+
+    <string-array name="updata_time_name">
+        <item>进料区挡料气缸前进时间</item>
+        <item>进料区推料气缸前进时间</item>
+        <item>检测区挡料气缸挡料时间</item>
+        <item>检测区挡料气缸放料时间</item>
+        <item>检测区挡料平移气缸前进时间</item>
+        <item>分选区挡料气缸挡料时间</item>
+        <item>分选区挡料气缸放料时间</item>
+        <item>分选区挡料平移气缸前进时间</item>
+        <item>分选区分选气缸推料时间</item>
+        <item>进料区光电有料延时</item>
+        <item>进料区光电无料延时</item>
+        <item>检测区光电有料延时</item>
+        <item>检测区光电无料延时</item>
+        <item>分选区光电有料延时</item>
+        <item>分选区光电无料延时</item>
+    </string-array>
+
+    <string-array name="updata_time_command">
+
+        <item>d100</item>
+        <item>d101</item>
+        <item>d102</item>
+        <item>d103</item>
+        <item>d104</item>
+        <item>d105</item>
+        <item>d106</item>
+        <item>d107</item>
+        <item>d108</item>
+        <item>d120</item>
+        <item>d121</item>
+        <item>d122</item>
+        <item>d123</item>
+        <item>d124</item>
+        <item>d125</item>
+    </string-array>
 
 </resources>

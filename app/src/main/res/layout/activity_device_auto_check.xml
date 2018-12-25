@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".check.DeviceAutoCheckActivity">
+    tools:context=".check.view.activity.DeviceAutoCheckActivity">
 
     <include layout="@layout/base_opreate_title"></include>
 

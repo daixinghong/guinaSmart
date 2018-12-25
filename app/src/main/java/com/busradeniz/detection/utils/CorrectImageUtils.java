@@ -32,7 +32,7 @@ public class CorrectImageUtils {
 
     private static final String TAG = "Zang Chaofei";
 
-    private static int kHoughLinesPThreshold = 50;
+    private static int kHoughLinesPThreshold = 80;
     private static double kHoughLinesPMinLinLength = 30.0;
     private static double kHoughLinesPMaxLineGap = 3.0;
     private static int kMergeLinesMaxDistance = 30;
@@ -93,7 +93,7 @@ public class CorrectImageUtils {
         double[] origin_selected_ld = null;
 
         if (markH > markW) {
-            Log.e(TAG, "rectify_img_roi: zheli" );
+
             if ((left_edge_length + right_edge_length) > (top_edge_length + down_edge_length)) {
                 origin_selected_lu = new double[]{rect_with_points.get(0)[0] - x, rect_with_points.get(0)[1] - y};
                 origin_selected_ru = new double[]{rect_with_points.get(1)[0] - x, rect_with_points.get(1)[1] - y};
@@ -200,12 +200,12 @@ public class CorrectImageUtils {
 
     public static List<double[]> findContours(Mat bitmap) {
 
-        boolean isDebug = true;
+        boolean isDebug = false;
         Mat edgesMat = new Mat();
         Mat origin_lines = new Mat();
         Mat hedMat = new Mat();
         if (isDebug) {
-            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.dd);
+            Bitmap hedBitmap = BitmapFactory.decodeResource(BaseApplication.getContext().getResources(), R.mipmap.yy);
             Utils.bitmapToMat(hedBitmap, hedMat);
             hedMat = fix_image_to_detect_edge(hedMat);
         } else {
@@ -213,7 +213,6 @@ public class CorrectImageUtils {
         }
 
         sBitmap2 = Bitmap.createBitmap(hedMat.cols(), hedMat.rows(), Bitmap.Config.ARGB_4444);
-//        Imgproc.erode(hedMat, hedMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
         Imgproc.Canny(hedMat, edgesMat, 50, 3 * 50, 3, true);
         Imgproc.HoughLinesP(edgesMat, origin_lines, 1, Math.PI / 180,
                 kHoughLinesPThreshold, kHoughLinesPMinLinLength, kHoughLinesPMaxLineGap);
@@ -239,10 +238,17 @@ public class CorrectImageUtils {
 
         List<Integer> rightList = Arrays.asList(6);
         List<Integer> leftList = Arrays.asList(8);
-        List<Integer> topList = Arrays.asList(10,1,3,9,7);
+        List<Integer> topList = Arrays.asList(11,1,0,12,8,5);
         List<Integer> bottomList = Arrays.asList(2,5,0);
 
         for (int i = 0; i < origin_lines.rows(); i++) {
+
+
+//            if(!topList.contains(i)){
+//                continue;
+//            }
+
+
 
             double[] original_segment_line = new double[5];
             if (origin_lines.get(i, 0)[0] <= origin_lines.get(i, 0)[2]) {
@@ -307,111 +313,89 @@ public class CorrectImageUtils {
 //                    new Scalar(255, 0, 0), 1);
 
 
-
             Imgproc.line(hedMat, new Point(original_segment_line[0], original_segment_line[1]),
                     new Point(original_segment_line[2], original_segment_line[3]),
                     new Scalar(0, 0, 255), 2);
         }
 
-//        Utils.matToBitmap(hedMat, sBitmap2);
+
 
         //<4>下面合并临近的线段
-        List<List<double[]>> merged_reference_line_and_segment_pairs = new ArrayList<>();
-        merged_reference_line_and_segment_pairs = merge_ref_line_segment_pairs(segment_line_and_reference_line_pairs,
+//        List<List<double[]>> merged_reference_line_and_segment_pairs = new ArrayList<>();
+      List<double[]>  merged_reference_line_and_segment_pairs = merge_ref_line_segment_pairs(segment_line_and_reference_line_pairs,
                 hedMat, hedMat.cols(), hedMat.rows());
 
-        ToastUtils.showTextToast(merged_reference_line_and_segment_pairs.size() + "");
-        Collections.sort(merged_reference_line_and_segment_pairs, new Comparator<List<double[]>>() {
-            @Override
-            public int compare(List<double[]> px1, List<double[]> px2) {
-                if (px1.get(0)[5] <= px2.get(0)[5]) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        });
+//        ToastUtils.showTextToast(merged_reference_line_and_segment_pairs.size() + "");
+//        Collections.sort(merged_reference_line_and_segment_pairs, new Comparator<List<double[]>>() {
+//            @Override
+//            public int compare(List<double[]> px1, List<double[]> px2) {
+//                if (px1.get(0)[5] <= px2.get(0)[5]) {
+//                    return 1;
+//                } else {
+//                    return -1;
+//                }
+//            }
+//        });
+//
+//        int total_num = merged_reference_line_and_segment_pairs.size();
+//
+//        for (int i = 0; i < total_num - 4; i++) {
+//            merged_reference_line_and_segment_pairs.remove(merged_reference_line_and_segment_pairs.size() - 1);
+//        }
 
-        int total_num = merged_reference_line_and_segment_pairs.size();
-
-        for (int i = 0; i < total_num - 4; i++) {
-            merged_reference_line_and_segment_pairs.remove(merged_reference_line_and_segment_pairs.size() - 1);
-        }
-
-        //for debug
-        Point point1 = new Point();
-        Point point2 = new Point();
-
-        for (int i = 0; i < merged_reference_line_and_segment_pairs.size(); i++) {
-
-            point1.x = merged_reference_line_and_segment_pairs.get(i).get(0)[0];
-            point1.y = merged_reference_line_and_segment_pairs.get(i).get(0)[1];
-
-            point2.x = merged_reference_line_and_segment_pairs.get(i).get(0)[2];
-            point2.y = merged_reference_line_and_segment_pairs.get(i).get(0)[3];
-
-            Imgproc.line(hedMat, point1,
-                    point2,
-                    new Scalar(255, 0, 0), 4);
-
-        }
-
-        Utils.matToBitmap(hedMat, sBitmap2);
 
         double[] intersection;
 
         List<double[]> corners = new ArrayList<>();
-        if (merged_reference_line_and_segment_pairs.size() >= 4) {
-            for (int i = 0; i < merged_reference_line_and_segment_pairs.size(); i++) {
-                for (int j = i + 1; j < merged_reference_line_and_segment_pairs.size(); j++) {
-                    intersection = get_segment_intersection(merged_reference_line_and_segment_pairs.get(i).get(0),
-                            merged_reference_line_and_segment_pairs.get(j).get(0));
+        for (int i = 0; i < merged_reference_line_and_segment_pairs.size(); i++) {
+            for (int j = i + 1; j < merged_reference_line_and_segment_pairs.size(); j++) {
+                intersection = get_segment_intersection(merged_reference_line_and_segment_pairs.get(i),
+                        merged_reference_line_and_segment_pairs.get(j));
 //                    if(is_cross_in_image){
 //                        all_corners.add(intersection);
 //                    }
-                    if (is_cross_in_image && intersection[0] >= 0 && intersection[0] <= hedMat.cols() &&
-                            intersection[1] >= 0 && intersection[1] <= hedMat.rows()) {
-                        double theta_a = get_angle_of_line(merged_reference_line_and_segment_pairs.get(i).get(0));
-                        double theta_b = get_angle_of_line(merged_reference_line_and_segment_pairs.get(j).get(0));
-                        double angle = Math.abs(theta_a - theta_b);
-                        angle = angle % 180;
-                        if (angle >= kIntersectionMinAngle && angle <= kIntersectionMaxAngle) {
-                            //前两位表示交叉点的x,y值
-                            double[] corner = new double[22];
-                            corner[0] = intersection[0];
-                            corner[1] = intersection[1];
-                            //2-6表示第一条交叉线的referce_line
-                            corner[2] = merged_reference_line_and_segment_pairs.get(i).get(0)[0];
-                            corner[3] = merged_reference_line_and_segment_pairs.get(i).get(0)[1];
-                            corner[4] = merged_reference_line_and_segment_pairs.get(i).get(0)[2];
-                            corner[5] = merged_reference_line_and_segment_pairs.get(i).get(0)[3];
-                            corner[6] = merged_reference_line_and_segment_pairs.get(i).get(0)[4];
-                            //7-11表示第一条加查县的segment_line
-                            corner[7] = merged_reference_line_and_segment_pairs.get(i).get(1)[0];
-                            corner[8] = merged_reference_line_and_segment_pairs.get(i).get(1)[1];
-                            corner[9] = merged_reference_line_and_segment_pairs.get(i).get(1)[2];
-                            corner[10] = merged_reference_line_and_segment_pairs.get(i).get(1)[3];
-                            corner[11] = merged_reference_line_and_segment_pairs.get(i).get(1)[4];
+                if (is_cross_in_image && intersection[0] >= 0 && intersection[0] <= hedMat.cols() &&
+                        intersection[1] >= 0 && intersection[1] <= hedMat.rows()) {
+                    double theta_a = get_angle_of_line(merged_reference_line_and_segment_pairs.get(i));
+                    double theta_b = get_angle_of_line(merged_reference_line_and_segment_pairs.get(j));
+                    double angle = Math.abs(theta_a - theta_b);
+                    angle = angle % 180;
+                    if (angle >= kIntersectionMinAngle && angle <= kIntersectionMaxAngle) {
+                        //前两位表示交叉点的x,y值
+                        double[] corner = new double[22];
+                        corner[0] = intersection[0];
+                        //2-6表示第一条交叉线的referce_line
+                        corner[2] = merged_reference_line_and_segment_pairs.get(i)[0];
+                        corner[1] = intersection[1];
+                        corner[3] = merged_reference_line_and_segment_pairs.get(i)[1];
+                        corner[4] = merged_reference_line_and_segment_pairs.get(i)[2];
+                        corner[5] = merged_reference_line_and_segment_pairs.get(i)[3];
+//                        corner[6] = merged_reference_line_and_segment_pairs.get(i)[4];
+//                        //7-11表示第一条加查县的segment_line
+//                        corner[7] = merged_reference_line_and_segment_pairs.get(i).get(1)[0];
+//                        corner[8] = merged_reference_line_and_segment_pairs.get(i).get(1)[1];
+//                        corner[9] = merged_reference_line_and_segment_pairs.get(i).get(1)[2];
+//                        corner[10] = merged_reference_line_and_segment_pairs.get(i).get(1)[3];
+//                        corner[11] = merged_reference_line_and_segment_pairs.get(i).get(1)[4];
 
 
-                            //2-6表示第一条交叉线的referce_line
-                            corner[12] = merged_reference_line_and_segment_pairs.get(j).get(0)[0];
-                            corner[13] = merged_reference_line_and_segment_pairs.get(j).get(0)[1];
-                            corner[14] = merged_reference_line_and_segment_pairs.get(j).get(0)[2];
-                            corner[15] = merged_reference_line_and_segment_pairs.get(j).get(0)[3];
-                            corner[16] = merged_reference_line_and_segment_pairs.get(j).get(0)[4];
+                        //2-6表示第一条交叉线的referce_line
+                        corner[12] = merged_reference_line_and_segment_pairs.get(j)[0];
+                        corner[13] = merged_reference_line_and_segment_pairs.get(j)[1];
+                        corner[14] = merged_reference_line_and_segment_pairs.get(j)[2];
+                        corner[15] = merged_reference_line_and_segment_pairs.get(j)[3];
 
-                            //7-11表示第一条加查县的segment_line
-                            corner[17] = merged_reference_line_and_segment_pairs.get(j).get(1)[0];
-                            corner[18] = merged_reference_line_and_segment_pairs.get(j).get(1)[1];
-                            corner[19] = merged_reference_line_and_segment_pairs.get(j).get(1)[2];
-                            corner[10] = merged_reference_line_and_segment_pairs.get(j).get(1)[3];
-                            corner[21] = merged_reference_line_and_segment_pairs.get(j).get(1)[4];
+//                        corner[16] = merged_reference_line_and_segment_pairs.get(j)[4];
 
-                            corners.add(corner);
-                        }
+//                        //7-11表示第一条加查县的segment_line
+//                        corner[17] = merged_reference_line_and_segment_pairs.get(j).get(1)[0];
+//                        corner[18] = merged_reference_line_and_segment_pairs.get(j).get(1)[1];
+//                        corner[19] = merged_reference_line_and_segment_pairs.get(j).get(1)[2];
+//                        corner[10] = merged_reference_line_and_segment_pairs.get(j).get(1)[3];
+//                        corner[21] = merged_reference_line_and_segment_pairs.get(j).get(1)[4];
+
+                        corners.add(corner);
                     }
-
                 }
             }
         }
@@ -808,79 +792,302 @@ public class CorrectImageUtils {
         }
     }
 
-    private static List<List<double[]>> merge_ref_line_segment_pairs(List<List<double[]>> before_segment_line_and_reference_line_pairs,
+    private static List<double[]> merge_ref_line_segment_pairs(List<List<double[]>> before_segment_line_and_reference_line_pairs,
                                                                      Mat hedMat, int imageWidth, int imageHeight) {
-        Bitmap debugBitmap1 = Bitmap.createBitmap(hedMat.cols(), hedMat.rows(), Bitmap.Config.RGB_565);
+
         List<List<double[]>> merged_ref_line_and_segment_pairs = new ArrayList<>();
+
+        //找出四边对应的线
+
+        List<double[]> horizontalList = new ArrayList<>(); //横线集合
+        List<double[]> verticalList = new ArrayList<>();   //竖线集合
+
+        for (int i = 0;i<before_segment_line_and_reference_line_pairs.size();i++){
+
+            double[] doubles = before_segment_line_and_reference_line_pairs.get(i).get(0);  //延长线
+
+
+            if(doubles[1]==0d){   //竖着的线
+
+                verticalList.add(doubles);
+
+            }else if(doubles[0]==0d){  //横着的线
+
+                horizontalList.add(doubles);
+            }
+
+        }
+
+        List<double[]> leftLineList = new ArrayList<>();
+        List<double[]> rightLineList = new ArrayList<>();
+
+        List<double[]> topLineList = new ArrayList<>();
+        List<double[]> bottomLineList = new ArrayList<>();
+
+        for (int i = 0;i<horizontalList.size();i++){
+
+            double x = horizontalList.get(0)[1];
+
+            if(Math.abs(x-horizontalList.get(i)[1])>30){        //不是同一个方向的线
+                topLineList.add(horizontalList.get(i));
+
+            }else{                                             // 是同一个方向的线
+                bottomLineList.add(horizontalList.get(i));
+            }
+
+        }
+
+        for (int i = 0;i<verticalList.size();i++){
+
+            double x = verticalList.get(0)[0];
+
+            if(Math.abs(x-verticalList.get(i)[0])>30){        //不是同一个方向的线
+                rightLineList.add(verticalList.get(i));
+
+            }else{                                             // 是同一个方向的线
+                leftLineList.add(verticalList.get(i));
+            }
+
+        }
+
+        double leftx1 = 0d;
+        double lefty1 = 0d;
+        double leftx2 = 0d;
+        double lefty2 = 0d;
+
+        for (int i = 0;i<leftLineList.size();i++){
+
+            leftx1+=leftLineList.get(i)[0];
+            lefty1+=leftLineList.get(i)[1];
+            leftx2+=leftLineList.get(i)[2];
+            lefty2+=leftLineList.get(i)[3];
+        }
+
+        double [] mergeLeftLine = new double[4];
+
+        //第一次计算平均值
+        mergeLeftLine[0] = leftx1/leftLineList.size();
+        mergeLeftLine[1] = lefty1/leftLineList.size();
+        mergeLeftLine[2] = leftx2/leftLineList.size();
+        mergeLeftLine[3] = lefty2/leftLineList.size();
+
+
+        leftx1 = 0d;
+        lefty1 = 0d;
+        leftx2 = 0d;
+        lefty2 = 0d;
+
+        int leftIndex = 0;
+        for (int i = 0;i<leftLineList.size();i++){
+
+            if(Math.abs(leftLineList.get(i)[0]-mergeLeftLine[0])>8&&Math.abs(leftLineList.get(i)[2]-mergeLeftLine[2])>8){
+                continue;
+            }
+
+            leftx1+=leftLineList.get(i)[0];
+            lefty1+=leftLineList.get(i)[1];
+            leftx2+=leftLineList.get(i)[2];
+            lefty2+=leftLineList.get(i)[3];
+            leftIndex++;
+        }
+
+        //第二次计算平均值
+        mergeLeftLine[0] = leftx1/leftIndex;
+        mergeLeftLine[1] = lefty1/leftIndex;
+        mergeLeftLine[2] = leftx2/leftIndex;
+        mergeLeftLine[3] = lefty2/leftIndex;
+
+
+        double rightx1 = 0d;
+        double righty1 = 0d;
+        double rightx2 = 0d;
+        double righty2 = 0d;
+
+        for (int i = 0;i<rightLineList.size();i++){
+            rightx1+=rightLineList.get(i)[0];
+            righty1+=rightLineList.get(i)[1];
+            rightx2+=rightLineList.get(i)[2];
+            righty2+=rightLineList.get(i)[3];
+        }
+
+        double [] mergerightLine = new double[4];
+
+        mergerightLine[0] = rightx1/rightLineList.size();
+        mergerightLine[1] = righty1/rightLineList.size();
+        mergerightLine[2] = rightx2/rightLineList.size();
+        mergerightLine[3] = righty2/rightLineList.size();
+
+
+        rightx1 = 0d;
+        righty1 = 0d;
+        rightx2 = 0d;
+        righty2 = 0d;
+
+
+        int rightIndex = 0;
+        for (int i = 0;i<rightLineList.size();i++){
+
+            if(Math.abs(rightLineList.get(i)[0]-mergerightLine[0])>8&&Math.abs(rightLineList.get(i)[2]-mergerightLine[2])>8){
+                continue;
+            }
+
+            rightx1+=rightLineList.get(i)[0];
+            righty1+=rightLineList.get(i)[1];
+            rightx2+=rightLineList.get(i)[2];
+            righty2+=rightLineList.get(i)[3];
+            rightIndex++;
+        }
+
+
+        mergerightLine[0] = rightx1/rightIndex;
+        mergerightLine[1] = righty1/rightIndex;
+        mergerightLine[2] = rightx2/rightIndex;
+        mergerightLine[3] = righty2/rightIndex;
+
+
+
+        double topx1 = 0d;
+        double topy1 = 0d;
+        double topx2 = 0d;
+        double topy2 = 0d;
+
+        for (int i = 0;i<topLineList.size();i++){
+            topx1+=topLineList.get(i)[0];
+            topy1+=topLineList.get(i)[1];
+            topx2+=topLineList.get(i)[2];
+            topy2+=topLineList.get(i)[3];
+        }
+
+
+
+        double [] mergeTopLine = new double[4];
+
+        mergeTopLine[0] = topx1/topLineList.size();
+        mergeTopLine[1] = topy1/topLineList.size();
+        mergeTopLine[2] = topx2/topLineList.size();
+        mergeTopLine[3] = topy2/topLineList.size();
+
+        topx1 = 0d;
+        topy1 = 0d;
+        topx2 = 0d;
+        topy2 = 0d;
+
+        int topIndex = 0;
+        for (int i = 0;i<topLineList.size();i++){
+
+            if(Math.abs(topLineList.get(i)[1]-mergeTopLine[1])>8&&Math.abs(topLineList.get(i)[3]-mergeTopLine[3])>8){
+                continue;
+            }
+
+            topx1+=topLineList.get(i)[0];
+            topy1+=topLineList.get(i)[1];
+            topx2+=topLineList.get(i)[2];
+            topy2+=topLineList.get(i)[3];
+            topIndex++;
+        }
+
+        mergeTopLine[0] = topx1/topIndex;
+        mergeTopLine[1] = topy1/topIndex;
+        mergeTopLine[2] = topx2/topIndex;
+        mergeTopLine[3] = topy2/topIndex;
+
+
+        double bottomx1 = 0d;
+        double bottomy1 = 0d;
+        double bottomx2 = 0d;
+        double bottomy2 = 0d;
+
+        for (int i = 0;i<bottomLineList.size();i++){
+            bottomx1+=bottomLineList.get(i)[0];
+            bottomy1+=bottomLineList.get(i)[1];
+            bottomx2+=bottomLineList.get(i)[2];
+            bottomy2+=bottomLineList.get(i)[3];
+        }
+
+        double [] mergeBottomLine = new double[4];
+
+        mergeBottomLine[0] = bottomx1/bottomLineList.size();
+        mergeBottomLine[1] = bottomy1/bottomLineList.size();
+        mergeBottomLine[2] = bottomx2/bottomLineList.size();
+        mergeBottomLine[3] = bottomy2/bottomLineList.size();
+
+        bottomx1 = 0d;
+        bottomy1 = 0d;
+        bottomx2 = 0d;
+        bottomy2 = 0d;
+
+        int bottomIndex = 0;
+        for (int i = 0;i<bottomLineList.size();i++){
+            if(Math.abs(bottomLineList.get(i)[1]-mergeBottomLine[1])>8&&Math.abs(bottomLineList.get(i)[3]-mergeBottomLine[3])>8){
+                continue;
+            }
+
+            bottomx1+=bottomLineList.get(i)[0];
+            bottomy1+=bottomLineList.get(i)[1];
+            bottomx2+=bottomLineList.get(i)[2];
+            bottomy2+=bottomLineList.get(i)[3];
+            bottomIndex++;
+        }
+
+        mergeBottomLine[0] = bottomx1/bottomIndex;
+        mergeBottomLine[1] = bottomy1/bottomIndex;
+        mergeBottomLine[2] = bottomx2/bottomIndex;
+        mergeBottomLine[3] = bottomy2/bottomIndex;
+
+
+        Imgproc.line(hedMat, new Point(mergeLeftLine[0], mergeLeftLine[1]),
+                new Point(mergeLeftLine[2], mergeLeftLine[3]),
+                new Scalar(255, 0, 0), 3);
+
+        Imgproc.line(hedMat, new Point(mergerightLine[0], mergerightLine[1]),
+                new Point(mergerightLine[2], mergerightLine[3]),
+                new Scalar(255, 0, 0), 3);
+
+        Imgproc.line(hedMat, new Point(mergeTopLine[0], mergeTopLine[1]),
+                new Point(mergeTopLine[2], mergeTopLine[3]),
+                new Scalar(255, 0, 0), 3);
+
+        Imgproc.line(hedMat, new Point(mergeBottomLine[0], mergeBottomLine[1]),
+                new Point(mergeBottomLine[2], mergeBottomLine[3]),
+                new Scalar(255, 0, 0), 3);
+
+        Utils.matToBitmap(hedMat, sBitmap2);
+
+        List<double[]> list = new ArrayList<>();
+        list.add(mergeLeftLine);
+        list.add(mergerightLine);
+        list.add(mergeTopLine);
+        list.add(mergeBottomLine);
+
+//        merged_ref_line_and_segment_pairs.add(list);
+
+       int a = 0;
+       if(a==0)
+           return list;
+
         for (int i = 0; i < before_segment_line_and_reference_line_pairs.size(); i++) {
-            Boolean is_close = false;
+
+            boolean is_close = false;
             for (int j = 0; j < merged_ref_line_and_segment_pairs.size(); j++) {
                 //List<double[]> current_segment_line_and_reference_line_pair = before_segment_line_and_reference_line_pairs.get(i);
                 //List<double[]> current_merged_ref_line_and_segment_pair = merged_ref_line_and_segment_pairs.get(j);
+
+
                 if (is_two_ref_line_close_to_eachother(before_segment_line_and_reference_line_pairs.get(i),
                         merged_ref_line_and_segment_pairs.get(j),
-                        imageWidth, imageHeight)) {
-
-//                    //使用绿色打印原来的两个线段
-//                    Point point1 = new Point();
-//                    Point point2 = new Point();
-//
-//                    point1.x = before_segment_line_and_reference_line_pairs.get(i).get(1)[0];
-//                    point1.y = before_segment_line_and_reference_line_pairs.get(i).get(1)[1];
-//
-//                    point2.x = before_segment_line_and_reference_line_pairs.get(i).get(1)[2];
-//                    point2.y = before_segment_line_and_reference_line_pairs.get(i).get(1)[3];
-//
-//                    Imgproc.line(hedMat, point1,
-//                            point2,
-//                            new Scalar(0, 255, 0), 1);
-
-//                    //使用红色打印原来的合并线段
-//
-//                    Point point3 = new Point();
-//                    Point point4 = new Point();
-//
-//                    point3.x = merged_ref_line_and_segment_pairs.get(j).get(1)[0];
-//                    point3.y = merged_ref_line_and_segment_pairs.get(j).get(1)[1];
-//
-//                    point4.x = merged_ref_line_and_segment_pairs.get(j).get(1)[2];
-//                    point4.y = merged_ref_line_and_segment_pairs.get(j).get(1)[3];
-//
-//                    Imgproc.line(hedMat, point3,
-//                            point4,
-//                            new Scalar(255, 0, 0), 1);
-//
+                    imageWidth, imageHeight)) {
 
                     List<double[]> new_merged_ref_line_and_segment_pair = start_merging(before_segment_line_and_reference_line_pairs.get(i),
                             merged_ref_line_and_segment_pairs.get(j),
                             imageWidth, imageHeight);
 
-//                    //使用蓝色打印原来的两个线段
-//
-//                    Point point5 = new Point();
-//                    Point point6 = new Point();
-//
-//                    point5.x = new_merged_ref_line_and_segment_pair.get(1)[0];
-//                    point5.y = new_merged_ref_line_and_segment_pair.get(1)[1];
-//
-//                    point6.x = new_merged_ref_line_and_segment_pair.get(1)[2];
-//                    point6.y = new_merged_ref_line_and_segment_pair.get(1)[3];
-//
-//                    Imgproc.line(hedMat, point5,
-//                            point6,
-//                            new Scalar(0, 0, 255), 2);
-//
-//                    Utils.matToBitmap(hedMat, debugBitmap1);
-//                    img.setImageBitmap(debugBitmap1);
 
                     merged_ref_line_and_segment_pairs.set(j, new_merged_ref_line_and_segment_pair);
 
                     is_close = true;
                     break;
                 }
-
             }
-
 
             if (!is_close) {
                 merged_ref_line_and_segment_pairs.add(before_segment_line_and_reference_line_pairs.get(i));
@@ -888,7 +1095,7 @@ public class CorrectImageUtils {
         }
 
 
-        return merged_ref_line_and_segment_pairs;
+        return null;
 
     }
 
@@ -962,7 +1169,8 @@ public class CorrectImageUtils {
             new_segment_line[0] = four_points.get(0).get(0);
             new_segment_line[1] = four_points.get(0).get(1);
 
-            new_segment_line[2] = four_points.get(3).get(0);
+            double v = four_points.get(3).get(0) - four_points.get(0).get(0);
+            new_segment_line[2] = four_points.get(3).get(0)+v;
             new_segment_line[3] = four_points.get(3).get(1);
 
             new_segment_line[4] = 0;
@@ -995,11 +1203,20 @@ public class CorrectImageUtils {
                 }
             });
 
+
+            double v = four_points.get(3).get(1) - four_points.get(0).get(1);
+
             new_segment_line[0] = four_points.get(0).get(0);
             new_segment_line[1] = four_points.get(0).get(1);
 
+            if(four_points.get(3).get(1)>150){
+                new_segment_line[1] = four_points.get(0).get(1)+v+6;
+                new_segment_line[3] = four_points.get(3).get(1)+v+10;
+            }else{
+                new_segment_line[3] = four_points.get(3).get(1)-v-6;
+            }
+
             new_segment_line[2] = four_points.get(3).get(0);
-            new_segment_line[3] = four_points.get(3).get(1);
 
             new_segment_line[4] = 0;
 

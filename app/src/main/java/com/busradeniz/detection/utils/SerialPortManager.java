@@ -3,7 +3,6 @@ package com.busradeniz.detection.utils;
 import android.os.HandlerThread;
 import android.serialport.SerialPort;
 
-import com.busradeniz.detection.message.CallBackInterface;
 import com.licheedev.myutils.LogPlus;
 
 import java.io.File;
@@ -29,7 +28,6 @@ public class SerialPortManager {
     private OutputStream mOutputStream;
     private HandlerThread mWriteThread;
     private Scheduler mSendScheduler;
-    private CallBackInterface mCallBackInterface;
 
     private static class InstanceHolder {
 
@@ -55,11 +53,6 @@ public class SerialPortManager {
         return open(device.getPath(), device.getBaudrate());
     }
 
-    public void setCallBack(CallBackInterface callBack){
-
-        this.mCallBackInterface = callBack;
-    }
-
     /**
      * 打开串口
      *
@@ -80,38 +73,6 @@ public class SerialPortManager {
 
             mReadThread = new SerialReadThread(mSerialPort.getInputStream());
             mReadThread.start();
-
-//            mReadThread.setCallBack(new CallBackInterface() {
-//                @Override
-//                public void leftNightCallBack(String string) {
-//                    if(mCallBackInterface!=null)
-//                        mCallBackInterface.leftNightCallBack(string);
-//                }
-//
-//                @Override
-//                public void rightNightCallBack(String string) {
-//                    if(mCallBackInterface!=null)
-//                        mCallBackInterface.rightNightCallBack(string);
-//                }
-//
-//                @Override
-//                public void tricolorLampCallBack(String string) {
-//                    if(mCallBackInterface!=null)
-//                        mCallBackInterface.tricolorLampCallBack(string);
-//                }
-//
-//                @Override
-//                public void runCallBack(String string) {
-//                    if(mCallBackInterface!=null)
-//                        mCallBackInterface.runCallBack(string);
-//                }
-//
-//                @Override
-//                public void cylinderStatusCallBack(String string) {
-//
-//                }
-//            });
-
 
             mOutputStream = mSerialPort.getOutputStream();
 
@@ -196,7 +157,7 @@ public class SerialPortManager {
      */
     public void sendCommand(final String command) {
 
-        mReadThread.setCommand(command);
+
         byte[] bytes = ByteUtil.hexStr2bytes(command);
         rxSendData(bytes).subscribeOn(mSendScheduler).subscribe(new Observer<Object>() {
             @Override

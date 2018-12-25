@@ -4,8 +4,8 @@ package com.busradeniz.detection.http;
 import com.busradeniz.detection.base.BaseBean;
 import com.busradeniz.detection.bean.ConfigureInfoBean;
 import com.busradeniz.detection.bean.ConfigureListBean;
-import com.busradeniz.detection.check.bean.ModelBean;
-import com.busradeniz.detection.check.bean.RecordListBean;
+import com.busradeniz.detection.check.model.ModelBean;
+import com.busradeniz.detection.check.model.RecordListBean;
 
 import java.util.Map;
 

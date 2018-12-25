@@ -107,8 +107,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/dp_5"
-                        android:layout_marginRight="5dp"
                         android:layout_marginTop="@dimen/dp_10"
+                        android:layout_marginRight="5dp"
                         android:background="@drawable/work_info_shape"
                         android:orientation="vertical">
 
@@ -215,9 +215,9 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="@dimen/dp_5"
                             android:layout_marginLeft="@dimen/dp_10"
                             android:layout_marginTop="@dimen/dp_3"
+                            android:layout_marginBottom="@dimen/dp_5"
                             android:visibility="gone">
 
                             <TextView
@@ -244,8 +244,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/dp_5"
-                        android:layout_marginRight="@dimen/dp_5"
                         android:layout_marginTop="@dimen/sp_10"
+                        android:layout_marginRight="@dimen/dp_5"
                         android:background="@drawable/work_info_shape"
                         android:orientation="vertical">
 
@@ -324,10 +324,10 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dp_74"
-                        android:layout_marginBottom="@dimen/dp_10"
                         android:layout_marginLeft="@dimen/dp_5"
-                        android:layout_marginRight="@dimen/dp_5"
                         android:layout_marginTop="@dimen/dp_10"
+                        android:layout_marginRight="@dimen/dp_5"
+                        android:layout_marginBottom="@dimen/dp_10"
                         android:background="@drawable/work_info_shape">
 
                         <TextView
@@ -364,27 +364,43 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp">
+            android:layout_marginLeft="@dimen/dp_50"
+            android:id="@+id/rl_run_status"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_25"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/buttion_shape">
 
-
-            <ImageView
-                android:id="@+id/btnToggleCamera"
+            <TextView
+                android:id="@+id/tv_run"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="10dp"
-                android:src="@drawable/choose"
-                android:visibility="gone" />
+                android:layout_centerInParent="true"
+                android:text="@string/run"
+                android:textColor="@color/ffffff" />
 
-            <ImageView
-                android:id="@+id/btnDetectObject"
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_stop_status"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_25"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginBottom="10dp"
+            android:layout_toRightOf="@+id/rl_run_status"
+            android:background="@drawable/buttion_shape">
+
+
+            <TextView
+                android:id="@+id/tv_stop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:src="@mipmap/photo"
-                android:visibility="visible" />
+                android:layout_centerInParent="true"
+                android:text="@string/stop_string"
+                android:textColor="@color/ffffff" />
+
 
         </RelativeLayout>
 

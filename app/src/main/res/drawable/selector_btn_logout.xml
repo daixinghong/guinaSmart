@@ -5,18 +5,21 @@
         <shape>
             <solid android:color="@color/btn_enabled_false_primary" />
             <stroke android:width="0.5dp" android:color="@color/stroke_primary" />
+            <corners android:radius="3dp"></corners>
         </shape>
     </item>
     <item android:state_enabled="true" android:state_pressed="true">
         <shape>
             <solid android:color="@color/btn_pressed_true_primary" />
             <stroke android:width="0.5dp" android:color="@color/stroke_primary" />
+            <corners android:radius="3dp"></corners>
         </shape>
     </item>
     <item>
         <shape>
             <solid android:color="@color/btn_normal_primary" />
             <stroke android:width="0.5dp" android:color="@color/stroke_primary" />
+            <corners android:radius="3dp"></corners>
         </shape>
     </item>
 

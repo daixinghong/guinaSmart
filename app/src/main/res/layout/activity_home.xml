@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".check.HomeActivity">
+    tools:context=".check.view.activity.HomeActivity">
 
     <include layout="@layout/base_opreate_title"></include>
 

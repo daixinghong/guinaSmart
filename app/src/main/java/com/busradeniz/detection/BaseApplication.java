@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.multidex.MultiDex;
 
 import com.busradeniz.detection.greendaodemo.db.DaoMaster;
 import com.busradeniz.detection.greendaodemo.db.DaoSession;
@@ -90,6 +91,12 @@ public class BaseApplication extends Application {
         mDaoMaster = new DaoMaster(db);
         mDaoSession = mDaoMaster.newSession();
 
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     public DaoSession getDaoSession() {

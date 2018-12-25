@@ -19,8 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.busradeniz.detection.bean.PermissionBean;
-import com.busradeniz.detection.check.OPenMachineCheckActivity;
-import com.busradeniz.detection.setting.adapter.RcyPermissionAdapter;
+import com.busradeniz.detection.check.view.activity.OPenMachineCheckActivity;
+import com.busradeniz.detection.setting.view.adapter.RcyPermissionAdapter;
 import com.busradeniz.detection.utils.DialogUtils;
 import com.busradeniz.detection.utils.IntentUtils;
 import com.busradeniz.detection.utils.UiUtils;
@@ -34,9 +34,12 @@ public class StartAppActivity extends AppCompatActivity {
 
     private RelativeLayout mTvView;
     private final int REQUEST_CODE = 12138;
+    private int intflag;
+    private int intfullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_app);
 
@@ -47,7 +50,10 @@ public class StartAppActivity extends AppCompatActivity {
 
         mTvView = findViewById(R.id.relativeLayout);
         AlphaAnimation anima = new AlphaAnimation(0.3f, 1.0f);
+
         anima.setDuration(1000);// 设置动画显示时间
+
+
 
         PackageManager pm = getPackageManager();
         PackageInfo pi;
